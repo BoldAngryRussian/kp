@@ -1,0 +1,46 @@
+# === Gradle build output ===
+.gradle/
+build/
+out/
+!gradle/wrapper/gradle-wrapper.jar
+
+# === Kotlin / Java ===
+*.class
+*.jar
+*.war
+*.log
+
+# === IntelliJ IDEA ===
+.idea/
+*.iml
+
+# === VS Code ===
+.vscode/
+
+# === macOS system files ===
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# === Logs and runtime files ===
+logs/
+*.pid
+*.seed
+
+# === Secrets and environment ===
+.env
+.env.*
+*.key
+*.crt
+
+# === Coverage reports ===
+coverage/
+jacoco.exec
+
+# === Temporary files ===
+*.swp
+*.tmp
+*.bak
+
+# === Test results ===
+test-output/

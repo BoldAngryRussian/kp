@@ -44,3 +44,5 @@ jacoco.exec
 
 # === Test results ===
 test-output/
+
+.DS_Store

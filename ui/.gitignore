@@ -1,0 +1,31 @@
+# dependencies
+node_modules/
+
+# production build
+build/
+dist/
+
+# misc
+.DS_Store
+.env
+.env.*.local
+*.local
+
+# test coverage
+coverage/
+
+# log files
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# IDE/editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# system
+Thumbs.db
+.AppleDouble
+.LSOverride

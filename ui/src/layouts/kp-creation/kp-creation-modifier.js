@@ -82,6 +82,16 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
         gridRef.current.deleteRowsByNum(selectedNums);
     };
 
+    const handleCatalogSelection = (newProducts) => {
+        const productsArray = Array.isArray(newProducts) ? newProducts : [newProducts];
+
+        setSelectedProducts(prev => {
+            const existingIds = new Set(prev.map(p => p.id));
+            const uniqueNew = productsArray.filter(p => !existingIds.has(p.id));
+            return [...prev, ...uniqueNew];
+        });
+    };
+
     const summary = useMemo(() => {
         const totals = {
             totalPurchase: 0,
@@ -153,7 +163,7 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
 
                         <Tooltip title="Добавить">
                             <IconButton>
-                                <AddIcon onClick={() => setCatalogOpen(true)}/>
+                                <AddIcon onClick={() => setCatalogOpen(true)} />
                             </IconButton>
                         </Tooltip>
 
@@ -269,7 +279,7 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
                         height: '100vh', // задаём фиксированную высоту
                     }}
                 >
-                    <ProductCatalog /*onSelect={setSelectedProducts}*/ />
+                    <ProductCatalog onSelect={handleCatalogSelection} />
                 </DialogContent>
                 <DialogActions>
                     <MDButton

@@ -1,18 +1,14 @@
 // Material Dashboard 2 React layouts
 import Dashboard from "layouts/dashboard";
-import Tables from "layouts/tables";
 import Billing from "layouts/billing";
-import RTL from "layouts/rtl";
-import Notifications from "layouts/notifications";
-import Profile from "layouts/profile";
 import SignIn from "layouts/authentication/sign-in";
 import Dictionaries from "layouts/dictionaries"
-import SignUp from "layouts/authentication/sign-up";
 import UserProfile from "layouts/user_profile";
 import KpExecuting from "layouts/kp_executing";
 
 // @mui icons
 import Icon from "@mui/material/Icon";
+import KPCreationStartLayout from "layouts/kp-creation/kp-creation-start-layout";
 
 const routes = [
   {
@@ -24,17 +20,15 @@ const routes = [
     component: <Dashboard />,
     protected: true,
   },
-  /*
   {
     type: "collapse",
-    name: "Поставщики",
+    name: "Формирование КП 2",
     key: "tables",
     icon: <Icon fontSize="small">table_view</Icon>,
     route: "/tables",
-    component: <Tables />,
+    component: <KPCreationStartLayout />,
     protected: true,
   },
-  */
   {
     type: "collapse",
     name: "Загрузка прайс-листов",

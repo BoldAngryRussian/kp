@@ -1,7 +1,6 @@
-import { useState, useCallback, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import theme from "assets/theme"; // ← тема из Material Dashboard 2
 import { DataGrid, useGridApiRef } from '@mui/x-data-grid';
 import EditIcon from '@mui/icons-material/Edit';
 import { v4 as uuidv4 } from 'uuid';
@@ -12,9 +11,6 @@ import Icon from "@mui/material/Icon";
 import Tooltip from '@mui/material/Tooltip';
 
 import Fade from '@mui/material/Fade';
-import Slide from '@mui/material/Slide';
-import { motion } from "framer-motion";
-
 import BillingInformation from "layouts/billing/components/BillingInformation";
 
 import IconButton from '@mui/material/IconButton';
@@ -38,21 +34,9 @@ import AddIcon from '@mui/icons-material/Add';
 import KPGrid from "examples/Cards/KPGrid";
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Typography,
-  FormControl,
-  FormControlLabel,
-  Radio,
-  RadioGroup,
-} from '@mui/material';
 import KPGridEdit from "examples/Modals/KPGridEdit";
 import { styled } from '@mui/material/styles';
 
-import { GlobalStyles } from '@mui/material'; // ← если ещё не импортировано
 
 const StyledTooltip = styled(({ className, ...props }) => (
   <Tooltip {...props} arrow classes={{ popper: className }} />

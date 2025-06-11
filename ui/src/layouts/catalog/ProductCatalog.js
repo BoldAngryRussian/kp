@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { DataGrid, useGridApiRef } from '@mui/x-data-grid';
+import { v4 as uuidv4 } from 'uuid';
 
 // @mui material components
 import Card from "@mui/material/Card";
@@ -35,7 +36,7 @@ const columns = [
     { field: 'price', headerName: 'Цена', flex: 0.1 },
 ];
 
-export default function ProductCatalog() {
+export default function ProductCatalog({ onSelect }) {
     const apiRef = useGridApiRef();
     const [loading, setLoading] = useState(false);
     const [status, setStatus] = useState('Перетащите .xlsx файл сюда');
@@ -46,7 +47,6 @@ export default function ProductCatalog() {
     // Загрузка списка продуктов с сервера с искусственной задержкой 1 секунда
     useEffect(() => {
         setLoadingProducts(true);
-
         fetch('/api/v1/products/list')
             .then(res => res.json())
             .then(data => {
@@ -57,6 +57,22 @@ export default function ProductCatalog() {
             .finally(() => setLoadingProducts(false));
 
     }, []);
+
+    const handleAddToKP = () => {
+        const selectedIDs = apiRef.current.getSelectedRows();
+        const selected = Array.from(selectedIDs.values()).map(p => ({
+            ...p,
+            id: p.id || uuidv4() // ← генерируем id, если его нет
+        }));
+
+        if (onSelect)
+            onSelect(prev => {
+            const existingIds = new Set(prev.map(p => p.id));
+            const newItems = selected.filter(p => !existingIds.has(p.id));
+            return [...prev, ...newItems];
+        })
+    };
+
 
     return (
         <div>
@@ -95,6 +111,7 @@ export default function ProductCatalog() {
                                 pagination // ← ОБЯЗАТЕЛЬНО
                                 checkboxSelection
                                 components={{ ColumnMenu: CustomColumnMenu, }}
+                                onRowSelectionModelChange={handleAddToKP}
                                 rowHeight={32}
                                 columnVisibilityModel={{
                                     id: false,  // скрыта                

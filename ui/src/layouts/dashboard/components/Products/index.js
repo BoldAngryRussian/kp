@@ -290,7 +290,7 @@ const summaryRows = [
       />
       <Tab
         value="proposal"
-        label="Коммерческое предложение"
+        label="Коммерческое предложение 1"
       />
     </Tabs>
     </ThemeProvider>

@@ -62,6 +62,10 @@ jib {
 	}
 }
 
+tasks.named("build") {
+	finalizedBy("jibDockerBuild")
+}
+
 /*
 tasks.withType<Test> {
 	useJUnitPlatform()

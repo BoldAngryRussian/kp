@@ -24,7 +24,7 @@ services:
     volumes:
       - pgadmin-data:/var/lib/pgadmin
   app:
-    image: kp-docker/kp-generation-service
+    image: kp-docker/kp-generation-service:latest
     container_name: kp-creator-service
     platform: linux/amd64
     restart: always

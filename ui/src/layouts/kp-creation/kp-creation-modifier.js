@@ -8,6 +8,8 @@ import Card from "@mui/material/Card";
 import Icon from "@mui/material/Icon";
 import Tooltip from '@mui/material/Tooltip';
 
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@mui/material";
+
 import BillingInformation from "layouts/billing/components/BillingInformation";
 
 import IconButton from '@mui/material/IconButton';
@@ -28,6 +30,11 @@ import AddIcon from '@mui/icons-material/Add';
 import KPGrid from "examples/Cards/KPGrid";
 import KPGridEdit from "examples/Modals/KPGridEdit";
 import { styled } from '@mui/material/styles';
+
+import MDButton from "components/MDButton";
+import CalculateIcon from "@mui/icons-material/Calculate";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import ProductCatalog from "layouts/catalog/ProductCatalog";
 
 
 const StyledTooltip = styled(({ className, ...props }) => (
@@ -58,18 +65,12 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
     const [filteredProducts, setFilteredProducts] = useState([]);
     const { columns: pColumns, rows: pRows } = projectsTableData();
     const [openDialog, setOpenDialog] = useState(false);
+    const [catalogOpen, setCatalogOpen] = useState(false);
     const [selectionModel, setSelectionModel] = useState([]);
     const [selectedProducts, setSelectedProducts] = useState([])
     const [kpEditData, setKpEditData] = useState(null);
     const [calculateType, setCalculateType] = useState('catalog');
-/*
-    useEffect(() => {
-        if (selectedFromCatalog?.length) {
-            console.log("Получены товары из каталога:", selectedFromCatalog);
-            // можно использовать selectedFromCatalog для инициализации
-        }
-    }, [selectedFromCatalog]);
-*/
+
     const handleApplyKPGridEdit = (data) => {
         setKpEditData(data); // сохраняем в состояние, если надо
         setOpenDialog(false); // закрываем диалог
@@ -127,71 +128,52 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
     return (
         <div>
             <KPGridEdit open={openDialog} onClose={() => setOpenDialog(false)} onApply={handleApplyKPGridEdit} />
-            <MDBox mb={1} display="flex" justifyContent="flex-end">
-                <StyledTooltip title="Редактировать" arrow>
-                    <IconButton
-                        onClick={() => setOpenDialog(true)}
-                        sx={{
-                            color: '#0000FF',
-                            width: 36,
-                            height: 36,
-                            borderRadius: '50%',
-                            backgroundColor: '#e3f2fd',
-                            transition: '0.3s ease',
-                            '&:hover': {
-                                backgroundColor: '#B0E0E6',
-                            }
-                        }}
-                    >
-                        <EditIcon sx={{ fontSize: 32 }} />
-                    </IconButton>
-                </StyledTooltip>
-                <StyledTooltip title="Добавить">
-                    <IconButton
-                        onClick={() => {
-                            // Вставь свою логику удаления
-                            console.log("Добавление элемента");
-                        }}
-                        sx={{
-                            color: '#006400',
-                            width: 36,
-                            height: 36,
-                            borderRadius: '50%',
-                            backgroundColor: 'e3f2fd',
-                            transition: '0.3s ease',
-                            '&:hover': {
-                                backgroundColor: '#B0E0E6',
-                            }
-                        }}
-                    >
-                        <AddIcon sx={{ fontSize: 64 }} />
-                    </IconButton>
-                </StyledTooltip>
-                <StyledTooltip title="Удалить">
-                    <IconButton
-                        color="primary"
-                        onClick={handleDeleteSelected}
-                        sx={{
-                            width: 36,
-                            height: 36,
-                            borderRadius: '50%',
-                            backgroundColor: 'e3f2fd',
-                            transition: '0.3s ease',
-                            '&:hover': {
-                                backgroundColor: '#B0E0E6',
-                            }
-                        }}
-                    >
-                        <DeleteIcon sx={{ fontSize: 32 }} />
-                    </IconButton>
-                </StyledTooltip>
-            </MDBox>
             <MDBox mb={3}>
                 <Card>
+                    <MDBox
+                        m={2} // ← равномерные отступы со всех сторон
+                        p={2}
+                        sx={{
+                            backgroundColor: '#e3f2fd',
+                            height: '50px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: 2,
+                            px: 2,
+                            borderRadius: 2,
+                            justifyContent: 'flex-start', // ← теперь кнопки слева
+                        }}
+                    >
+                        <Tooltip title="Рассчитать">
+                            <IconButton>
+                                <CalculateIcon onClick={() => setOpenDialog(true)} />
+                            </IconButton>
+                        </Tooltip>
+
+                        <Tooltip title="Добавить">
+                            <IconButton>
+                                <AddIcon onClick={() => setCatalogOpen(true)}/>
+                            </IconButton>
+                        </Tooltip>
+
+                        <Tooltip title="Удалить">
+                            <IconButton>
+                                <DeleteIcon onClick={handleDeleteSelected} />
+                            </IconButton>
+                        </Tooltip>
+
+                        <Tooltip title="Скрыть колонки">
+                            <IconButton>
+                                <VisibilityOffIcon />
+                            </IconButton>
+                        </Tooltip>
+                    </MDBox>
                     <MDBox pt={3} px={2}>
                         <KPGrid ref={gridRef} selectedProducts={selectedFromCatalog} kpEditData={kpEditData} />
                     </MDBox>
                 </Card>
+
             </MDBox>
 
             <MDBox mt={1}>
@@ -267,7 +249,40 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
                     </Card>
                 </MDBox>
             </MDBox>
-
+            <Dialog
+                open={catalogOpen}
+                onClose={() => setCatalogOpen(false)}
+                fullWidth
+                maxWidth={false} // убираем ограничение по ширине
+                PaperProps={{
+                    sx: {
+                        m: 3, // отступ от краёв экрана
+                    },
+                }}
+            >
+                <DialogContent
+                    sx={{
+                        flex: 1, // растягивает внутри Dialog
+                        display: 'flex',
+                        flexDirection: 'column',
+                        p: 0,
+                        height: '100vh', // задаём фиксированную высоту
+                    }}
+                >
+                    <ProductCatalog /*onSelect={setSelectedProducts}*/ />
+                </DialogContent>
+                <DialogActions>
+                    <MDButton
+                        onClick={() => {
+                            setCatalogOpen(false);         // закрываем модалку
+                        }}
+                        color="info"
+                        variant="contained">
+                        Добавить в КП
+                    </MDButton>
+                    <MDButton onClick={() => setCatalogOpen(false)} color="secondary">Отмена</MDButton>
+                </DialogActions>
+            </Dialog>
         </div>
     );
 }

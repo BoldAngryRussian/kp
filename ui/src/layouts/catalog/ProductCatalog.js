@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from "react";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { DataGrid, useGridApiRef } from '@mui/x-data-grid';
 import { v4 as uuidv4 } from 'uuid';
@@ -36,7 +36,7 @@ const columns = [
     { field: 'price', headerName: 'Цена', flex: 0.1 },
 ];
 
-export default function ProductCatalog({ onSelect }) {
+const ProductCatalog = forwardRef(({ onSelect }, ref) => {
     const apiRef = useGridApiRef();
     const [loading, setLoading] = useState(false);
     const [status, setStatus] = useState('Перетащите .xlsx файл сюда');
@@ -60,19 +60,20 @@ export default function ProductCatalog({ onSelect }) {
 
     const handleAddToKP = () => {
         const selectedIDs = apiRef.current.getSelectedRows();
+
         const selected = Array.from(selectedIDs.values()).map(p => ({
             ...p,
-            id: p.id || uuidv4() // ← генерируем id, если его нет
+            id: p.id || uuidv4(), // если id нет — создаём
         }));
 
-        if (onSelect)
-            onSelect(prev => {
-            const existingIds = new Set(prev.map(p => p.id));
-            const newItems = selected.filter(p => !existingIds.has(p.id));
-            return [...prev, ...newItems];
-        })
+        if (onSelect && typeof onSelect === 'function') {
+            onSelect(selected); // ← просто передаём выбранные
+        }
     };
 
+    useImperativeHandle(ref, () => ({
+        handleAddToKP
+    }));
 
     return (
         <div>
@@ -111,7 +112,7 @@ export default function ProductCatalog({ onSelect }) {
                                 pagination // ← ОБЯЗАТЕЛЬНО
                                 checkboxSelection
                                 components={{ ColumnMenu: CustomColumnMenu, }}
-                                onRowSelectionModelChange={handleAddToKP}
+                                //onRowSelectionModelChange={handleAddToKP}
                                 rowHeight={32}
                                 columnVisibilityModel={{
                                     id: false,  // скрыта                
@@ -134,4 +135,6 @@ export default function ProductCatalog({ onSelect }) {
             )}
         </div>
     )
-}
+});
+
+export default ProductCatalog;

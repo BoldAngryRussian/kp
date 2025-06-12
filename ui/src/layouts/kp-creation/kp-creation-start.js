@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@mui/material";
 import MDBox from "components/MDBox";
 import MDButton from "components/MDButton";
@@ -7,6 +7,7 @@ import ProductCatalog from "layouts/catalog/ProductCatalog"
 import KPCreationModifier from "./kp-creation-modifier";
 
 export default function KPCreationStart() {
+    const catalogRef = useRef();
     const [open, setOpen] = useState(false);
     const [showModifier, setShowModifier] = useState(false);
     const [selectedProducts, setSelectedProducts] = useState([]);
@@ -113,11 +114,12 @@ export default function KPCreationStart() {
                         height: '100vh', // задаём фиксированную высоту
                     }}
                 >
-                    <ProductCatalog onSelect={setSelectedProducts} />
+                    <ProductCatalog ref={catalogRef} onSelect={setSelectedProducts} />
                 </DialogContent>
                 <DialogActions>
                     <MDButton
                         onClick={() => {
+                            catalogRef.current?.handleAddToKP();
                             setOpen(false);         // закрываем модалку
                             setShowModifier(true);  // отображаем модификатор
                         }}

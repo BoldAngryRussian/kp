@@ -1,14 +1,11 @@
-import { useState, useMemo, useRef, useEffect } from "react";
-
-import { useGridApiRef } from '@mui/x-data-grid';
-import EditIcon from '@mui/icons-material/Edit';
+import { useState, useMemo, useRef } from "react";
 
 // @mui material components
 import Card from "@mui/material/Card";
 import Icon from "@mui/material/Icon";
 import Tooltip from '@mui/material/Tooltip';
 
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@mui/material";
+import { Dialog, DialogContent, DialogActions, Button } from "@mui/material";
 
 import BillingInformation from "layouts/billing/components/BillingInformation";
 
@@ -23,8 +20,6 @@ import TextField from '@mui/material/TextField';
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
-
-import projectsTableData from "layouts/tables/data/kpProjectTableData";
 
 import AddIcon from '@mui/icons-material/Add';
 import KPGrid from "examples/Cards/KPGrid";
@@ -56,20 +51,24 @@ const StyledTooltip = styled(({ className, ...props }) => (
 
 export default function KPCreationModifier({ selectedFromCatalog }) {
     const gridRef = useRef(null);
-    const apiRef = useGridApiRef();
-    const [status, setStatus] = useState('Перетащите .xlsx файл сюда');
-    const [loading, setLoading] = useState(false);
-    const [products, setProducts] = useState([]);
-    const [loadingProducts, setLoadingProducts] = useState(false);
-    const [searchText, setSearchText] = useState('');
-    const [filteredProducts, setFilteredProducts] = useState([]);
-    const { columns: pColumns, rows: pRows } = projectsTableData();
+    const catalogRef = useRef();
     const [openDialog, setOpenDialog] = useState(false);
     const [catalogOpen, setCatalogOpen] = useState(false);
-    const [selectionModel, setSelectionModel] = useState([]);
     const [selectedProducts, setSelectedProducts] = useState([])
     const [kpEditData, setKpEditData] = useState(null);
-    const [calculateType, setCalculateType] = useState('catalog');
+    const [addedProductsFromFinderDialog, setAddedProductsFromFinderDialog] = useState([])
+
+    const allProducts = useMemo(() => {
+        const existingIds = new Set(selectedProducts.map(p => p.id));
+        const merged = [...selectedFromCatalog];
+        const fromFinder = [...addedProductsFromFinderDialog]
+        // добавляем только новые товары, которых не было изначально
+        fromFinder.forEach(p => {
+            if (!existingIds.has(p.id)) merged.push(p);
+        });
+
+        return merged;
+    }, [selectedFromCatalog, selectedProducts, addedProductsFromFinderDialog]);
 
     const handleApplyKPGridEdit = (data) => {
         setKpEditData(data); // сохраняем в состояние, если надо
@@ -80,16 +79,6 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
         const selectedNums = gridRef.current?.getSelectedIds();
         if (!selectedNums?.length) return;
         gridRef.current.deleteRowsByNum(selectedNums);
-    };
-
-    const handleCatalogSelection = (newProducts) => {
-        const productsArray = Array.isArray(newProducts) ? newProducts : [newProducts];
-
-        setSelectedProducts(prev => {
-            const existingIds = new Set(prev.map(p => p.id));
-            const uniqueNew = productsArray.filter(p => !existingIds.has(p.id));
-            return [...prev, ...uniqueNew];
-        });
     };
 
     const summary = useMemo(() => {
@@ -180,7 +169,7 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
                         </Tooltip>
                     </MDBox>
                     <MDBox pt={3} px={2}>
-                        <KPGrid ref={gridRef} selectedProducts={selectedFromCatalog} kpEditData={kpEditData} />
+                        <KPGrid ref={gridRef} selectedProducts={allProducts} kpEditData={kpEditData} />
                     </MDBox>
                 </Card>
 
@@ -279,12 +268,14 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
                         height: '100vh', // задаём фиксированную высоту
                     }}
                 >
-                    <ProductCatalog onSelect={handleCatalogSelection} />
+                    <ProductCatalog ref={catalogRef} onSelect={setAddedProductsFromFinderDialog} />
                 </DialogContent>
                 <DialogActions>
                     <MDButton
                         onClick={() => {
+                            catalogRef.current?.handleAddToKP();
                             setCatalogOpen(false);         // закрываем модалку
+                            //setSelectedProducts([]);
                         }}
                         color="info"
                         variant="contained">

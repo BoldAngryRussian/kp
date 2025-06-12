@@ -31,7 +31,8 @@ import MDTypography from "components/MDTypography";
 import projectsTableData from "layouts/tables/data/kpProjectTableData";
 
 import AddIcon from '@mui/icons-material/Add';
-import KPGrid from "examples/Cards/KPGrid";
+//import KPGrid from "examples/Cards/KPGrid";
+import KPGrid from "examples/Cards/KPGrid/KPGrid";
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import KPGridEdit from "examples/Modals/KPGridEdit";

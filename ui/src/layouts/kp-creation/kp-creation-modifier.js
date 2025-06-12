@@ -22,7 +22,8 @@ import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 
 import AddIcon from '@mui/icons-material/Add';
-import KPGrid from "examples/Cards/KPGrid";
+//import KPGrid from "examples/Cards/KPGrid";
+import KPGrid from "examples/Cards/KPGrid/KPGrid";
 import KPGridEdit from "examples/Modals/KPGridEdit";
 import { styled } from '@mui/material/styles';
 
@@ -54,21 +55,16 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
     const catalogRef = useRef();
     const [openDialog, setOpenDialog] = useState(false);
     const [catalogOpen, setCatalogOpen] = useState(false);
-    const [selectedProducts, setSelectedProducts] = useState([])
+    const [selectedProducts, setSelectedProducts] = useState([...selectedFromCatalog])
     const [kpEditData, setKpEditData] = useState(null);
-    const [addedProductsFromFinderDialog, setAddedProductsFromFinderDialog] = useState([])
 
-    const allProducts = useMemo(() => {
-        const existingIds = new Set(selectedProducts.map(p => p.id));
-        const merged = [...selectedFromCatalog];
-        const fromFinder = [...addedProductsFromFinderDialog]
-        // добавляем только новые товары, которых не было изначально
-        fromFinder.forEach(p => {
-            if (!existingIds.has(p.id)) merged.push(p);
+    const handleCatalogSelection = (newProducts) => {
+        setSelectedProducts(prev => {
+            const existingIds = new Set(prev.map(p => p.id));
+            const merged = newProducts.filter(p => !existingIds.has(p.id));
+            return [...prev, ...merged];
         });
-
-        return merged;
-    }, [selectedFromCatalog, selectedProducts, addedProductsFromFinderDialog]);
+    };
 
     const handleApplyKPGridEdit = (data) => {
         setKpEditData(data); // сохраняем в состояние, если надо
@@ -138,8 +134,6 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            gap: 2,
-                            px: 2,
                             borderRadius: 2,
                             justifyContent: 'flex-start', // ← теперь кнопки слева
                         }}
@@ -164,12 +158,12 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
 
                         <Tooltip title="Скрыть колонки">
                             <IconButton>
-                                <VisibilityOffIcon />
+                                <VisibilityOffIcon onClick={() => gridRef.current?.toggleColumnGroupVisibility('details', false)} />
                             </IconButton>
                         </Tooltip>
                     </MDBox>
                     <MDBox pt={3} px={2}>
-                        <KPGrid ref={gridRef} selectedProducts={allProducts} kpEditData={kpEditData} />
+                        <KPGrid ref={gridRef} selectedProducts={selectedProducts} kpEditData={kpEditData} />
                     </MDBox>
                 </Card>
 
@@ -268,14 +262,13 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
                         height: '100vh', // задаём фиксированную высоту
                     }}
                 >
-                    <ProductCatalog ref={catalogRef} onSelect={setAddedProductsFromFinderDialog} />
+                    <ProductCatalog ref={catalogRef} onSelect={handleCatalogSelection} />
                 </DialogContent>
                 <DialogActions>
                     <MDButton
                         onClick={() => {
                             catalogRef.current?.handleAddToKP();
                             setCatalogOpen(false);         // закрываем модалку
-                            //setSelectedProducts([]);
                         }}
                         color="info"
                         variant="contained">

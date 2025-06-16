@@ -26,6 +26,42 @@ const suppliers = [
   { id: 1, name: 'ООО "Ромашка"' },
   { id: 2, name: 'OOO "Букашка"' },
   { id: 3, name: 'OOO "Озон"' },
+  { id: 4, name: 'ООО "Ромашка"' },
+  { id: 5, name: 'OOO "Букашка"' },
+  { id: 6, name: 'OOO "Озон"' },
+  { id: 7, name: 'ООО "Ромашка"' },
+  { id: 8, name: 'OOO "Букашка"' },
+  { id: 9, name: 'OOO "Озон"' },
+  { id: 10, name: 'ООО "Ромашка"' },
+  { id: 11, name: 'OOO "Букашка"' },
+  { id: 12, name: 'OOO "Озон"' },
+  { id: 13, name: 'ООО "Ромашка"' },
+  { id: 14, name: 'OOO "Букашка"' },
+  { id: 15, name: 'OOO "Озон"' },
+  { id: 16, name: 'ООО "Ромашка"' },
+  { id: 17, name: 'OOO "Букашка"' },
+  { id: 18, name: 'OOO "Озон"' },
+  { id: 19, name: 'ООО "Ромашка"' },
+  { id: 20, name: 'OOO "Букашка"' },
+  { id: 21, name: 'OOO "Озон"' },
+  { id: 22, name: 'ООО "Ромашка"' },
+  { id: 23, name: 'OOO "Букашка"' },
+  { id: 24, name: 'OOO "Озон"' },
+  { id: 25, name: 'ООО "Ромашка"' },
+  { id: 26, name: 'OOO "Букашка"' },
+  { id: 27, name: 'OOO "Озон"' },
+  { id: 28, name: 'ООО "Ромашка"' },
+  { id: 29, name: 'OOO "Букашка"' },
+  { id: 30, name: 'OOO "Озон"' },
+  { id: 31, name: 'ООО "Ромашка"' },
+  { id: 32, name: 'OOO "Букашка"' },
+  { id: 33, name: 'OOO "Озон"' },
+  { id: 34, name: 'ООО "Ромашка"' },
+  { id: 35, name: 'OOO "Букашка"' },
+  { id: 36, name: 'OOO "Озон"' },
+  { id: 37, name: 'ООО "Ромашка"' },
+  { id: 38, name: 'OOO "Букашка"' },
+  { id: 39, name: 'OOO "Озон"' },
 ];
 
 const customTheme = createTheme({
@@ -108,17 +144,19 @@ export default function ContactApp() {
                     onClick={() => setActiveCategory(category.id)}
                   >
                     {category.id === 'supplier' ? (
-                      <LocalShippingIcon sx={{ fontSize: 18, color: category.color, mr: 1 }} />
+                      <LocalShippingIcon sx={{ fontSize: 18, color: '#4169E1', mr: 1 }} />
                     ) : category.id === 'customer' ? (
-                      <MonetizationOnIcon sx={{ fontSize: 18, color: category.color, mr: 1 }} />
+                      <MonetizationOnIcon sx={{ fontSize: 18, color: '#FFD700', mr: 1 }} />
                     ) : (
                       <FolderOpenIcon sx={{ fontSize: 18, color: category.color, mr: 1 }} />
                     )}
                     <MDTypography
-                      variant="button"
-                      fontWeight="regular"
+                      variant="body1"
+                      fontWeight="medium"
                       color="text"
-                      sx={{ color: "#344767" }}
+                      sx={{
+                        fontSize: "1rem"
+                      }}
                     >
                       {category.label}
                     </MDTypography>
@@ -142,14 +180,22 @@ export default function ContactApp() {
 
           {/* Центральная колонка */}
           <ThemeProvider theme={customTheme}>
-            <MDBox width="42.86%" p={2}>
+            <MDBox
+              width="42.86%"
+              p={2}
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                height: '100%',
+              }}
+            >
               <TextField
                 placeholder={
                   activeCategory === 'supplier'
                     ? 'Поиск поставщика'
                     : activeCategory === 'customer'
-                    ? 'Поиск заказчика'
-                    : 'Поиск контакта'
+                      ? 'Поиск заказчика'
+                      : 'Поиск контакта'
                 }
                 variant="outlined"
                 size="small"
@@ -171,6 +217,12 @@ export default function ContactApp() {
                   ),
                   sx: {
                     borderRadius: '8px',
+                    backgroundColor:
+                      activeCategory === 'supplier'
+                        ? '#E0FFFF'
+                        : activeCategory === 'customer'
+                          ? '#fffde7'
+                          : 'transparent',
                   }
                 }}
                 sx={{
@@ -180,32 +232,34 @@ export default function ContactApp() {
                   }
                 }}
               />
-              <DataGrid
-                rows={filteredSuppliers}
-                columns={columns}
-                hideFooter
-                disableColumnMenu
-                autoHeight
-                rowHeight={32}
-                disableSelectionOnClick
-                onRowClick={() => {
-                  setDeleted(false);
-                  setIsEditMode(false);
-                }}
-                sx={{
-                  '& .MuiDataGrid-columnHeaders': { display: 'none' },
-                  '& .MuiDataGrid-columnSeparator': { display: 'none' },
-                  '& .MuiDataGrid-columnHeader, & .MuiDataGrid-cell': {
-                    borderBottom: 'none',
-                  },
-                  '& .MuiDataGrid-columnHeader:focus, & .MuiDataGrid-columnHeader:focus-within': {
-                    outline: 'none',
-                  },
-                  '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': {
-                    outline: 'none',
-                  },
-                }}
-              />
+              <MDBox sx={{ overflowY: 'auto', flexGrow: 1 }}>
+                <DataGrid
+                  rows={filteredSuppliers}
+                  columns={columns}
+                  hideFooter
+                  disableColumnMenu
+                  autoHeight={false}
+                  rowHeight={32}
+                  disableSelectionOnClick
+                  onRowClick={() => {
+                    setDeleted(false);
+                    setIsEditMode(false);
+                  }}
+                  sx={{
+                    '& .MuiDataGrid-columnHeaders': { display: 'none' },
+                    '& .MuiDataGrid-columnSeparator': { display: 'none' },
+                    '& .MuiDataGrid-columnHeader, & .MuiDataGrid-cell': {
+                      borderBottom: 'none',
+                    },
+                    '& .MuiDataGrid-columnHeader:focus, & .MuiDataGrid-columnHeader:focus-within': {
+                      outline: 'none',
+                    },
+                    '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': {
+                      outline: 'none',
+                    },
+                  }}
+                />
+              </MDBox>
             </MDBox>
           </ThemeProvider>
 
@@ -225,10 +279,13 @@ export default function ContactApp() {
               <>
                 <MDBox display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                   <MDTypography variant="h3" fontWeight="bold" color="text" mb={1}>
-                    Информация о контакте
+                    {activeCategory === 'supplier'
+                      ? 'Информация о поставщике'
+                      : activeCategory === 'customer'
+                        ? 'Информация о заказчике'
+                        : 'Информация о контакте'}
                   </MDTypography>
                   <MDBox>
-                    <IconButton size="small"><StarIcon fontSize="small" color="warning" /></IconButton>
                     {isEditMode ? (
                       <IconButton size="small" onClick={() => setIsEditMode(false)}>
                         <SaveIcon fontSize="small" />
@@ -311,36 +368,36 @@ export default function ContactApp() {
           </MDBox>
         </MDBox>
       </Card>
-    {/* Диалоговое окно добавления контакта */}
-    <Dialog open={isAddDialogOpen} onClose={() => setIsAddDialogOpen(false)} maxWidth="sm" fullWidth>
-      <DialogTitle>
-        {activeCategory === 'supplier'
-          ? 'Добавить поставщика'
-          : activeCategory === 'customer'
-          ? 'Добавить заказчика'
-          : 'Добавить контакт'}
-      </DialogTitle>
-      <DialogContent dividers>
-        <MDBox component="form" display="flex" flexDirection="column" gap={2} pt={1}>
-          <TextField label="Фамилия" fullWidth />
-          <TextField label="Имя" fullWidth />
-          <TextField label="Кампания" fullWidth />
-          <TextField label="Департамент" fullWidth />
-          <TextField label="Email" fullWidth />
-          <TextField label="Телефон" fullWidth />
-          <TextField
-            label="Дополнительная информация"
-            fullWidth
-            multiline
-            rows={5}
-          />
-        </MDBox>
-      </DialogContent>
-      <DialogActions>
-        <MDButton onClick={() => setIsAddDialogOpen(false)} color="secondary">Отмена</MDButton>
-        <MDButton onClick={() => setIsAddDialogOpen(false)} color="info" variant="contained">Сохранить</MDButton>
-      </DialogActions>
-    </Dialog>
-  </MDBox>
+      {/* Диалоговое окно добавления контакта */}
+      <Dialog open={isAddDialogOpen} onClose={() => setIsAddDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>
+          {activeCategory === 'supplier'
+            ? 'Добавить поставщика'
+            : activeCategory === 'customer'
+              ? 'Добавить заказчика'
+              : 'Добавить контакт'}
+        </DialogTitle>
+        <DialogContent dividers>
+          <MDBox component="form" display="flex" flexDirection="column" gap={2} pt={1}>
+            <TextField label="Фамилия" fullWidth />
+            <TextField label="Имя" fullWidth />
+            <TextField label="Кампания" fullWidth />
+            <TextField label="Департамент" fullWidth />
+            <TextField label="Email" fullWidth />
+            <TextField label="Телефон" fullWidth />
+            <TextField
+              label="Дополнительная информация"
+              fullWidth
+              multiline
+              rows={5}
+            />
+          </MDBox>
+        </DialogContent>
+        <DialogActions>
+          <MDButton onClick={() => setIsAddDialogOpen(false)} color="secondary">Отмена</MDButton>
+          <MDButton onClick={() => setIsAddDialogOpen(false)} color="info" variant="contained">Сохранить</MDButton>
+        </DialogActions>
+      </Dialog>
+    </MDBox>
   );
 }

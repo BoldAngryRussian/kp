@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import Fade from '@mui/material/Fade';
-import ContactApp from "layouts/dictionaries/components/contacs"
+import ContactApp from "layouts/dictionaries/components/contacs/Dictionaties"
 
 
 import MDBox from "components/MDBox";
@@ -12,7 +12,7 @@ return (
         <DashboardLayout>
           <Fade in={true} timeout={500}>
             <div>
-              <MDBox mt={8} mb={3}>
+              <MDBox mt={2}>
                 <MDBox width="100%">
                   <ContactApp />
                 </MDBox>

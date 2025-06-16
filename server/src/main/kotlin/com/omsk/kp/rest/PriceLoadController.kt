@@ -1,6 +1,5 @@
 package com.omsk.kp.rest
 
-import com.omsk.kp.domain.model.Product
 import com.omsk.kp.domain.srevice.ProductService
 import com.omsk.kp.dto.ProductDTO
 import com.omsk.kp.utils.KPLog

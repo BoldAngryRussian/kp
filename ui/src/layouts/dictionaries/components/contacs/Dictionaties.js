@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
+import { GridLoader } from "react-spinners";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import {
   Box,
@@ -10,7 +11,6 @@ import {
   TextField,
   Typography
 } from "@mui/material";
-import StarIcon from "@mui/icons-material/Star";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
@@ -21,48 +21,6 @@ import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
 import AddIcon from "@mui/icons-material/Add";
-
-const suppliers = [
-  { id: 1, name: 'ООО "Ромашка"' },
-  { id: 2, name: 'OOO "Букашка"' },
-  { id: 3, name: 'OOO "Озон"' },
-  { id: 4, name: 'ООО "Ромашка"' },
-  { id: 5, name: 'OOO "Букашка"' },
-  { id: 6, name: 'OOO "Озон"' },
-  { id: 7, name: 'ООО "Ромашка"' },
-  { id: 8, name: 'OOO "Букашка"' },
-  { id: 9, name: 'OOO "Озон"' },
-  { id: 10, name: 'ООО "Ромашка"' },
-  { id: 11, name: 'OOO "Букашка"' },
-  { id: 12, name: 'OOO "Озон"' },
-  { id: 13, name: 'ООО "Ромашка"' },
-  { id: 14, name: 'OOO "Букашка"' },
-  { id: 15, name: 'OOO "Озон"' },
-  { id: 16, name: 'ООО "Ромашка"' },
-  { id: 17, name: 'OOO "Букашка"' },
-  { id: 18, name: 'OOO "Озон"' },
-  { id: 19, name: 'ООО "Ромашка"' },
-  { id: 20, name: 'OOO "Букашка"' },
-  { id: 21, name: 'OOO "Озон"' },
-  { id: 22, name: 'ООО "Ромашка"' },
-  { id: 23, name: 'OOO "Букашка"' },
-  { id: 24, name: 'OOO "Озон"' },
-  { id: 25, name: 'ООО "Ромашка"' },
-  { id: 26, name: 'OOO "Букашка"' },
-  { id: 27, name: 'OOO "Озон"' },
-  { id: 28, name: 'ООО "Ромашка"' },
-  { id: 29, name: 'OOO "Букашка"' },
-  { id: 30, name: 'OOO "Озон"' },
-  { id: 31, name: 'ООО "Ромашка"' },
-  { id: 32, name: 'OOO "Букашка"' },
-  { id: 33, name: 'OOO "Озон"' },
-  { id: 34, name: 'ООО "Ромашка"' },
-  { id: 35, name: 'OOO "Букашка"' },
-  { id: 36, name: 'OOO "Озон"' },
-  { id: 37, name: 'ООО "Ромашка"' },
-  { id: 38, name: 'OOO "Букашка"' },
-  { id: 39, name: 'OOO "Озон"' },
-];
 
 const customTheme = createTheme({
   components: {
@@ -108,15 +66,69 @@ const categories = [
 
 export default function ContactApp() {
   const [selected, setSelected] = useState(contacts[0]);
-  const [activeTab, setActiveTab] = useState("all");
   const [activeCategory, setActiveCategory] = useState("support");
   const [searchText, setSearchText] = useState('');
   const [isEditMode, setIsEditMode] = useState(false);
   const [deleted, setDeleted] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const filteredSuppliers = suppliers.filter(s =>
-    s.name.toLowerCase().includes(searchText.toLowerCase())
-  );
+  const [suppliers, setSuppliers] = useState([])
+  const [customers, setCustomers] = useState([])
+  const [loading, setLoading] = useState(false);
+
+  const handleSupplierClick = () => {
+    setLoading(true);
+    fetch('/api/v1/supplier/all')
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Ошибка ответа от сервера");
+        }
+        return res.json();
+      })
+      .then((data) => {
+        const transformed = data.map(s => ({
+          id: s.id,
+          name: s.company,
+        }));
+        setTimeout(() => {
+          setSuppliers(transformed); // или любой твой useState
+          setLoading(false);
+        }, 1500);
+      })
+      .catch((err) => {
+        console.error('Ошибка при загрузке поставщиков', err);
+        setLoading(false);
+      });
+  };
+
+  const handleCustomerClick = () => {
+    setLoading(true);
+    fetch('/api/v1/customer/all')
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Ошибка ответа от сервера");
+        }
+        return res.json();
+      })
+      .then((data) => {
+        const transformed = data.map(s => ({
+          id: s.id,
+          name: s.company,
+        }));
+        setTimeout(() => {
+          setCustomers(transformed); // или любой твой useState
+          setLoading(false);
+        }, 1500);
+      })
+      .catch((err) => {
+        console.error('Ошибка при загрузке поставщиков', err);
+        setLoading(false);
+      });
+  };
+
+  const filteredList =
+    activeCategory === "supplier"
+      ? suppliers.filter(s => s.name.toLowerCase().includes(searchText.toLowerCase()))
+      : customers.filter(c => c.name.toLowerCase().includes(searchText.toLowerCase()));
 
   return (
     <MDBox width="100%" display="flex" flexDirection="column" gap={2}>
@@ -141,7 +153,14 @@ export default function ContactApp() {
                         activeCategory === category.id ? "rgba(99,102,241,0.05)" : "transparent",
                       transition: "background-color 0.2s ease-in-out",
                     }}
-                    onClick={() => setActiveCategory(category.id)}
+                    onClick={() => {
+                      setActiveCategory(category.id);
+                      if (category.id === 'supplier') {
+                        handleSupplierClick();
+                      } else if (category.id === 'customer') {
+                        handleCustomerClick();
+                      }
+                    }}
                   >
                     {category.id === 'supplier' ? (
                       <LocalShippingIcon sx={{ fontSize: 18, color: '#4169E1', mr: 1 }} />
@@ -233,32 +252,38 @@ export default function ContactApp() {
                 }}
               />
               <MDBox sx={{ overflowY: 'auto', flexGrow: 1 }}>
-                <DataGrid
-                  rows={filteredSuppliers}
-                  columns={columns}
-                  hideFooter
-                  disableColumnMenu
-                  autoHeight={false}
-                  rowHeight={32}
-                  disableSelectionOnClick
-                  onRowClick={() => {
-                    setDeleted(false);
-                    setIsEditMode(false);
-                  }}
-                  sx={{
-                    '& .MuiDataGrid-columnHeaders': { display: 'none' },
-                    '& .MuiDataGrid-columnSeparator': { display: 'none' },
-                    '& .MuiDataGrid-columnHeader, & .MuiDataGrid-cell': {
-                      borderBottom: 'none',
-                    },
-                    '& .MuiDataGrid-columnHeader:focus, & .MuiDataGrid-columnHeader:focus-within': {
-                      outline: 'none',
-                    },
-                    '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': {
-                      outline: 'none',
-                    },
-                  }}
-                />
+                {loading ? (
+                  <MDBox display="flex" justifyContent="center" alignItems="center" flexGrow={1}>
+                    <GridLoader color="#1976d2" size={24} margin={2} />
+                  </MDBox>
+                ) : (
+                  <DataGrid
+                    rows={filteredList}
+                    columns={columns}
+                    hideFooter
+                    disableColumnMenu
+                    autoHeight={false}
+                    rowHeight={32}
+                    disableSelectionOnClick
+                    onRowClick={() => {
+                      setDeleted(false);
+                      setIsEditMode(false);
+                    }}
+                    sx={{
+                      '& .MuiDataGrid-columnHeaders': { display: 'none' },
+                      '& .MuiDataGrid-columnSeparator': { display: 'none' },
+                      '& .MuiDataGrid-columnHeader, & .MuiDataGrid-cell': {
+                        borderBottom: 'none',
+                      },
+                      '& .MuiDataGrid-columnHeader:focus, & .MuiDataGrid-columnHeader:focus-within': {
+                        outline: 'none',
+                      },
+                      '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': {
+                        outline: 'none',
+                      },
+                    }}
+                  />
+                )}
               </MDBox>
             </MDBox>
           </ThemeProvider>

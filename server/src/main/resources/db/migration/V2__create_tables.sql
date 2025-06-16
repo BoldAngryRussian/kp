@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS users
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS public.price_list
+CREATE TABLE IF NOT EXISTS price_list
 (
     id SERIAL PRIMARY KEY,
     suppliers_id BIGINT NOT NULL,
@@ -74,12 +74,13 @@ CREATE TABLE IF NOT EXISTS public.price_list
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS public.product
+CREATE TABLE IF NOT EXISTS product
 (
     id SERIAL PRIMARY KEY,
     name VARCHAR(1024),
     price BIGINT NOT NULL,
-    price_list_id BIGINT NOT NOT NULL,
+    price_list_id BIGINT NOT NULL,
+    price_list_version BIGINT NOT NULL,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT product_price_list_fk FOREIGN KEY (price_list_id)
         REFERENCES public.price_list (id)

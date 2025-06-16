@@ -6,7 +6,6 @@ import com.omsk.kp.dto.ProductDTO
 import com.omsk.kp.utils.KPLog
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.springframework.http.MediaType
-import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -28,16 +27,16 @@ class PriceLoadController(
         for (row in sheet){
             try {
                 val name = row.getCell(0).stringCellValue
-                val price = row.getCell(1).numericCellValue
+                val price = (row.getCell(1).numericCellValue * 100).toLong()
 
                 KPLog.info("name$name price=$price")
-                products += ProductDTO(name.trim(), price, (i++ % 11 == 0).not())
+                products += ProductDTO(name.trim(), price, (i++ % 31 == 0).not())
             } catch (e: Exception){
                 KPLog.info("Error while loading -> ${e.message}")
             }
         }
 
-        //productService.saveAll(products)
+        productService.saveAll(products.map { Product(it.name, it.price) })
 
         KPLog.info("Save to PRODUCT table count=${products.count()}")
         return products

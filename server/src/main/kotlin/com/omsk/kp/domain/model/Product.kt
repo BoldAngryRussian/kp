@@ -7,7 +7,7 @@ import jakarta.persistence.Id
 @Entity
 data class Product(
     val name: String,
-    val price: Double
+    val price: Long
 ){
     @Id
     @GeneratedValue

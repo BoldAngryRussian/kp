@@ -120,7 +120,7 @@ export default function ContactApp() {
 
   return (
     <MDBox width="100%" display="flex" flexDirection="column" gap={2}>
-      <Card id="dictionaries" sx={{ width: "100%", height: 'calc(100vh - 120px)' }}>
+      <Card id="dictionaries" sx={{ width: "100%", height: 'calc(100vh - 70px)' }}>
         <MDBox display="flex" height="100%">
           {/* Левая колонка */}
           <MDBox width="14.28%" p={2}>

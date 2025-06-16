@@ -64,7 +64,7 @@ const categories = [
 
 export default function ContactApp() {
   let loadingTimeout = null;
-  const [selected, setSelected] = useState(contacts[0]);
+  const [selected, setSelected] = useState();
   const [activeCategory, setActiveCategory] = useState("supplier");
   const [searchText, setSearchText] = useState('');
   const [isEditMode, setIsEditMode] = useState(false);
@@ -186,6 +186,9 @@ export default function ContactApp() {
                     }}
                     onClick={() => {
                       setActiveCategory(category.id);
+                      setSelected(undefined);
+                      setIsEditMode(false);
+                      setDeleted(false);
                       if (category.id === 'supplier') {
                         handleSupplierClick();
                       } else if (category.id === 'customer') {

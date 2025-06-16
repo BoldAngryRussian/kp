@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 
 // @mui material components
 import Card from "@mui/material/Card";
@@ -8,9 +8,11 @@ import Tooltip from '@mui/material/Tooltip';
 import { Dialog, DialogContent, DialogActions, Button } from "@mui/material";
 
 import BillingInformation from "layouts/billing/components/BillingInformation";
+import VisibilityIcon from '@mui/icons-material/Visibility';
 
 import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
+import SaveIcon from '@mui/icons-material/Save';
 
 // Material Dashboard 2 React examples
 import DataTable from "examples/Tables/DataTable";
@@ -31,6 +33,8 @@ import MDButton from "components/MDButton";
 import CalculateIcon from "@mui/icons-material/Calculate";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import ProductCatalog from "layouts/catalog/ProductCatalog";
+
+import KPCreationCustomerFinder from 'layouts/kp-creation/kp-creation-customer-finder'
 
 
 const StyledTooltip = styled(({ className, ...props }) => (
@@ -57,6 +61,15 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
     const [catalogOpen, setCatalogOpen] = useState(false);
     const [selectedProducts, setSelectedProducts] = useState([...selectedFromCatalog])
     const [kpEditData, setKpEditData] = useState(null);
+    const [detailsVisible, setDetailsVisible] = useState(false);
+    const [selectedCustomer, setSelectedCustomer] = useState(null);
+    const [findCustomerModalOpen, setFindCustomerModalOpen] = useState(false);
+
+    useEffect(() => {
+        if (gridRef.current) {
+            gridRef.current.toggleColumnGroupVisibility('details', detailsVisible);
+        }
+    }, [detailsVisible]);
 
     const handleCatalogSelection = (newProducts) => {
         setSelectedProducts(prev => {
@@ -115,10 +128,14 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
         { label: "💰 Сумма закупки", value: `${summary.totalPurchase} ₽` },
         { label: "🚛 Транспортные расходы", value: `${summary.totalTransport} ₽` },
         { label: "🛒 Цена продажи", value: `${summary.totalSale} ₽` },
-        { label: "📈 Маржа", value: `${summary.totalMargin} ₽` },
+        { label: "📈 Маржа", value: (<strong style={{ color: "green", fontSize: "1.1rem" }}>{summary.totalMargin} ₽</strong>), },
     ];
 
-
+    const handleCardClick = () => {
+        if (!selectedCustomer) {
+            setFindCustomerModalOpen(true);
+        }
+    };
 
     return (
         <div>
@@ -150,15 +167,21 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
                             </IconButton>
                         </Tooltip>
 
+                        <Tooltip title="Сохранить">
+                            <IconButton>
+                                <SaveIcon />
+                            </IconButton>
+                        </Tooltip>
+
                         <Tooltip title="Удалить">
                             <IconButton>
                                 <DeleteIcon onClick={handleDeleteSelected} />
                             </IconButton>
                         </Tooltip>
 
-                        <Tooltip title="Скрыть колонки">
-                            <IconButton>
-                                <VisibilityOffIcon onClick={() => gridRef.current?.toggleColumnGroupVisibility('details', false)} />
+                        <Tooltip title={detailsVisible ? "Скрыть колонки" : "Показать колонки"}>
+                            <IconButton onClick={() => setDetailsVisible(prev => !prev)}>
+                                {detailsVisible ? <VisibilityOffIcon /> : <VisibilityIcon />}
                             </IconButton>
                         </Tooltip>
                     </MDBox>
@@ -189,7 +212,7 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
                                         borderColor: "#999",
                                     },
                                     "&.Mui-focused fieldset": {
-                                        borderColor: "#1976d2",
+                                        borderColor: "#ccc", // ← убрали голубую рамку при фокусе
                                     },
                                 },
                             }}
@@ -205,11 +228,24 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
                 <MDBox mt={2} display="flex" gap={2}>
 
                     {/* Правая карточка — BillingInformation */}
-                    <Card sx={{ width: "50%", display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
-                        <MDBox p={3}>
-                            <BillingInformation />
+                    <Card
+                        sx={{ width: "50%", display: "flex", flexDirection: "column", justifyContent: "flex-end" }}
+                        onClick={handleCardClick}
+                    >
+                        <MDBox p={3} display="flex" justifyContent="center" alignItems="center">
+                            {selectedCustomer ? (
+                                <BillingInformation customer={selectedCustomer} />
+                            ) : (
+                                <MDBox display="flex" flexDirection="column" alignItems="center" justifyContent="center" height="100%">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/4086/4086679.png" alt="Select Contact" width={180} />
+                                    <MDTypography variant="h6" mt={2}>
+                                        Пожалуйста, выберите поставщика
+                                    </MDTypography>
+                                </MDBox>
+                            )}
                         </MDBox>
                     </Card>
+
                     {/* Левая карточка — таблица итогов */}
                     <Card sx={{ width: "50%" }}>
                         <MDBox p={3}>
@@ -275,6 +311,41 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
                         Добавить в КП
                     </MDButton>
                     <MDButton onClick={() => setCatalogOpen(false)} color="secondary">Отмена</MDButton>
+                </DialogActions>
+            </Dialog>
+            <Dialog
+                open={findCustomerModalOpen}
+                fullWidth
+                maxWidth={false} // Отключаем ограничение MUI
+                PaperProps={{
+                    sx: {
+                        width: '40vw',    // ширина окна
+                        height: '60vh',   // высота окна
+                    },
+                }}
+            >
+                <DialogContent
+                    disableScrollLock
+                    sx={{
+                        p: 0,
+                        height: '100%',
+                        overflow: 'hidden', // 🔒 запрещаем скролл здесь
+                        display: 'flex',
+                        flexDirection: 'column',
+                    }}
+                >
+                    <KPCreationCustomerFinder />
+                </DialogContent>
+                <DialogActions>
+                    <MDButton
+                        onClick={() => {
+                            setFindCustomerModalOpen(false);         // закрываем модалку
+                        }}
+                        color="info"
+                        variant="contained">
+                        Добавить поставщика
+                    </MDButton>
+                    <MDButton onClick={() => setFindCustomerModalOpen(false)} color="secondary">Отмена</MDButton>
                 </DialogActions>
             </Dialog>
         </div>

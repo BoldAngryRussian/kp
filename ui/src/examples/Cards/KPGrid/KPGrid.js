@@ -215,7 +215,7 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData }, ref) => {
 
   useImperativeHandle(ref, () => ({
     getSelectedIds: () => {
-      const selectedNodes = gridRef.current?.api.getSelectedNodes() || [];
+      const selectedNodes = gridRef.current?.getSelectedNodes() || [];
       return selectedNodes.map(n => n.data.id);
     },
     deleteRowsByNum: (ids) => {

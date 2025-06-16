@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { GridLoader } from "react-spinners";
@@ -54,8 +54,6 @@ const contacts = [
     email: "ivanov.ivan@mail.ru",
     address: "г.Омск, ул.Цветочная, д.1",
     notes: "Хорошая кампания делает много заказов",
-    avatar: "https://i.pravatar.cc/150?img=1",
-    starred: true
   }
 ];
 
@@ -65,8 +63,9 @@ const categories = [
 ];
 
 export default function ContactApp() {
+  let loadingTimeout = null;
   const [selected, setSelected] = useState(contacts[0]);
-  const [activeCategory, setActiveCategory] = useState("support");
+  const [activeCategory, setActiveCategory] = useState("supplier");
   const [searchText, setSearchText] = useState('');
   const [isEditMode, setIsEditMode] = useState(false);
   const [deleted, setDeleted] = useState(false);
@@ -75,8 +74,48 @@ export default function ContactApp() {
   const [customers, setCustomers] = useState([])
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    handleSupplierClick();
+  }, []);
+
+  const transformToGridRows = (data) =>
+    data.map(s => ({
+      id: s.id,
+      name: s.company,
+    }));
+
+
+  // Получение деталей контакта по id и категории
+  const fetchContactDetails = (id, category, setSelected, setLoading) => {
+    loadingTimeout = setTimeout(() => setLoading(true), 300);
+    const endpoint = category === "supplier" ? `/api/v1/supplier/${id}` : `/api/v1/customer/${id}`;
+    fetch(endpoint)
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Ошибка загрузки деталей");
+        }
+        return res.json();
+      })
+      .then((data) => {
+        clearTimeout(loadingTimeout);
+        const o = {
+          ...data,
+          notes: data.details,
+          name: `${data.secondName} ${data.firstName} ${data.thirdName}`
+        }
+        setSelected(o);
+        setLoading(false);
+      })
+      .catch((err) => {
+        clearTimeout(loadingTimeout);
+        console.error('Ошибка при получении данных', err);
+        setLoading(false);
+      });
+  };
+
+
   const handleSupplierClick = () => {
-    setLoading(true);
+    loadingTimeout = setTimeout(() => setLoading(true), 300);
     fetch('/api/v1/supplier/all')
       .then((res) => {
         if (!res.ok) {
@@ -85,23 +124,19 @@ export default function ContactApp() {
         return res.json();
       })
       .then((data) => {
-        const transformed = data.map(s => ({
-          id: s.id,
-          name: s.company,
-        }));
-        setTimeout(() => {
-          setSuppliers(transformed); // или любой твой useState
-          setLoading(false);
-        }, 1500);
+        clearTimeout(loadingTimeout);
+        setSuppliers(transformToGridRows(data)); // или любой твой useState
+        setLoading(false);
       })
       .catch((err) => {
+        clearTimeout(loadingTimeout);
         console.error('Ошибка при загрузке поставщиков', err);
         setLoading(false);
       });
   };
 
   const handleCustomerClick = () => {
-    setLoading(true);
+    loadingTimeout = setTimeout(() => setLoading(true), 300);
     fetch('/api/v1/customer/all')
       .then((res) => {
         if (!res.ok) {
@@ -110,16 +145,12 @@ export default function ContactApp() {
         return res.json();
       })
       .then((data) => {
-        const transformed = data.map(s => ({
-          id: s.id,
-          name: s.company,
-        }));
-        setTimeout(() => {
-          setCustomers(transformed); // или любой твой useState
-          setLoading(false);
-        }, 1500);
+        clearTimeout(loadingTimeout);
+        setCustomers(transformToGridRows(data)); // или любой твой useState
+        setLoading(false);
       })
       .catch((err) => {
+        clearTimeout(loadingTimeout);
         console.error('Ошибка при загрузке поставщиков', err);
         setLoading(false);
       });
@@ -265,9 +296,10 @@ export default function ContactApp() {
                     autoHeight={false}
                     rowHeight={32}
                     disableSelectionOnClick
-                    onRowClick={() => {
+                    onRowClick={(params) => {
                       setDeleted(false);
                       setIsEditMode(false);
+                      fetchContactDetails(params.row.id, activeCategory, setSelected, setLoading);
                     }}
                     sx={{
                       '& .MuiDataGrid-columnHeaders': { display: 'none' },
@@ -293,7 +325,7 @@ export default function ContactApp() {
 
           {/* Правая колонка */}
           <MDBox width="42.86%" p={3} sx={{ height: '100%', overflow: 'auto', wordBreak: 'break-word', whiteSpace: 'normal' }}>
-            {deleted ? (
+            {deleted || !selected ? (
               <MDBox display="flex" flexDirection="column" alignItems="center" justifyContent="center" height="100%">
                 <img src="https://cdn-icons-png.flaticon.com/512/4086/4086679.png" alt="Select Contact" width={180} />
                 <MDTypography variant="h6" mt={2}>
@@ -310,26 +342,23 @@ export default function ContactApp() {
                         ? 'Информация о заказчике'
                         : 'Информация о контакте'}
                   </MDTypography>
-                  <MDBox>
-                    {isEditMode ? (
-                      <IconButton size="small" onClick={() => setIsEditMode(false)}>
-                        <SaveIcon fontSize="small" />
-                      </IconButton>
-                    ) : (
+                  {!isEditMode && (
+                    <MDBox>
                       <IconButton size="small" onClick={() => setIsEditMode(true)}>
                         <EditIcon fontSize="small" />
                       </IconButton>
-                    )}
-                    <IconButton size="small" onClick={() => setDeleted(true)}>
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  </MDBox>
+                      <IconButton size="small" onClick={() => setDeleted(true)}>
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </MDBox>
+                  )}
                 </MDBox>
                 <Divider flexItem sx={{ borderColor: '#cfd8dc', borderWidth: '3px' }} />
                 {isEditMode ? (
                   <MDBox component="form" display="flex" flexDirection="column" gap={2}>
                     <TextField label="Фамилия" fullWidth defaultValue={selected.name.split(' ')[0]} />
                     <TextField label="Имя" fullWidth defaultValue={selected.name.split(' ')[1] || ''} />
+                    <TextField label="Отчество" fullWidth defaultValue={selected.name.split(' ')[2] || ''} />
                     <TextField label="Кампания" fullWidth defaultValue={selected.company} />
                     <TextField label="Департамент" fullWidth defaultValue={selected.department} />
                     <TextField label="Email" fullWidth defaultValue={selected.email} />
@@ -345,7 +374,7 @@ export default function ContactApp() {
                       <MDButton color="info" variant="contained" onClick={() => setIsEditMode(false)}>
                         Сохранить
                       </MDButton>
-                      <MDButton color="secondary" variant="outlined" onClick={() => setIsEditMode(false)}>
+                      <MDButton color="secondary" onClick={() => setIsEditMode(false)}>
                         Отмена
                       </MDButton>
                     </MDBox>
@@ -406,6 +435,7 @@ export default function ContactApp() {
           <MDBox component="form" display="flex" flexDirection="column" gap={2} pt={1}>
             <TextField label="Фамилия" fullWidth />
             <TextField label="Имя" fullWidth />
+            <TextField label="Отчество" fullWidth />
             <TextField label="Кампания" fullWidth />
             <TextField label="Департамент" fullWidth />
             <TextField label="Email" fullWidth />
@@ -419,8 +449,8 @@ export default function ContactApp() {
           </MDBox>
         </DialogContent>
         <DialogActions>
-          <MDButton onClick={() => setIsAddDialogOpen(false)} color="secondary">Отмена</MDButton>
           <MDButton onClick={() => setIsAddDialogOpen(false)} color="info" variant="contained">Сохранить</MDButton>
+          <MDButton onClick={() => setIsAddDialogOpen(false)} color="secondary">Отмена</MDButton>
         </DialogActions>
       </Dialog>
     </MDBox>

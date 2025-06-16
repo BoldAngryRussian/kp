@@ -7,5 +7,6 @@ import org.springframework.stereotype.Service
 class SupplierService(
     private val repo: SupplierRepository
 ) {
-    fun findAll() = repo.findAll()
+    fun findAllShort() = repo.findAllShort()
+    fun findById(id: Long) = repo.findById(id)
 }

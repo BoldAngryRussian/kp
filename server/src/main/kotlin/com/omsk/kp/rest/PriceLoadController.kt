@@ -36,7 +36,7 @@ class PriceLoadController(
             }
         }
 
-        productService.saveAll(products.map { Product(it.name, it.price) })
+        //productService.saveAll(products.map { Product(it.name, it.price) })
 
         KPLog.info("Save to PRODUCT table count=${products.count()}")
         return products

@@ -3,6 +3,7 @@ import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material
 import { DataGrid } from '@mui/x-data-grid';
 import { GridLoader } from "react-spinners";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import CircularProgress from '@mui/material/CircularProgress';
 import {
   Box,
   Card,
@@ -73,6 +74,18 @@ export default function ContactApp() {
   const [suppliers, setSuppliers] = useState([])
   const [customers, setCustomers] = useState([])
   const [loading, setLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Add form state for new contact
+  const [firstName, setFirstName] = useState('');
+  const [secondName, setSecondName] = useState('');
+  const [thirdName, setThirdName] = useState('');
+  const [company, setCompany] = useState('');
+  const [department, setDepartment] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [details, setDetails] = useState('');
+  const [address, setAddress] = useState('');
 
   useEffect(() => {
     handleSupplierClick();
@@ -83,6 +96,74 @@ export default function ContactApp() {
       id: s.id,
       name: s.company,
     }));
+
+
+  const handleSaveNewContact = () => {
+    const newContact = {
+      firstName,
+      secondName,
+      thirdName,
+      company,
+      department,
+      email,
+      phone,
+      details,
+    };
+
+    setIsSaving(true);
+    const minDelay = new Promise((resolve) => setTimeout(resolve, 2000));
+
+    Promise.all([
+      saveNewContact(newContact, activeCategory),
+      minDelay
+    ])
+      .then(() => {
+        setIsAddDialogOpen(false);
+        if (activeCategory === 'supplier') {
+          handleSupplierClick();
+        } else {
+          handleCustomerClick();
+        }
+
+        setFirstName('')
+        setSecondName('')
+        setThirdName('')
+        setCompany('')
+        setDepartment('')
+        setEmail('')
+        setPhone('')
+        setDetails('')
+        setAddress('')
+
+      })
+      .catch((err) => {
+        console.error('Ошибка при сохранении', err);
+      })
+      .finally(() => {
+        setIsSaving(false);
+      });
+  };
+
+  const saveNewContact = async (newContact, category) => {
+    const endpoint = category === 'supplier'
+      ? '/api/v1/supplier/save'
+      : '/api/v1/customer/save';
+
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newContact),
+    });
+
+    if (!response.ok) {
+      throw new Error('Ошибка при сохранении');
+    }
+
+    return response.json();
+  };
+
 
   const handleDeleteContact = () => {
     if (!selected) return;
@@ -465,23 +546,29 @@ export default function ContactApp() {
         </DialogTitle>
         <DialogContent dividers>
           <MDBox component="form" display="flex" flexDirection="column" gap={2} pt={1}>
-            <TextField label="Фамилия" fullWidth />
-            <TextField label="Имя" fullWidth />
-            <TextField label="Отчество" fullWidth />
-            <TextField label="Кампания" fullWidth />
-            <TextField label="Департамент" fullWidth />
-            <TextField label="Email" fullWidth />
-            <TextField label="Телефон" fullWidth />
+            <TextField label="Фамилия" fullWidth value={secondName} onChange={(e) => setSecondName(e.target.value)} />
+            <TextField label="Имя" fullWidth value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+            <TextField label="Отчество" fullWidth value={thirdName} onChange={(e) => setThirdName(e.target.value)} />
+            <TextField label="Кампания" fullWidth value={company} onChange={(e) => setCompany(e.target.value)} />
+            <TextField label="Департамент" fullWidth value={department} onChange={(e) => setDepartment(e.target.value)} />
+            <TextField label="Адрес" fullWidth value={address} onChange={(e) => setAddress(e.target.value)} />
+            <TextField label="Email" fullWidth value={email} onChange={(e) => setEmail(e.target.value)} />
+            <TextField label="Телефон" fullWidth value={phone} onChange={(e) => setPhone(e.target.value)} />
             <TextField
               label="Дополнительная информация"
               fullWidth
               multiline
               rows={5}
+              value={details}
+              onChange={(e) => setDetails(e.target.value)}
             />
           </MDBox>
         </DialogContent>
         <DialogActions>
-          <MDButton onClick={() => setIsAddDialogOpen(false)} color="info" variant="contained">Сохранить</MDButton>
+          <MDButton onClick={handleSaveNewContact} color="info" variant="contained" disabled={isSaving}>
+            {isSaving && <CircularProgress size={16} color="inherit" sx={{ mr: 1 }} />}
+            Сохранить
+          </MDButton>
           <MDButton onClick={() => setIsAddDialogOpen(false)} color="secondary">Отмена</MDButton>
         </DialogActions>
       </Dialog>

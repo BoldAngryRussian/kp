@@ -14,15 +14,6 @@ const routes = [
   {
     type: "collapse",
     name: "Формирование КП",
-    key: "dashboard",
-    icon: <Icon fontSize="small">dashboard</Icon>,
-    route: "/dashboard",
-    component: <Dashboard />,
-    protected: true,
-  },
-  {
-    type: "collapse",
-    name: "Формирование КП 2",
     key: "tables",
     icon: <Icon fontSize="small">table_view</Icon>,
     route: "/tables",

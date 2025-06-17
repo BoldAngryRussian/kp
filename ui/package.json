@@ -3,7 +3,7 @@
   "version": "2.2.0",
   "private": true,
   "author": "Creative Tim",
-  "proxy": "http://192.168.1.4:8080",
+  "proxy": "http://192.168.1.7:8080",
   "license": "See license in https://www.creative-tim.com/license",
   "description": "React version of Material Dashboard 2 by Creative Tim",
   "bugs": {

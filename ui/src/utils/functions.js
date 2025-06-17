@@ -1,0 +1,1 @@
+export const formatRubles = (cents) => cents / 100;

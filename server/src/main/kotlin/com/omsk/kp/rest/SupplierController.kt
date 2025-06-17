@@ -1,8 +1,12 @@
 package com.omsk.kp.rest
 
+import com.omsk.kp.domain.model.Supplier
 import com.omsk.kp.domain.srevice.SupplierService
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -16,4 +20,13 @@ class SupplierController(
 
     @GetMapping("/{id}")
     fun getById(@PathVariable id: Long) = service.findById(id)
+
+    @PostMapping("/save")
+    fun save(@RequestBody supplier: Supplier) = service.save(supplier)
+
+    @PostMapping("/update")
+    fun update(@RequestBody supplier: Supplier) = service.save(supplier)
+
+    @DeleteMapping("/{id}/delete")
+    fun delete(@PathVariable id: Long) = service.delete(id)
 }

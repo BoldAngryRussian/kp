@@ -84,6 +84,35 @@ export default function ContactApp() {
       name: s.company,
     }));
 
+  const handleDeleteContact = () => {
+    if (!selected) return;
+
+    deleteContactById(selected.id, activeCategory)
+      .then(() => {
+        setDeleted(true);
+        setSelected(undefined);
+        if (activeCategory === 'supplier') {
+          handleSupplierClick();
+        } else {
+          handleCustomerClick();
+        }
+      })
+      .catch((err) => {
+        console.error("Ошибка при удалении", err);
+      });
+  };
+
+  const deleteContactById = (id, category) => {
+    const endpoint = category === "supplier" ? `/api/v1/supplier/${id}/delete` : `/api/v1/customer/${id}/delete`;
+    return fetch(endpoint, {
+      method: 'DELETE',
+    }).then((res) => {
+      if (!res.ok) {
+        throw new Error('Ошибка при удалении');
+      }
+    });
+  };
+
 
   // Получение деталей контакта по id и категории
   const fetchContactDetails = (id, category, setSelected, setLoading) => {
@@ -350,7 +379,7 @@ export default function ContactApp() {
                       <IconButton size="small" onClick={() => setIsEditMode(true)}>
                         <EditIcon fontSize="small" />
                       </IconButton>
-                      <IconButton size="small" onClick={() => setDeleted(true)}>
+                      <IconButton size="small" onClick={handleDeleteContact}>
                         <DeleteIcon fontSize="small" />
                       </IconButton>
                     </MDBox>

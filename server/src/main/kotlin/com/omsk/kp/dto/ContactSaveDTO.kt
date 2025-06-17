@@ -1,6 +1,7 @@
 package com.omsk.kp.dto
 
 data class ContactSaveDTO(
+    val id: Long? = null,
     val firstName: String,
     val secondName: String,
     val thirdName: String? = null,

@@ -75,6 +75,8 @@ export default function ContactApp() {
   const [customers, setCustomers] = useState([])
   const [loading, setLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Add form state for new contact
   const [firstName, setFirstName] = useState('');
@@ -168,10 +170,17 @@ export default function ContactApp() {
   const handleDeleteContact = () => {
     if (!selected) return;
 
-    deleteContactById(selected.id, activeCategory)
+    setIsDeleting(true);    
+    const minDelay = new Promise((resolve) => setTimeout(resolve, 2000));
+
+    Promise.all([
+      deleteContactById(selected.id, activeCategory),
+      minDelay
+    ])
       .then(() => {
         setDeleted(true);
         setSelected(undefined);
+        setConfirmDeleteOpen(false); // Закрываем модалку сразу
         if (activeCategory === 'supplier') {
           handleSupplierClick();
         } else {
@@ -180,6 +189,9 @@ export default function ContactApp() {
       })
       .catch((err) => {
         console.error("Ошибка при удалении", err);
+      })
+      .finally(() => {
+        setIsDeleting(false);
       });
   };
 
@@ -460,7 +472,7 @@ export default function ContactApp() {
                       <IconButton size="small" onClick={() => setIsEditMode(true)}>
                         <EditIcon fontSize="small" />
                       </IconButton>
-                      <IconButton size="small" onClick={handleDeleteContact}>
+                      <IconButton size="small" onClick={() => setConfirmDeleteOpen(true)}>
                         <DeleteIcon fontSize="small" />
                       </IconButton>
                     </MDBox>
@@ -473,7 +485,6 @@ export default function ContactApp() {
                     <TextField label="Имя" fullWidth defaultValue={selected.name.split(' ')[1] || ''} />
                     <TextField label="Отчество" fullWidth defaultValue={selected.name.split(' ')[2] || ''} />
                     <TextField label="Кампания" fullWidth defaultValue={selected.company} />
-                    <TextField label="Департамент" fullWidth defaultValue={selected.department} />
                     <TextField label="Email" fullWidth defaultValue={selected.email} />
                     <TextField label="Телефон" fullWidth defaultValue={selected.phone} />
                     <TextField
@@ -550,7 +561,6 @@ export default function ContactApp() {
             <TextField label="Имя" fullWidth value={firstName} onChange={(e) => setFirstName(e.target.value)} />
             <TextField label="Отчество" fullWidth value={thirdName} onChange={(e) => setThirdName(e.target.value)} />
             <TextField label="Кампания" fullWidth value={company} onChange={(e) => setCompany(e.target.value)} />
-            <TextField label="Департамент" fullWidth value={department} onChange={(e) => setDepartment(e.target.value)} />
             <TextField label="Адрес" fullWidth value={address} onChange={(e) => setAddress(e.target.value)} />
             <TextField label="Email" fullWidth value={email} onChange={(e) => setEmail(e.target.value)} />
             <TextField label="Телефон" fullWidth value={phone} onChange={(e) => setPhone(e.target.value)} />
@@ -570,6 +580,24 @@ export default function ContactApp() {
             Сохранить
           </MDButton>
           <MDButton onClick={() => setIsAddDialogOpen(false)} color="secondary">Отмена</MDButton>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={confirmDeleteOpen}
+        onClose={() => setConfirmDeleteOpen(false)}
+      >
+        <DialogTitle>Подтвердите удаление</DialogTitle>
+        <DialogContent>
+          <Typography>Вы уверены, что хотите удалить этот контакт?</Typography>
+        </DialogContent>
+        <DialogActions>
+          <MDButton onClick={handleDeleteContact} color="error" disabled={isDeleting}>
+            {isDeleting && <CircularProgress size={16} color="inherit" sx={{ mr: 1 }} />}
+            Удалить
+          </MDButton>
+          <MDButton onClick={() => setConfirmDeleteOpen(false)} color="secondary">
+            Отмена
+          </MDButton>
         </DialogActions>
       </Dialog>
     </MDBox>

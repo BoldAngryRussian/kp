@@ -89,9 +89,47 @@ export default function ContactApp() {
   const [details, setDetails] = useState('');
   const [address, setAddress] = useState('');
 
+  // Edit form state for updating contact
+  const [firstName2Update, setFirstName2Update] = useState('');
+  const [secondName2Update, setSecondName2Update] = useState('');
+  const [thirdName2Update, setThirdName2Update] = useState('');
+  const [company2Update, setCompany2Update] = useState('');
+  const [email2Update, setEmail2Update] = useState('');
+  const [phone2Update, setPhone2Update] = useState('');
+  const [details2Update, setDetails2Update] = useState('');
+
   useEffect(() => {
     handleSupplierClick();
   }, []);
+
+  useEffect(() => {
+    if (selected) {
+      setFirstName2Update(selected.name.split(' ')[1] || '');
+      setSecondName2Update(selected.name.split(' ')[0]);
+      setThirdName2Update(selected.name.split(' ')[2] || '');
+      setCompany2Update(selected.company);
+      setEmail2Update(selected.email);
+      setPhone2Update(selected.phone);
+      setDetails2Update(selected.notes);
+    }
+  }, [selected]);
+  // Update contact function
+  const updateContact = async (updContact, category) => {
+    const endpoint = category === 'supplier'
+      ? `/api/v1/supplier/update`
+      : `/api/v1/customer/update`;
+    const response = await fetch(endpoint, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updContact),
+    });
+    if (!response.ok) {
+      throw new Error('Ошибка при обновлении');
+    }
+    return response.json();
+  };
 
   const transformToGridRows = (data) =>
     data.map(s => ({
@@ -282,6 +320,36 @@ export default function ContactApp() {
     activeCategory === "supplier"
       ? suppliers.filter(s => s.name.toLowerCase().includes(searchText.toLowerCase()))
       : customers.filter(c => c.name.toLowerCase().includes(searchText.toLowerCase()));
+
+  // Функция для сохранения изменений контакта (редактирование)
+  const handleSaveEditContact = async () => {
+    setIsSaving(true);
+    const minDelay = new Promise((resolve) => setTimeout(resolve, 2000));
+    try {
+      await Promise.all([
+        updateContact(
+          {
+            id: selected.id,
+            firstName: firstName2Update,
+            secondName: secondName2Update,
+            thirdName: thirdName2Update,
+            company: company2Update,
+            email: email2Update,
+            phone: phone2Update,
+            details: details2Update,
+          },
+          activeCategory
+        ),
+        minDelay
+      ]);
+      setIsEditMode(false);
+      fetchContactDetails(selected.id, activeCategory, setSelected, setLoading);
+    } catch (err) {
+      console.error('Ошибка при обновлении', err);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <MDBox width="100%" display="flex" flexDirection="column" gap={2}>
@@ -481,22 +549,29 @@ export default function ContactApp() {
                 <Divider flexItem sx={{ borderColor: '#cfd8dc', borderWidth: '3px' }} />
                 {isEditMode ? (
                   <MDBox component="form" display="flex" flexDirection="column" gap={2}>
-                    <TextField label="Фамилия" fullWidth defaultValue={selected.name.split(' ')[0]} />
-                    <TextField label="Имя" fullWidth defaultValue={selected.name.split(' ')[1] || ''} />
-                    <TextField label="Отчество" fullWidth defaultValue={selected.name.split(' ')[2] || ''} />
-                    <TextField label="Кампания" fullWidth defaultValue={selected.company} />
-                    <TextField label="Email" fullWidth defaultValue={selected.email} />
-                    <TextField label="Телефон" fullWidth defaultValue={selected.phone} />
+                    <TextField label="Фамилия" fullWidth value={secondName2Update} onChange={(e) => setSecondName2Update(e.target.value)} />
+                    <TextField label="Имя" fullWidth value={firstName2Update} onChange={(e) => setFirstName2Update(e.target.value)} />
+                    <TextField label="Отчество" fullWidth value={thirdName2Update} onChange={(e) => setThirdName2Update(e.target.value)} />
+                    <TextField label="Кампания" fullWidth value={company2Update} onChange={(e) => setCompany2Update(e.target.value)} />
+                    <TextField label="Email" fullWidth value={email2Update} onChange={(e) => setEmail2Update(e.target.value)} />
+                    <TextField label="Телефон" fullWidth value={phone2Update} onChange={(e) => setPhone2Update(e.target.value)} />
                     <TextField
                       label="Дополнительная информация"
                       fullWidth
-                      defaultValue={selected.notes}
+                      value={details2Update}
+                      onChange={(e) => setDetails2Update(e.target.value)}
                       multiline
                       rows={5}
                     />
                     <MDBox display="flex" gap={2} mt={2}>
-                      <MDButton color="info" variant="contained" onClick={() => setIsEditMode(false)}>
-                        Сохранить
+                      <MDButton
+                        color="info"
+                        variant="contained"
+                        onClick={handleSaveEditContact}
+                        disabled={isSaving}
+                      >
+                        {isSaving && <CircularProgress size={16} color="inherit" sx={{ mr: 1 }} />}
+                        Обновить
                       </MDButton>
                       <MDButton color="secondary" onClick={() => setIsEditMode(false)}>
                         Отмена

@@ -30,12 +30,14 @@ services:
     restart: always
     ports:
       - "8080:8080"
+      - "5005:5005"
     depends_on:
       - db
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/kp-service-db
       SPRING_DATASOURCE_USERNAME: user-name
       SPRING_DATASOURCE_PASSWORD: strong-password
+      JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
   ui:
     image: nginx:alpine
     container_name: react-ui

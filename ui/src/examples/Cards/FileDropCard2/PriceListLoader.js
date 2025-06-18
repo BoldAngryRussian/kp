@@ -127,7 +127,10 @@ function PriceListLoader() {
   };
 
   const handleButtonClick = () => {
-    fileInputRef.current.click();
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""; // сброс значения
+      fileInputRef.current.click();
+    }
   };
 
   const onEditSupplierClick = () => {

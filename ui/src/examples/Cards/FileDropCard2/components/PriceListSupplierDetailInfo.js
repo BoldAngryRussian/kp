@@ -6,6 +6,7 @@ import Icon from "@mui/material/Icon";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
+import Fade from '@mui/material/Fade';
 import MDTypography from "components/MDTypography";
 import MDButton from "components/MDButton";
 import { GridLoader } from "react-spinners";
@@ -97,67 +98,68 @@ function PriceListSupplierInformation({ supplierId, onEditSupplierClick }) {
     }
 
     return (
-        <MDBox pt={1} pb={1} px={2} width="100%">
-            <MDBox component="ul" display="flex" flexDirection="column" p={0} m={0}>
-                <MDBox
-                    component="li"
-                    display="flex"
-                    justifyContent="space-between"
-                    alignItems="flex-start"
-                    bgColor={darkMode ? "rgba(0, 0, 0, 0)" : "grey-100"}
-                    borderRadius="lg"
-                    p={3}
-                    mt={1}
-                >
-                    <MDBox width="100%" display="flex" flexDirection="column">
-                        <MDBox
-                            display="flex"
-                            justifyContent="space-between"
-                            alignItems={{ xs: "flex-start", sm: "center" }}
-                            flexDirection={{ xs: "column", sm: "row" }}
-                            mb={2}
-                        >
-                            <MDTypography variant="button" fontWeight="medium" textTransform="capitalize">
-                                {name}
-                            </MDTypography>
+        <Fade in timeout={400}>
+            <MDBox pt={1} pb={1} px={2} width="100%">
+                <MDBox component="ul" display="flex" flexDirection="column" p={0} m={0}>
+                    <MDBox
+                        component="li"
+                        display="flex"
+                        justifyContent="space-between"
+                        alignItems="flex-start"
+                        bgColor={darkMode ? "rgba(0, 0, 0, 0)" : "grey-100"}
+                        borderRadius="lg"
+                        p={3}
+                        mt={1}
+                    >
+                        <MDBox width="100%" display="flex" flexDirection="column">
+                            <MDBox
+                                display="flex"
+                                justifyContent="space-between"
+                                alignItems={{ xs: "flex-start", sm: "center" }}
+                                flexDirection={{ xs: "column", sm: "row" }}
+                                mb={2}
+                            >
+                                <MDTypography variant="button" fontWeight="medium" textTransform="capitalize">
+                                    {name}
+                                </MDTypography>
 
-                            <MDBox display="flex" alignItems="center" mt={{ xs: 2, sm: 0 }} ml={{ xs: -1.5, sm: 0 }}>
-                                <MDButton 
-                                    variant="text" 
-                                    color={darkMode ? "white" : "dark"}
-                                    onClick={onEditSupplierClick}
-                                >
-                                    <Icon>edit</Icon>
-                                </MDButton>
+                                <MDBox display="flex" alignItems="center" mt={{ xs: 2, sm: 0 }} ml={{ xs: -1.5, sm: 0 }}>
+                                    <MDButton
+                                        variant="text"
+                                        color={darkMode ? "white" : "dark"}
+                                        onClick={onEditSupplierClick}
+                                    >
+                                        <Icon>edit</Icon>
+                                    </MDButton>
+                                </MDBox>
                             </MDBox>
-                        </MDBox>
-                        <MDBox mb={1} lineHeight={0}>
-                            <MDTypography variant="caption" color="text">
-                                Компания:&nbsp;&nbsp;&nbsp;
-                                <MDTypography variant="caption" fontWeight="medium" textTransform="capitalize">
-                                    {company}
+                            <MDBox mb={1} lineHeight={0}>
+                                <MDTypography variant="caption" color="text">
+                                    Компания:&nbsp;&nbsp;&nbsp;
+                                    <MDTypography variant="caption" fontWeight="medium" textTransform="capitalize">
+                                        {company}
+                                    </MDTypography>
                                 </MDTypography>
-                            </MDTypography>
-                        </MDBox>
-                        <MDBox mb={1} lineHeight={0}>
+                            </MDBox>
+                            <MDBox mb={1} lineHeight={0}>
+                                <MDTypography variant="caption" color="text">
+                                    Email адрес:&nbsp;&nbsp;&nbsp;
+                                    <MDTypography variant="caption" fontWeight="medium">
+                                        {email}
+                                    </MDTypography>
+                                </MDTypography>
+                            </MDBox>
                             <MDTypography variant="caption" color="text">
-                                Email адрес:&nbsp;&nbsp;&nbsp;
+                                Телефон:&nbsp;&nbsp;&nbsp;
                                 <MDTypography variant="caption" fontWeight="medium">
-                                    {email}
+                                    {vat}
                                 </MDTypography>
                             </MDTypography>
                         </MDBox>
-                        <MDTypography variant="caption" color="text">
-                            Телефон:&nbsp;&nbsp;&nbsp;
-                            <MDTypography variant="caption" fontWeight="medium">
-                                {vat}
-                            </MDTypography>
-                        </MDTypography>
                     </MDBox>
                 </MDBox>
             </MDBox>
-        </MDBox>
-
+        </Fade>
     );
 }
 

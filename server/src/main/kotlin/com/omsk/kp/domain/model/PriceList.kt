@@ -6,13 +6,11 @@ import jakarta.persistence.Id
 import java.time.Instant
 
 @Entity
-data class Product(
+data class PriceList(
     @Id
     @GeneratedValue
     val id: Long? = null,
-    val name: String,
-    val price: Long,
-    val priceListId: Long,
-    val priceListVersion: Int,
+    val suppliersId: Long,
+    var version: Int = 0,
     val createdAt: Instant = Instant.now()
 )

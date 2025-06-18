@@ -6,6 +6,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import IconButton from '@mui/material/IconButton';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import Fab from '@mui/material/Fab';
+import Tooltip from '@mui/material/Tooltip';
 import SaveIcon from '@mui/icons-material/Save';
 import MDProgress from "components/MDProgress";
 import WholeSale from 'assets/images/wholesale.png'
@@ -49,6 +50,7 @@ function PriceListLoader() {
   const [fileName, setFileName] = useState("");
   const [summaryRows, setSummaryRows] = useState([]);
   const [uploadMessage, setUploadMessage] = useState("");
+  const [uploadErrorMessage, setUploadErrorMessage] = useState("");
   const [showSpinner, setShowSpinner] = useState(false);
   const [initialErrors, setInitialErrors] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
@@ -64,7 +66,7 @@ function PriceListLoader() {
     const formData = new FormData();
     formData.append("file", file);
     setShowSpinner(true);
-    fetch("/api/v1/prices/upload", {
+    fetch("/api/v1/prices/recognize", {
       method: "POST",
       body: formData,
     })
@@ -72,12 +74,7 @@ function PriceListLoader() {
         setTimeout(() => setShowSpinner(false), 1000);
 
         let data = [];
-        try {
-          data = await res.json(); // ожидаем [{ name, price }, ...]
-        } catch (e) {
-          console.warn("Ответ без тела");
-        }
-
+        data = await res.json(); // ожидаем [{ name, price }, ...]
         // Преобразуем в формат таблицы с уникальным id и isCorrect
         const rows = Array.isArray(data)
           ? data.map((item, index) => ({
@@ -90,14 +87,13 @@ function PriceListLoader() {
 
         setSummaryRows(rows); // Записываем данные в таблицу
         setInitialErrors(rows.filter(item => !item.isCorrect).length);
-        setUploadMessage(`Файл "${file.name}" успешно загружен`);
+        setUploadMessage(`Файл "${file.name}" успешно распознан`);
         setTimeout(() => setUploadMessage(""), 2000);
-      })
-      .then((data) => {
-        setUploadMessage(`Файл "${file.name}" успешно загружен`);
       })
       .catch((err) => {
         console.error("Ошибка загрузки", err);
+        setUploadErrorMessage(`Файл "${file.name}" ошибка загрузки!`);
+        setTimeout(() => setUploadErrorMessage(""), 2000);
       });
   }, []);
 
@@ -139,9 +135,7 @@ function PriceListLoader() {
     setModalOpen(true);                 // открываем модалку с выбором
   };
 
-  const hasUnsavedChanges =
-    summaryRows.length > 0 &&
-    summaryRows.every(row => row.isCorrect === true);
+  const canBeSaved = summaryRows.length > 0 && summaryRows.every(row => row.isCorrect === true);
 
 
   // columns объявляем внутри компонента, чтобы иметь доступ к setSummaryRows
@@ -200,7 +194,7 @@ function PriceListLoader() {
         <Card id="delete-account" sx={{ width: "100%" }}>
           <MDBox display="flex" flexDirection="row" width="100%">
             {/* Блок загрузки файла */}
-            <MDBox p={3} width="100%" flex={1}>
+            <MDBox p={3} width="100%" flex={2}>
               <MDBox
                 p={6}
                 display="flex"
@@ -307,34 +301,57 @@ function PriceListLoader() {
         {!showSpinner && summaryRows.length > 0 && (
           <Fade in timeout={400}>
             <Card sx={{ width: "100%" }}>
-              {/* Прогресс-бар перед таблицей */}
-              <MDBox px={3} pt={2} display="flex" justifyContent="center">
-                {/* Прогресс-бар, который всегда реагирует на summaryRows */}
+              <MDBox display="flex" width="100%">
+                {/* Блок с кнопками */}
                 <MDBox
+                  m={2}
+                  p={2}
+                  flex={2}
                   sx={{
-                    width: '40%',
-                    height: 10,
-                    mb: 2,
-                    mx: 'auto', // центрирует по горизонтали
-                    textAlign: 'center',
+                    backgroundColor: '#e3f2fd',
+                    height: '50px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    borderRadius: 2,
                   }}
                 >
-                  <MDTypography display="block" variant="caption" fontWeight="medium" color="text">
-                    {Math.round(correctPercentage)}%
-                  </MDTypography>
-                  {correctPercentage < 100 ? (
-                    <MDProgress value={correctPercentage} color="success" variant="gradient" label={false} />
-                  ) : (
-                    <MDProgress
-                      value={100}
-                      color="success"
-                      variant="gradient"
-                      label={false}
-                      sx={{
-                        animation: 'blink 1s infinite',
-                      }}
-                    />
-                  )}
+                  <Tooltip title="Сохранить">
+                    <IconButton disabled={selectedSupplierIdFinal == null}>
+                      <SaveIcon />
+                    </IconButton>
+                  </Tooltip>
+                </MDBox>
+                {/* Прогресс-бар перед таблицей */}
+                <MDBox
+                  flex={1}
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                >
+                  <MDBox
+                    sx={{
+                      width: '90%',
+                      height: 10,
+                      textAlign: 'center',
+                    }}
+                  >
+                    <MDTypography display="block" variant="caption" fontWeight="medium" color="text">
+                      {Math.round(correctPercentage)}%
+                    </MDTypography>
+                    {correctPercentage < 100 ? (
+                      <MDProgress value={correctPercentage} color="success" variant="gradient" label={false} />
+                    ) : (
+                      <MDProgress
+                        value={100}
+                        color="success"
+                        variant="gradient"
+                        label={false}
+                        sx={{
+                          animation: 'blink 1s infinite',
+                        }}
+                      />
+                    )}
+                  </MDBox>
                 </MDBox>
               </MDBox>
               <MDBox p={3} bt={3}>
@@ -412,26 +429,6 @@ function PriceListLoader() {
             </Card>
           </Fade>
         )}
-        {hasUnsavedChanges && (
-          <MDBox
-            sx={{
-              position: 'fixed',
-              bottom: 24,
-              right: 24,
-              zIndex: 1300,
-            }}
-          >
-            <Fab
-              color="success"
-              aria-label="save"
-              onClick={() => {
-                // Здесь можешь вызвать API или обработчик сохранения
-              }}
-            >
-              <SaveIcon sx={{ width: 36, height: 36, color: "#00FF00" }} />
-            </Fab>
-          </MDBox>
-        )}
         <Dialog
           open={modalOpen}
           onClose={() => setModalOpen(false)}
@@ -487,6 +484,17 @@ function PriceListLoader() {
         content={uploadMessage}
         open={uploadMessage != ""}
         onClose={() => setUploadMessage("")}
+        close
+        bgWhite
+        sx={{ position: 'fixed', bottom: 20, right: 20 }}
+      />
+      <MDSnackbar
+        color="error"
+        icon="error"
+        title="Ошибка выполнения запроса"
+        content={uploadErrorMessage}
+        open={uploadErrorMessage != ""}
+        onClose={() => setUploadErrorMessage("")}
         close
         bgWhite
         sx={{ position: 'fixed', bottom: 20, right: 20 }}

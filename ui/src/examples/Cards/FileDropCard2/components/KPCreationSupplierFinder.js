@@ -39,6 +39,7 @@ export default function KPPriceLoadingSupplierFinder({ onLoadingChange, setSelec
 
     useEffect(() => {
         handleSupplierClick();
+        setSelectedSupplierId?.(null);
     }, []);
 
     useEffect(() => {

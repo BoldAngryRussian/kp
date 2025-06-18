@@ -10,6 +10,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import MDProgress from "components/MDProgress";
 import WholeSale from 'assets/images/wholesale.png'
 import KPPriceLoadingSupplierFinder from 'examples/Cards/FileDropCard2/components/KPCreationSupplierFinder'
+import PriceListSupplierInformation from 'examples/Cards/FileDropCard2/components/PriceListSupplierDetailInfo'
 
 import { GridLoader } from "react-spinners";
 
@@ -189,9 +190,9 @@ function PriceListLoader() {
         <Card id="delete-account" sx={{ width: "100%" }}>
           <MDBox display="flex" flexDirection="row" width="100%">
             {/* Блок загрузки файла */}
-            <MDBox p={2} width="100%" flex={1}>
+            <MDBox p={3} width="100%" flex={1}>
               <MDBox
-                p={4}
+                p={6}
                 display="flex"
                 flexDirection="column"
                 alignItems="center"
@@ -242,36 +243,56 @@ function PriceListLoader() {
               </MDBox>
             </MDBox>
 
-            {/* Блок с картинкой */}
-            <MDBox
-              width="100%"
-              flex={1}
-              display="flex"
-              flexDirection="column"
-              alignItems="center"
-              justifyContent="center"
-              py={4}
-            >
-              <img
-                src={WholeSale}
-                alt="Грузовик"
-                onMouseEnter={(e) => { e.currentTarget.style.transform = "scale(1.1)"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.transform = "scale(1)"; }}
-                onClick={() => setModalOpen(true)}
-                style={{
-                  width: 100,
-                  height: 100,
-                  marginBottom: 8,
-                  filter: "grayscale(50%)",
-                  opacity: 0.3,
-                  transition: "transform 0.3s ease-in-out",
-                  cursor: "pointer"
-                }}
-              />
-              <MDTypography variant="h6" color="text">
-                Выберите поставщика
-              </MDTypography>
-            </MDBox>
+            {/* Блок с информацией о поставщике или картинкой */}
+            {selectedSupplierId ? (
+              <MDBox
+                width="100%"
+                flex={1}
+                display="flex"
+                flexDirection="column"
+                alignItems="center"
+                justifyContent="center"
+              >
+                <PriceListSupplierInformation
+                  supplierId={selectedSupplierId}
+                  name="Иванов Иван Иванович"
+                  company="ООО Рога и Копыта"
+                  email="roga@mail.ru"
+                  vat="+7(999)999-99-99"
+                />
+              </MDBox>
+
+            ) : (
+              <MDBox
+                width="100%"
+                flex={1}
+                display="flex"
+                flexDirection="column"
+                alignItems="center"
+                justifyContent="center"
+                py={1}
+              >
+                <img
+                  src={WholeSale}
+                  alt="Грузовик"
+                  onMouseEnter={(e) => { e.currentTarget.style.transform = "scale(1.1)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.transform = "scale(1)"; }}
+                  onClick={() => setModalOpen(true)}
+                  style={{
+                    width: 100,
+                    height: 100,
+                    marginBottom: 8,
+                    filter: "grayscale(50%)",
+                    opacity: 0.3,
+                    transition: "transform 0.3s ease-in-out",
+                    cursor: "pointer"
+                  }}
+                />
+                <MDTypography variant="body2" color="text" mr={1} fontSize="1rem">
+                  Выберите поставщика
+                </MDTypography>
+              </MDBox>
+            )}
           </MDBox>
         </Card>
         {showSpinner && (
@@ -436,7 +457,6 @@ function PriceListLoader() {
             <MDButton
               onClick={() => {
                 setModalOpen(false)
-                setSelectedSupplierId(null)
               }}
               color="info"
               variant="contained"
@@ -444,11 +464,10 @@ function PriceListLoader() {
             >
               Добавить поставщика
             </MDButton>
-            <MDButton 
+            <MDButton
               onClick={() => {
                 setModalOpen(false)
-                setSelectedSupplierId(null)
-              }} 
+              }}
               color="secondary"
             >
               Отмена

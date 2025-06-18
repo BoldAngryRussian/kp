@@ -8,12 +8,31 @@ import Icon from "@mui/material/Icon";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDButton from "components/MDButton";
-
+import { GridLoader } from "react-spinners";
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 // Material Dashboard 2 React context
 import { useMaterialUIController } from "context";
 import { useState, useEffect } from "react";
 
-function PriceListSupplierInformation({ supplierId }) {
+const customTheme = createTheme({
+    components: {
+        MuiDataGrid: {
+            styleOverrides: {
+                root: {
+                    border: 'none',
+                    fontFamily: 'Roboto, sans-serif',
+                },
+                columnHeaders: {
+                    backgroundColor: '#f8f9fa',
+                    color: '#344767',
+                    fontWeight: 'bold',
+                },
+            },
+        },
+    },
+});
+
+function PriceListSupplierInformation({ supplierId, onEditSupplierClick }) {
     const [controller] = useMaterialUIController();
     const { darkMode } = controller;
     const [loading, setLoading] = useState(false)
@@ -29,6 +48,8 @@ function PriceListSupplierInformation({ supplierId }) {
     // Получение деталей контакта по id и категории
     const fetchContactDetails = (id) => {
         setLoading(true);
+        const startTime = Date.now();
+
         const endpoint = `/api/v1/supplier/${id}`;
         fetch(endpoint)
             .then((res) => {
@@ -42,13 +63,38 @@ function PriceListSupplierInformation({ supplierId }) {
                 setCompany(data.company)
                 setEmail(data.email)
                 setVat(data.phone)
-                setLoading(false);
             })
             .catch((err) => {
                 console.error('Ошибка при получении данных', err);
                 setLoading(false);
+            })
+            .finally(() => {
+                const elapsed = Date.now() - startTime;
+                const remaining = 1000 - elapsed;
+                setTimeout(() => setLoading(false), remaining > 0 ? remaining : 0);
             });
+
     };
+
+    // --- LOADING SPINNER ---
+    if (loading) {
+        return (
+            <MDBox
+                pt={1}
+                pb={1}
+                px={2}
+                width="100%"
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                minHeight="120px"
+            >
+                <ThemeProvider theme={customTheme}>
+                    <GridLoader color="#1976d2" size={20} margin={2} />
+                </ThemeProvider>
+            </MDBox>
+        );
+    }
 
     return (
         <MDBox pt={1} pb={1} px={2} width="100%">
@@ -76,7 +122,11 @@ function PriceListSupplierInformation({ supplierId }) {
                             </MDTypography>
 
                             <MDBox display="flex" alignItems="center" mt={{ xs: 2, sm: 0 }} ml={{ xs: -1.5, sm: 0 }}>
-                                <MDButton variant="text" color={darkMode ? "white" : "dark"}>
+                                <MDButton 
+                                    variant="text" 
+                                    color={darkMode ? "white" : "dark"}
+                                    onClick={onEditSupplierClick}
+                                >
                                     <Icon>edit</Icon>
                                 </MDButton>
                             </MDBox>

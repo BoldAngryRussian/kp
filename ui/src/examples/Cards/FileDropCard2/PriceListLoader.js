@@ -43,6 +43,7 @@ const customTheme = createTheme({
 });
 
 function PriceListLoader() {
+  const [selectedSupplierIdFinal, setSelectedSupplierIdFinal] = useState(null);
   const [selectedSupplierId, setSelectedSupplierId] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [fileName, setFileName] = useState("");
@@ -127,6 +128,12 @@ function PriceListLoader() {
 
   const handleButtonClick = () => {
     fileInputRef.current.click();
+  };
+
+  const onEditSupplierClick = () => {
+    setSelectedSupplierId(null)
+    setSelectedSupplierIdFinal(null);   // сбрасываем текущий выбранный
+    setModalOpen(true);                 // открываем модалку с выбором
   };
 
   const hasUnsavedChanges =
@@ -244,7 +251,7 @@ function PriceListLoader() {
             </MDBox>
 
             {/* Блок с информацией о поставщике или картинкой */}
-            {selectedSupplierId ? (
+            {selectedSupplierIdFinal ? (
               <MDBox
                 width="100%"
                 flex={1}
@@ -253,13 +260,7 @@ function PriceListLoader() {
                 alignItems="center"
                 justifyContent="center"
               >
-                <PriceListSupplierInformation
-                  supplierId={selectedSupplierId}
-                  name="Иванов Иван Иванович"
-                  company="ООО Рога и Копыта"
-                  email="roga@mail.ru"
-                  vat="+7(999)999-99-99"
-                />
+                <PriceListSupplierInformation supplierId={selectedSupplierIdFinal} onEditSupplierClick={onEditSupplierClick} />
               </MDBox>
 
             ) : (
@@ -456,6 +457,7 @@ function PriceListLoader() {
           <DialogActions>
             <MDButton
               onClick={() => {
+                setSelectedSupplierIdFinal(selectedSupplierId)
                 setModalOpen(false)
               }}
               color="info"

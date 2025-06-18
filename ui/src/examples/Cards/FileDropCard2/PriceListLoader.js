@@ -8,6 +8,8 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import Fab from '@mui/material/Fab';
 import SaveIcon from '@mui/icons-material/Save';
 import MDProgress from "components/MDProgress";
+import WholeSale from 'assets/images/wholesale.png'
+import KPPriceLoadingSupplierFinder from 'examples/Cards/FileDropCard2/components/KPCreationSupplierFinder'
 
 import { GridLoader } from "react-spinners";
 
@@ -19,6 +21,7 @@ import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDButton from "components/MDButton";
 import { DataGrid } from '@mui/x-data-grid';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 
 const customTheme = createTheme({
   components: {
@@ -39,12 +42,15 @@ const customTheme = createTheme({
 });
 
 function PriceListLoader() {
+  const [selectedSupplierId, setSelectedSupplierId] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [fileName, setFileName] = useState("");
   const [summaryRows, setSummaryRows] = useState([]);
   const [uploadMessage, setUploadMessage] = useState("");
   const [showSpinner, setShowSpinner] = useState(false);
   const [initialErrors, setInitialErrors] = useState(0);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [loadingSuppliers, setLoadingSuppliers] = useState(false)
   const fileInputRef = useRef(null);
 
   const currentErrors = summaryRows.filter(item => !item.isCorrect).length;
@@ -181,58 +187,89 @@ function PriceListLoader() {
     <>
       <MDBox width="100%" display="flex" flexDirection="column" gap={2}>
         <Card id="delete-account" sx={{ width: "100%" }}>
-          <MDBox px={2} display="flex" justifyContent="space-between" alignItems="center">
-            {/* Скрытый input для выбора файла */}
-            <input
-              type="file"
-              ref={fileInputRef}
-              style={{ display: "none" }}
-              onChange={handleFileChange}
-            />
-          </MDBox>
-          <MDBox p={2} width="100%" height="100%">
+          <MDBox display="flex" flexDirection="row" width="100%">
+            {/* Блок загрузки файла */}
+            <MDBox p={2} width="100%" flex={1}>
+              <MDBox
+                p={4}
+                display="flex"
+                flexDirection="column"
+                alignItems="center"
+                justifyContent="center"
+                sx={({ palette, borders }) => ({
+                  border: `${borders.borderWidth[1]} dashed #666`,
+                  borderRadius: borders.borderRadius.lg,
+                  backgroundColor: isDragging ? palette.grey[200] : "#f8f9fa",
+                  transition: "background-color 0.2s ease-in-out",
+                  cursor: "pointer",
+                  textAlign: "center",
+                })}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+              >
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  style={{ display: "none" }}
+                  onChange={handleFileChange}
+                />
+                <MDBox display="flex" alignItems="center" justifyContent="center" mt={1}>
+                  <MDTypography variant="body2" color="text" mr={1} fontSize="1rem">
+                    Перетащите файл или
+                  </MDTypography>
+                  <MDButton
+                    variant="text"
+                    color="secondary"
+                    size="small"
+                    onClick={handleButtonClick}
+                    sx={{
+                      fontSize: "1rem",
+                      textTransform: "none",
+                      border: "1px solid #999",
+                      backgroundColor: "#f0f0f0",
+                      "&:hover": {
+                        backgroundColor: "#e0e0e0",
+                      },
+                    }}
+                  >
+                    загрузите с вашего устройства
+                  </MDButton>
+                </MDBox>
+                <MDTypography variant="caption" color="text" mt={1} fontSize="0.7rem">
+                  поддерживается формат .xlsx
+                </MDTypography>
+              </MDBox>
+            </MDBox>
+
+            {/* Блок с картинкой */}
             <MDBox
-              p={4}
+              width="100%"
+              flex={1}
               display="flex"
               flexDirection="column"
               alignItems="center"
               justifyContent="center"
-              sx={({ palette, borders }) => ({
-                border: `${borders.borderWidth[1]} dashed #666`,
-                borderRadius: borders.borderRadius.lg,
-                backgroundColor: isDragging ? palette.grey[200] : "#f8f9fa",
-                transition: "background-color 0.2s ease-in-out",
-                cursor: "pointer",
-                textAlign: "center",
-              })}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
+              py={4}
             >
-              <MDBox display="flex" alignItems="center" justifyContent="center" mt={1}>
-                <MDTypography variant="body2" color="text" mr={1} fontSize="1rem">
-                  Перетащите файл или
-                </MDTypography>
-                <MDButton
-                  variant="text"
-                  color="secondary"
-                  size="small"
-                  onClick={handleButtonClick}
-                  sx={{
-                    fontSize: "1rem",
-                    textTransform: "none",
-                    border: "1px solid #999",
-                    backgroundColor: "#f0f0f0",
-                    "&:hover": {
-                      backgroundColor: "#e0e0e0",
-                    },
-                  }}
-                >
-                  загрузите с вашего устройства
-                </MDButton>
-              </MDBox>
-              <MDTypography variant="caption" color="text" mt={1} fontSize="0.7rem">
-                поддерживается формат .xlsx
+              <img
+                src={WholeSale}
+                alt="Грузовик"
+                onMouseEnter={(e) => { e.currentTarget.style.transform = "scale(1.1)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.transform = "scale(1)"; }}
+                onClick={() => setModalOpen(true)}
+                style={{
+                  width: 100,
+                  height: 100,
+                  marginBottom: 8,
+                  filter: "grayscale(50%)",
+                  opacity: 0.3,
+                  transition: "transform 0.3s ease-in-out",
+                  cursor: "pointer"
+                }}
+              />
+              <MDTypography variant="h6" color="text">
+                Выберите поставщика
               </MDTypography>
             </MDBox>
           </MDBox>
@@ -339,6 +376,9 @@ function PriceListLoader() {
                       50%  { opacity: 0.4; }
                       100% { opacity: 1; }
                     }
+                    .hover-border:hover {
+                      border-color: #B0E0E6;
+                    }
                  `}
                     </style>
                   </ThemeProvider>
@@ -367,6 +407,54 @@ function PriceListLoader() {
             </Fab>
           </MDBox>
         )}
+        <Dialog
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+          fullWidth
+          maxWidth={false} // Отключаем ограничение MUI
+          PaperProps={{
+            sx: {
+              width: '40vw',    // ширина окна
+              height: '60vh',   // высота окна
+            },
+          }}
+        >
+          <DialogContent
+            disableScrollLock
+            disabled={loadingSuppliers} // ← передаётся как prop
+            sx={{
+              p: 0,
+              height: '100%',
+              overflow: 'hidden', // 🔒 запрещаем скролл здесь
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
+            <KPPriceLoadingSupplierFinder onLoadingChange={setLoadingSuppliers} setSelectedSupplierId={setSelectedSupplierId} />
+          </DialogContent>
+          <DialogActions>
+            <MDButton
+              onClick={() => {
+                setModalOpen(false)
+                setSelectedSupplierId(null)
+              }}
+              color="info"
+              variant="contained"
+              disabled={selectedSupplierId == null}
+            >
+              Добавить поставщика
+            </MDButton>
+            <MDButton 
+              onClick={() => {
+                setModalOpen(false)
+                setSelectedSupplierId(null)
+              }} 
+              color="secondary"
+            >
+              Отмена
+            </MDButton>
+          </DialogActions>
+        </Dialog>
       </MDBox>
       <MDSnackbar
         color="success"

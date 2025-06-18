@@ -208,7 +208,7 @@ export default function ContactApp() {
   const handleDeleteContact = () => {
     if (!selected) return;
 
-    setIsDeleting(true);    
+    setIsDeleting(true);
     const minDelay = new Promise((resolve) => setTimeout(resolve, 2000));
 
     Promise.all([
@@ -520,7 +520,15 @@ export default function ContactApp() {
           <MDBox width="42.86%" p={3} sx={{ height: '100%', overflow: 'auto', wordBreak: 'break-word', whiteSpace: 'normal' }}>
             {deleted || !selected ? (
               <MDBox display="flex" flexDirection="column" alignItems="center" justifyContent="center" height="100%">
-                <img src="https://cdn-icons-png.flaticon.com/512/4086/4086679.png" alt="Select Contact" width={180} />
+                <img
+                  src="https://cdn-icons-png.flaticon.com/512/4086/4086679.png"
+                  alt="Select Contact"
+                  width={180}
+                  style={{
+                    filter: "grayscale(100%)",
+                    opacity: 0.3,
+                  }}
+                />
                 <MDTypography variant="h6" mt={2}>
                   Пожалуйста, выберите контакт
                 </MDTypography>

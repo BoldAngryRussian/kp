@@ -52,7 +52,7 @@ export default function KPCreationStart() {
                     <MDBox>
                         <MDBox>
                             <MDButton
-                                onClick={() => setOpen(true)}
+                                onClick={() => setShowModifier(true)}
                                 variant="text"
                                 color="secondary"
                                 size="small"

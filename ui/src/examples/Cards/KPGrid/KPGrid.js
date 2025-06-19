@@ -348,32 +348,6 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData }, ref) => {
       );
     }
   }, [kpEditData]);
-  /*
-  useEffect(() => {
-    if (gridRef.current && rowData.length > 0) {
-      const sumRow = {
-        name: 'Итого:',
-        purchasePrice: '',
-        markupPercent: '',
-        markupExtra: '',
-        markupTotal: rowData.reduce((acc, row) => acc + parseFloat(row.markupTotal || 0), 0).toFixed(2),
-        transportExtra: '',
-        transportTotal: rowData.reduce((acc, row) => acc + parseFloat(row.transportTotal || 0), 0).toFixed(2),
-        salePrice: '',
-        weightKg: '',
-        amount: rowData.reduce((acc, row) => acc + parseFloat(row.amount || 0), 0).toFixed(2),
-        totalWeight: rowData.reduce((acc, row) => acc + parseFloat(row.totalWeight || 0), 0).toFixed(2),
-        totalPurchase: rowData.reduce((acc, row) => acc + parseFloat(row.totalPurchase || 0), 0).toFixed(2),
-        totalSale: rowData.reduce((acc, row) => acc + parseFloat(row.totalSale || 0), 0).toFixed(2),
-        totalTransport: rowData.reduce((acc, row) => acc + parseFloat(row.totalTransport || 0), 0).toFixed(2),
-        margin: rowData.reduce((acc, row) => acc + parseFloat(row.margin || 0), 0).toFixed(2),
-      };
-  
-      gridRef.current.setPinnedBottomRowData([sumRow]);
-    }
-  }, [rowData]);
-  */
-
 
   const handleColumnHeaderClick = (event) => {
     const colId = event.column.getId();

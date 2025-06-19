@@ -91,6 +91,10 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
         const selectedNums = gridRef.current?.getSelectedIds();
         if (!selectedNums?.length) return;
         gridRef.current.deleteRowsByNum(selectedNums);
+
+        setSelectedProducts(prev =>
+            prev.filter(row => !selectedNums.includes(row.id))
+        );
     };
 
     const summary = useMemo(() => {
@@ -206,7 +210,7 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
                 <MDBox display="flex" gap={2}>
 
                     {/* Правая карточка — BillingInformation */}
-                    <Card sx={{ width: "50%", display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
+                    <Card sx={{ width: "32%", display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
                         <MDBox p={1} display="flex" justifyContent="center" alignItems="center">
                             <Fade in timeout={1000}>
                                 {userConfirmedCustomerId && selectedCustomerId ? (
@@ -216,7 +220,7 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
                                         <img
                                             src="https://cdn-icons-png.flaticon.com/512/4086/4086679.png"
                                             alt="Select Contact"
-                                            width={180}
+                                            width={140}
                                             onMouseEnter={(e) => { e.currentTarget.style.transform = "scale(1.1)"; }}
                                             onMouseLeave={(e) => { e.currentTarget.style.transform = "scale(1)"; }}
                                             onClick={handleCardClick}
@@ -236,8 +240,41 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
                         </MDBox>
                     </Card>
 
-                    {/* Левая карточка — таблица итогов */}
                     <Card sx={{ width: "50%" }}>
+                        <MDBox p={1}>
+                            <TextField
+                                placeholder="Условия оплаты, дата и место поставки"
+                                multiline
+                                rows={10}
+                                fullWidth
+                                variant="outlined"
+                                sx={{
+                                    backgroundColor: "#fff",
+                                    borderRadius: "8px",
+                                    "& .MuiOutlinedInput-root": {
+                                        "& fieldset": {
+                                            borderColor: "#fff",
+                                        },
+                                        "&:hover fieldset": {
+                                            borderColor: "#fff",
+                                        },
+                                        "&.Mui-focused fieldset": {
+                                            borderColor: "#fff",
+                                        },
+                                    },
+                                }}
+                                InputProps={{
+                                    style: {
+                                        fontSize: "1rem",
+                                        fontFamily: "Roboto, sans-serif",
+                                    },
+                                }}
+                            />
+                        </MDBox>
+                    </Card>
+
+                    {/* Левая карточка — таблица итогов */}
+                    <Card sx={{ width: "25%" }}>
                         <MDBox p={1}>
                             <DataTable
                                 table={{ columns: summaryColumns, rows: summaryRows }}
@@ -249,38 +286,7 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
                             />
                         </MDBox>
                     </Card>
-                </MDBox>
-                <MDBox mt={2}>
-                    <MDBox width="100%">
-                        <TextField
-                            placeholder="Условия оплаты, дата и место поставки"
-                            multiline
-                            rows={6}
-                            fullWidth
-                            variant="outlined"
-                            sx={{
-                                backgroundColor: "#fff",
-                                borderRadius: "8px",
-                                "& .MuiOutlinedInput-root": {
-                                    "& fieldset": {
-                                        borderColor: "#ccc",
-                                    },
-                                    "&:hover fieldset": {
-                                        borderColor: "#999",
-                                    },
-                                    "&.Mui-focused fieldset": {
-                                        borderColor: "#ccc",
-                                    },
-                                },
-                            }}
-                            InputProps={{
-                                style: {
-                                    fontSize: "1rem",
-                                    fontFamily: "Roboto, sans-serif",
-                                },
-                            }}
-                        />
-                    </MDBox>
+
                 </MDBox>
             </MDBox>
             <Dialog

@@ -1,12 +1,12 @@
 package com.omsk.kp.rest
 
-import com.omsk.kp.domain.srevice.ProductService
-import com.omsk.kp.domain.srevice.SavePriceService
+import com.omsk.kp.domain.service.save.SavePriceService
 import com.omsk.kp.dto.ProductDTO
 import com.omsk.kp.dto.SavePriceDTO
 import com.omsk.kp.utils.KPLog
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -17,7 +17,6 @@ import org.springframework.web.multipart.MultipartFile
 @RestController
 @RequestMapping("/api/v1/prices")
 class PriceLoadController(
-    private val productService: ProductService,
     private val savePriceService: SavePriceService
 ) {
 
@@ -43,6 +42,9 @@ class PriceLoadController(
         return products
     }
 
-    @PostMapping("/upload")
-    fun upload(@RequestBody dto: SavePriceDTO) = savePriceService.save(dto)
+    @PostMapping("/save")
+    fun save(@RequestBody dto: SavePriceDTO): ResponseEntity<Void> {
+        savePriceService.save(dto)
+        return ResponseEntity.ok().build()
+    }
 }

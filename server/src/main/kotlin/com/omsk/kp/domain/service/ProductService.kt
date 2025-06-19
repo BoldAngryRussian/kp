@@ -1,4 +1,4 @@
-package com.omsk.kp.domain.srevice
+package com.omsk.kp.domain.service
 
 import com.omsk.kp.domain.model.Product
 import com.omsk.kp.domain.repo.ProductRepository
@@ -10,6 +10,13 @@ class ProductService(
     private val productRepository: ProductRepository
 ) {
     fun findAll() = productRepository.findAll()
+
+
     @Transactional
-    fun saveAll(elems: List<Product>) = productRepository.saveAll(elems)
+    fun saveAll(elems: List<Product>) = productRepository
+        .saveAll(elems)
+
+    @Transactional
+    fun clear(priceListId: Long, version: Int) = productRepository
+        .clear(priceListId, version)
 }

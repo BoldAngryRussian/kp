@@ -6,13 +6,7 @@ import org.springframework.data.jpa.repository.Query
 
 interface PriceListRepository: JpaRepository<PriceList, Long> {
     @Query(
-        value =
-            """
-            SELECT COALESCE(MAX(version), 0) 
-            FROM price_list 
-            WHERE suppliers_id = ? 
-            FOR UPDATE
-            """,
+        value = "SELECT * FROM price_list WHERE suppliers_id = ? FOR UPDATE",
         nativeQuery = true
     )
     fun findWithLocking(suppliersId: Long): PriceList?

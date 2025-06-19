@@ -1,7 +1,7 @@
 package com.omsk.kp.rest
 
 import com.omsk.kp.domain.model.Product
-import com.omsk.kp.domain.srevice.ProductService
+import com.omsk.kp.domain.service.ProductService
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping

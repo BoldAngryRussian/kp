@@ -24,6 +24,7 @@ import MDTypography from "components/MDTypography";
 import MDButton from "components/MDButton";
 import { DataGrid } from '@mui/x-data-grid';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
 
 const customTheme = createTheme({
   components: {
@@ -49,12 +50,14 @@ function PriceListLoader() {
   const [isDragging, setIsDragging] = useState(false);
   const [fileName, setFileName] = useState("");
   const [summaryRows, setSummaryRows] = useState([]);
-  const [uploadMessage, setUploadMessage] = useState("");
   const [uploadErrorMessage, setUploadErrorMessage] = useState("");
   const [showSpinner, setShowSpinner] = useState(false);
   const [initialErrors, setInitialErrors] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
   const [loadingSuppliers, setLoadingSuppliers] = useState(false)
+  const [confirmSaveOpen, setConfirmSaveOpen] = useState(false);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [saving, setSaving] = useState(false);
   const fileInputRef = useRef(null);
 
   const currentErrors = summaryRows.filter(item => !item.isCorrect).length;
@@ -62,7 +65,7 @@ function PriceListLoader() {
     ? ((initialErrors - currentErrors) / initialErrors) * 100
     : 100;
 
-  const uploadFile = useCallback((file) => {
+  const recognizeFile = useCallback((file) => {
     const formData = new FormData();
     formData.append("file", file);
     setShowSpinner(true);
@@ -87,8 +90,6 @@ function PriceListLoader() {
 
         setSummaryRows(rows); // Записываем данные в таблицу
         setInitialErrors(rows.filter(item => !item.isCorrect).length);
-        setUploadMessage(`Файл "${file.name}" успешно распознан`);
-        setTimeout(() => setUploadMessage(""), 2000);
       })
       .catch((err) => {
         console.error("Ошибка загрузки", err);
@@ -111,14 +112,14 @@ function PriceListLoader() {
     setIsDragging(false);
     const file = e.dataTransfer.files[0];
     if (file) {
-      uploadFile(file);
+      recognizeFile(file);
     }
-  }, [uploadFile]);
+  }, [recognizeFile]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      uploadFile(file);
+      recognizeFile(file);
     }
   };
 
@@ -136,6 +137,36 @@ function PriceListLoader() {
   };
 
   const canBeSaved = summaryRows.length > 0 && summaryRows.every(row => row.isCorrect === true);
+
+  // Функция загрузки прайс-листа на сервер
+  const handleUploadPrices = () => {
+    const payload = {
+      supplierId: selectedSupplierIdFinal,
+      products: summaryRows.map(row => ({
+        name: row.label,
+        price: Math.round(parseFloat(row.value) * 100)
+      }))
+    };
+
+    fetch("/api/v1/prices/save", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    }).then(response => {
+      if (!response.ok) throw new Error("Ошибка загрузки данных на сервер");
+      setUploadSuccess(true);
+      setTimeout(() => setUploadSuccess(false), 5000);
+      setSummaryRows([])
+      setSelectedSupplierId(null)
+      setSelectedSupplierIdFinal(null)
+    })
+      .catch((error) => {
+        console.error("Ошибка при загрузке:", error);
+        setUploadErrorMessage("Не удалось загрузить прайс-лист на сервер.");
+    })
+  };
 
 
   // columns объявляем внутри компонента, чтобы иметь доступ к setSummaryRows
@@ -185,7 +216,7 @@ function PriceListLoader() {
       }
     },
     { field: 'label', headerName: 'Название', flex: 0.8, editable: true },
-    { field: 'value', headerName: 'Цена, ₽', flex: 0.1, editable: true },
+    { field: 'value', headerName: 'Цена, ₽', flex: 0.1, editable: false },
   ];
 
   return (
@@ -315,10 +346,15 @@ function PriceListLoader() {
                     borderRadius: 2,
                   }}
                 >
-                  <Tooltip title="Сохранить">
-                    <IconButton disabled={selectedSupplierIdFinal == null}>
-                      <SaveIcon />
-                    </IconButton>
+                  <Tooltip title={selectedSupplierIdFinal == null ? "Сначала выберите поставщика" : "Сохранить"}>
+                    <span>
+                      <IconButton
+                        disabled={selectedSupplierIdFinal == null}
+                        onClick={() => setConfirmSaveOpen(true)}
+                      >
+                        <SaveIcon />
+                      </IconButton>
+                    </span>
                   </Tooltip>
                 </MDBox>
                 {/* Прогресс-бар перед таблицей */}
@@ -476,18 +512,66 @@ function PriceListLoader() {
             </MDButton>
           </DialogActions>
         </Dialog>
+        {/* Модальное окно подтверждения сохранения */}
+        <Dialog open={confirmSaveOpen} onClose={() => setConfirmSaveOpen(false)}>
+          <DialogTitle>Подтверждение</DialogTitle>
+          <DialogContent>Вы уверены, что хотите начать сохранение?</DialogContent>
+          <DialogActions>
+            <MDButton
+              onClick={() => {
+                setSaving(true);
+                setTimeout(() => {
+                  handleUploadPrices();
+                  setSaving(false);
+                  setConfirmSaveOpen(false);
+                }, 2000);
+              }}
+              color="info"
+              variant="contained"
+              disabled={saving}
+            >
+              {saving ? (
+                <>
+                  <CircularProgress size={16} color="inherit" sx={{ mr: 1 }} />
+                  Сохранить
+                </>
+              ) : "Сохранить"}
+            </MDButton>
+            <MDButton
+              onClick={() => setConfirmSaveOpen(false)}
+              color="secondary"
+              disabled={saving}
+            >
+              Отмена
+            </MDButton>
+          </DialogActions>
+        </Dialog>
       </MDBox>
-      <MDSnackbar
-        color="success"
-        icon="check"
-        title="Успешно"
-        content={uploadMessage}
-        open={uploadMessage != ""}
-        onClose={() => setUploadMessage("")}
-        close
-        bgWhite
-        sx={{ position: 'fixed', bottom: 20, right: 20 }}
-      />
+      {uploadSuccess && (
+        <MDBox
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          sx={{
+            position: 'fixed',
+            bottom: 20,
+            top: 'auto',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            backgroundColor: '#d4edda',
+            border: '1px solid #c3e6cb',
+            borderRadius: '6px',
+            padding: '12px 24px',
+            boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+            zIndex: 9999,
+            transition: 'opacity 0.5s ease-in-out'
+          }}
+        >
+          <MDTypography variant="body2" fontWeight="medium" color="success">
+            ✅ Прайс-лист успешно сохранён!
+          </MDTypography>
+        </MDBox>
+      )}
       <MDSnackbar
         color="error"
         icon="error"

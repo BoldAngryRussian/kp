@@ -1,7 +1,7 @@
 package com.omsk.kp.service.update
 
 import com.omsk.kp.converter.ContactSaveDtoToCustomer
-import com.omsk.kp.domain.srevice.CustomerService
+import com.omsk.kp.domain.service.CustomerService
 import com.omsk.kp.dto.ContactSaveDTO
 import org.springframework.stereotype.Service
 

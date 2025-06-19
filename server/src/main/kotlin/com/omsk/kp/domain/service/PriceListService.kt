@@ -1,4 +1,4 @@
-package com.omsk.kp.domain.srevice
+package com.omsk.kp.domain.service
 
 import com.omsk.kp.domain.model.PriceList
 import com.omsk.kp.domain.repo.PriceListRepository

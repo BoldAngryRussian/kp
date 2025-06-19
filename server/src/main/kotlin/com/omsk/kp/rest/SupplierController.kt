@@ -1,6 +1,6 @@
 package com.omsk.kp.rest
 
-import com.omsk.kp.domain.srevice.SupplierService
+import com.omsk.kp.domain.service.SupplierService
 import com.omsk.kp.dto.ContactSaveDTO
 import com.omsk.kp.service.save.SupplierSaveService
 import com.omsk.kp.service.update.SupplierUpdateService

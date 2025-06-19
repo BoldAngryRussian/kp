@@ -330,7 +330,7 @@ function PriceListLoader() {
           </MDBox>
         )}
         {!showSpinner && summaryRows.length > 0 && (
-          <Fade in timeout={400}>
+          <Fade in timeout={1000}>
             <Card sx={{ width: "100%" }}>
               <MDBox display="flex" width="100%">
                 {/* Блок с кнопками */}

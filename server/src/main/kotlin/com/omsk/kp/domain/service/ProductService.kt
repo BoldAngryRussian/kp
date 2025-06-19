@@ -9,8 +9,8 @@ import org.springframework.stereotype.Service
 class ProductService(
     private val productRepository: ProductRepository
 ) {
-    fun findAll() = productRepository.findAll()
 
+    fun findAllShort() = productRepository.findAllShort()
 
     @Transactional
     fun saveAll(elems: List<Product>) = productRepository

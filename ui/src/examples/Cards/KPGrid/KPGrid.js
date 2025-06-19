@@ -13,7 +13,6 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData }, ref) => {
   const gridRef = useRef(null);
   const gridApiRef = useRef(null);     // новая ссылка на API
   const columnApiRef = useRef(null);   // новая ссылка на columnApi
-  const [highlightedCol, setHighlightedCol] = useState(null);
   const gridStyle = useMemo(() => ({ height: "100%", width: "100%", position: 'relative' }), []);
   const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0, data: null });
   const [selectedRow, setSelectedRow] = useState(null);
@@ -60,7 +59,9 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData }, ref) => {
 
   const initialColumnDefs = [
     { headerName: "№", field: "num", width: 50, editable: false },
+    { headerName: "Поставщик", field: "company", width: 220, editable: false, hideGroup: 'details' },
     { headerName: "Наименование", field: "name", width: 550 },
+    { headerName: "Товар от", field: "date", width: 100, editable: false, hideGroup: 'details' },
     {
       headerName: "Цена закуп. ед.", field: "purchasePrice", width: 100, editable: false,
       headerStyle: { backgroundColor: '#FFFFF0' },
@@ -75,9 +76,9 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData }, ref) => {
       },
       children: [
         { headerName: "% от цены", field: "markupPercent", width: 80 },
-        { headerName: "+доп, руб", field: "markupExtra", width: 80 },
+        { headerName: "+доп, ₽", field: "markupExtra", width: 80 },
         {
-          headerName: "Итого, руб", field: "markupTotal", width: 100, editable: false,
+          headerName: "Итого, ₽", field: "markupTotal", width: 100, editable: false,
           headerStyle: { backgroundColor: '#F5F5DC' },
           cellStyle: { backgroundColor: '#F5F5DC' }
         },
@@ -92,16 +93,16 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData }, ref) => {
       },
       children: [
         { headerName: "за кг", field: "transportPercent", width: 80 },
-        { headerName: "+доп, руб", field: "transportExtra", width: 80, height: 100 },
+        { headerName: "+доп, ₽", field: "transportExtra", width: 80, height: 100 },
         {
-          headerName: "Итого, руб", field: "transportTotal", width: 100, editable: false,
+          headerName: "Итого, ₽", field: "transportTotal", width: 100, editable: false,
           headerStyle: { backgroundColor: '#F5F5DC' },
           cellStyle: { backgroundColor: '#F5F5DC' }
         },
       ],
     },
     {
-      headerName: "Цена продажи, руб", 
+      headerName: "Цена продажи, ₽", 
       field: "salePrice", 
       width: 120, 
       editable: false,  
@@ -132,7 +133,7 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData }, ref) => {
       },
     },
     {
-      headerName: "Стоимость закупки, руб", 
+      headerName: "Стоимость закупки, ₽", 
       field: "totalPurchase", 
       width: 150, 
       editable: false,
@@ -149,7 +150,7 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData }, ref) => {
       },
     },
     {
-      headerName: "Стоимость продажи, руб", 
+      headerName: "Стоимость продажи, ₽", 
       field: "totalSale", 
       width: 120, 
       editable: false,      
@@ -170,7 +171,7 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData }, ref) => {
       },
     },
     {
-      headerName: "Транспортные услуги,руб", 
+      headerName: "Транспортные услуги, ₽", 
       field: "totalTransport", 
       width: 120, 
       editable: false,
@@ -184,7 +185,7 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData }, ref) => {
       },
     },
     {
-      headerName: "Маржа, руб", 
+      headerName: "Маржа, ₽", 
       field: "margin", 
       width: 120, 
       editable: false, 
@@ -213,10 +214,35 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData }, ref) => {
   };
 
 
-  useImperativeHandle(ref, () => ({
+useImperativeHandle(ref, () => ({
     getSelectedIds: () => {
       const selectedNodes = gridRef.current?.getSelectedNodes() || [];
       return selectedNodes.map(n => n.data.id);
+    },
+    getCalculatedSummary: () => {
+      let totalPurchase = 0;
+      let totalTransport = 0;
+      let totalSale = 0;
+      let totalMargin = 0;
+
+      rowData.forEach(item => {
+        const purchasePrice = parseFloat(item.purchasePrice) || 0;
+        const transportTotal = parseFloat(item.transportTotal) || 0;
+        const salePrice = parseFloat(item.salePrice) || 0;
+        const margin = parseFloat(item.margin) || 0;
+
+        totalPurchase +=  purchasePrice;
+        totalTransport += transportTotal;
+        totalSale += salePrice;
+        totalMargin += margin;
+      });
+
+      return {
+        totalPurchase: totalPurchase.toFixed(2),
+        totalTransport: totalTransport.toFixed(2),
+        totalSale: totalSale.toFixed(2),
+        totalMargin: totalMargin.toFixed(2),
+      };
     },
     deleteRowsByNum: (ids) => {
       setRowData(prev => {
@@ -253,7 +279,7 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData }, ref) => {
           .map(p => ({
             ...p,
             name: p.name,
-            purchasePrice: p.price,
+            purchasePrice: (p.price / 100).toFixed(2),
             markupPercent: null,
             markupExtra: null,
             markupTotal: null,
@@ -348,21 +374,6 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData }, ref) => {
       );
     }
   }, [kpEditData]);
-
-  const handleColumnHeaderClick = (event) => {
-    const colId = event.column.getId();
-
-    // Удаляем предыдущие классы
-    document.querySelectorAll('.ag-cell').forEach(cell => {
-      cell.classList.remove("highlight-column");
-    });
-
-    // Добавляем класс только ячейкам нужной колонки
-    const cells = document.querySelectorAll(`.ag-cell[col-id="${colId}"]`);
-    cells.forEach(cell => {
-      cell.classList.add("highlight-column");
-    });
-  };
 
   return (
     <>

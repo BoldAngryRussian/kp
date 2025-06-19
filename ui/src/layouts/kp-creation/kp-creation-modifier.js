@@ -97,34 +97,18 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
         );
     };
 
-    const summary = useMemo(() => {
-        const totals = {
-            totalPurchase: 0,
-            totalTransport: 0,
-            totalSale: 0,
-            totalMargin: 0,
-        };
+    const [summary, setSummary] = useState({
+        totalPurchase: "0.00",
+        totalTransport: "0.00",
+        totalSale: "0.00",
+        totalMargin: "0.00",
+    });
 
-        selectedProducts.forEach((item) => {
-            const amount = parseFloat(item.amount) || 0;
-            const purchasePrice = parseFloat(item.purchasePrice) || 0;
-            const transport = parseFloat(item.transportTotal) || 0;
-            const sale = parseFloat(item.salePrice) || 0;
-            const margin = parseFloat(item.margin) || 0;
-
-            totals.totalPurchase += amount * purchasePrice;
-            totals.totalTransport += amount * transport;
-            totals.totalSale += amount * sale;
-            totals.totalMargin += margin;
-        });
-
-        return {
-            totalPurchase: totals.totalPurchase.toFixed(2),
-            totalTransport: totals.totalTransport.toFixed(2),
-            totalSale: totals.totalSale.toFixed(2),
-            totalMargin: totals.totalMargin.toFixed(2),
-        };
-    }, [selectedProducts]);
+    useEffect(() => {
+        if (!gridRef.current?.getCalculatedSummary) return;
+        const calculated = gridRef.current.getCalculatedSummary();
+        setSummary(calculated);
+    }, [kpEditData]);
 
     const summaryColumns = [
         { Header: "Название", accessor: "label", width: "60%", align: "left", sx: { fontSize: '1rem', fontWeight: 600 } },

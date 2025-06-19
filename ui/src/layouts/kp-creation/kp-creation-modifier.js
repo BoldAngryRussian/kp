@@ -5,7 +5,7 @@ import Card from "@mui/material/Card";
 import Icon from "@mui/material/Icon";
 import Tooltip from '@mui/material/Tooltip';
 
-import { Dialog, DialogContent, DialogActions, Button } from "@mui/material";
+import { Dialog, DialogContent, DialogActions, Button, Fade } from "@mui/material";
 
 import BillingInformation from "layouts/billing/components/BillingInformation";
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -35,6 +35,7 @@ import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import ProductCatalog from "layouts/catalog/ProductCatalog";
 
 import KPCreationCustomerFinder from 'layouts/kp-creation/kp-creation-customer-finder'
+import PriceListCustomerInformation from 'layouts/kp-creation/kp-creation-customer-detail-info'
 
 
 const StyledTooltip = styled(({ className, ...props }) => (
@@ -64,6 +65,8 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
     const [detailsVisible, setDetailsVisible] = useState(false);
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [findCustomerModalOpen, setFindCustomerModalOpen] = useState(false);
+    const [selectedCustomerId, setSelectedCustomerId] = useState(null)
+    const [userConfirmedCustomerId, setUserConfirmedCustomerId] = useState(false)
 
     useEffect(() => {
         if (gridRef.current) {
@@ -137,6 +140,12 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
         }
     };
 
+    const onEditCustomerClick = () => {
+        setSelectedCustomerId(null)
+        setUserConfirmedCustomerId(false);
+        setFindCustomerModalOpen(true);
+    };
+
     return (
         <div>
             <KPGridEdit open={openDialog} onClose={() => setOpenDialog(false)} onApply={handleApplyKPGridEdit} />
@@ -185,15 +194,63 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
                             </IconButton>
                         </Tooltip>
                     </MDBox>
-                    <MDBox pt={3} px={2}>
+                    <MDBox px={2}>
                         <KPGrid ref={gridRef} selectedProducts={selectedProducts} kpEditData={kpEditData} />
                     </MDBox>
                 </Card>
 
             </MDBox>
 
-            <MDBox mt={1}>
-                <MDBox mb={2}>
+            <MDBox >
+
+                <MDBox display="flex" gap={2}>
+
+                    {/* Правая карточка — BillingInformation */}
+                    <Card sx={{ width: "50%", display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
+                        <MDBox p={1} display="flex" justifyContent="center" alignItems="center">
+                            <Fade in timeout={1000}>
+                                {userConfirmedCustomerId && selectedCustomerId ? (
+                                    <PriceListCustomerInformation customerId={selectedCustomerId} onEditCustomerClick={onEditCustomerClick} />
+                                ) : (
+                                    <MDBox display="flex" flexDirection="column" alignItems="center" justifyContent="center" height="100%">
+                                        <img
+                                            src="https://cdn-icons-png.flaticon.com/512/4086/4086679.png"
+                                            alt="Select Contact"
+                                            width={180}
+                                            onMouseEnter={(e) => { e.currentTarget.style.transform = "scale(1.1)"; }}
+                                            onMouseLeave={(e) => { e.currentTarget.style.transform = "scale(1)"; }}
+                                            onClick={handleCardClick}
+                                            style={{
+                                                filter: "grayscale(100%)",
+                                                opacity: 0.3,
+                                                transition: "transform 0.3s ease-in-out",
+                                                cursor: "pointer"
+                                            }}
+                                        />
+                                        <MDTypography variant="h6" mt={2}>
+                                            Пожалуйста, выберите поставщика
+                                        </MDTypography>
+                                    </MDBox>
+                                )}
+                            </Fade>
+                        </MDBox>
+                    </Card>
+
+                    {/* Левая карточка — таблица итогов */}
+                    <Card sx={{ width: "50%" }}>
+                        <MDBox p={1}>
+                            <DataTable
+                                table={{ columns: summaryColumns, rows: summaryRows }}
+                                showTotalEntries={false}
+                                isSorted={false}
+                                noEndBorder
+                                entriesPerPage={false}
+                                showHeader={false}
+                            />
+                        </MDBox>
+                    </Card>
+                </MDBox>
+                <MDBox mt={2}>
                     <MDBox width="100%">
                         <TextField
                             placeholder="Условия оплаты, дата и место поставки"
@@ -212,7 +269,7 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
                                         borderColor: "#999",
                                     },
                                     "&.Mui-focused fieldset": {
-                                        borderColor: "#ccc", // ← убрали голубую рамку при фокусе
+                                        borderColor: "#ccc",
                                     },
                                 },
                             }}
@@ -224,58 +281,6 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
                             }}
                         />
                     </MDBox>
-                </MDBox>
-                <MDBox mt={2} display="flex" gap={2}>
-
-                    {/* Правая карточка — BillingInformation */}
-                    <Card
-                        sx={{ width: "50%", display: "flex", flexDirection: "column", justifyContent: "flex-end" }}
-                        onClick={handleCardClick}
-                    >
-                        <MDBox p={3} display="flex" justifyContent="center" alignItems="center">
-                            {selectedCustomer ? (
-                                <BillingInformation customer={selectedCustomer} />
-                            ) : (
-                                <MDBox display="flex" flexDirection="column" alignItems="center" justifyContent="center" height="100%">
-                                    <img src="https://cdn-icons-png.flaticon.com/512/4086/4086679.png" alt="Select Contact" width={180} />
-                                    <MDTypography variant="h6" mt={2}>
-                                        Пожалуйста, выберите поставщика
-                                    </MDTypography>
-                                </MDBox>
-                            )}
-                        </MDBox>
-                    </Card>
-
-                    {/* Левая карточка — таблица итогов */}
-                    <Card sx={{ width: "50%" }}>
-                        <MDBox p={3}>
-                            <MDTypography variant="h4" gutterBottom>
-                                Итого
-                            </MDTypography>
-                            <MDBox display="flex" alignItems="center" lineHeight={0} mb={2}>
-                                <Icon
-                                    sx={{
-                                        fontWeight: "bold",
-                                        color: ({ palette: { info } }) => info.main,
-                                        mt: -0.5,
-                                    }}
-                                >
-                                    analytics
-                                </Icon>
-                                <MDTypography variant="button" fontWeight="regular" color="text">
-                                    &nbsp;<strong>{selectedProducts.length}</strong> позиций
-                                </MDTypography>
-                            </MDBox>
-
-                            <DataTable
-                                table={{ columns: summaryColumns, rows: summaryRows }}
-                                showTotalEntries={false}
-                                isSorted={false}
-                                noEndBorder
-                                entriesPerPage={false}
-                            />
-                        </MDBox>
-                    </Card>
                 </MDBox>
             </MDBox>
             <Dialog
@@ -334,16 +339,19 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
                         flexDirection: 'column',
                     }}
                 >
-                    <KPCreationCustomerFinder />
+                    <KPCreationCustomerFinder setSelectedCustomerId={setSelectedCustomerId} />
                 </DialogContent>
                 <DialogActions>
                     <MDButton
                         onClick={() => {
-                            setFindCustomerModalOpen(false);         // закрываем модалку
+                            setFindCustomerModalOpen(false);
+                            setUserConfirmedCustomerId(true)
                         }}
                         color="info"
-                        variant="contained">
-                        Добавить поставщика
+                        variant="contained"
+                        disabled={selectedCustomerId == null}
+                    >
+                        Выбрать заказчика
                     </MDButton>
                     <MDButton onClick={() => setFindCustomerModalOpen(false)} color="secondary">Отмена</MDButton>
                 </DialogActions>

@@ -1,46 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DataGrid } from '@mui/x-data-grid';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { IconButton, TextField} from "@mui/material";
+import { IconButton, TextField } from "@mui/material";
 import MDBox from "components/MDBox";
-
-const suppliers = [
-    { id: 1, name: 'ООО "Ромашка"' },
-    { id: 2, name: 'OOO "Букашка"' },
-    { id: 3, name: 'OOO "Озон"' },
-    { id: 4, name: 'ООО "Ромашка"' },
-    { id: 5, name: 'OOO "Букашка"' },
-    { id: 6, name: 'OOO "Озон"' },
-    { id: 7, name: 'ООО "Ромашка"' },
-    { id: 8, name: 'OOO "Букашка"' },
-    { id: 9, name: 'OOO "Озон"' },
-    { id: 10, name: 'ООО "Ромашка"' },
-    { id: 11, name: 'OOO "Букашка"' },
-    { id: 12, name: 'OOO "Озон"' },
-    { id: 13, name: 'ООО "Ромашка"' },
-    { id: 14, name: 'OOO "Букашка"' },
-    { id: 15, name: 'OOO "Озон"' },
-    { id: 16, name: 'ООО "Ромашка"' },
-    { id: 17, name: 'OOO "Букашка"' },
-    { id: 18, name: 'OOO "Озон"' },
-    { id: 19, name: 'ООО "Ромашка"' },
-    { id: 20, name: 'OOO "Букашка"' },
-    { id: 21, name: 'OOO "Озон"' },
-    { id: 22, name: 'ООО "Ромашка"' },
-    { id: 23, name: 'OOO "Букашка"' },
-    { id: 24, name: 'OOO "Озон"' },
-    { id: 25, name: 'OOO "Букашка"' },
-    { id: 26, name: 'OOO "Озон"' },
-    { id: 27, name: 'ООО "Ромашка"' },
-    { id: 28, name: 'OOO "Букашка"' },
-    { id: 29, name: 'OOO "Озон"' },
-    { id: 30, name: 'ООО "Ромашка"' },
-    { id: 31, name: 'OOO "Букашка"' },
-    { id: 32, name: 'OOO "Озон"' },
-    { id: 33, name: 'ООО "Ромашка"' },
-    { id: 34, name: 'OOO "Букашка"' },
-    { id: 35, name: 'OOO "Озон"' },
-];
+import { GridLoader } from "react-spinners";
 
 const customTheme = createTheme({
     components: {
@@ -64,12 +27,68 @@ const columns = [
     { field: 'name', headerName: 'Поставщик', flex: 1 },
 ];
 
-export default function KPCreationCustomerFinder() {
-
+export default function KPCreationCustomerFinder({ setSelectedCustomerId }) {
+    const [loading, setLoading] = useState(false);
     const [searchText, setSearchText] = useState('');
+    const [suppliers, setCustomer] = useState([])
     const filteredSuppliers = suppliers.filter(s =>
         s.name.toLowerCase().includes(searchText.toLowerCase())
     );
+
+    useEffect(() => {
+        handleCustomerClick();
+        setSelectedCustomerId?.(null);
+    }, []);
+
+    /*
+    useEffect(() => {
+        onLoadingChange?.(loading);
+    }, [loading]);
+    */
+
+    const transformToGridRows = (data) =>
+        data.map(s => ({
+            id: s.id,
+            name: s.company,
+        }));
+
+    const handleCustomerClick = () => {
+        setLoading(true);
+        const startTime = Date.now();
+
+        fetch('/api/v1/customer/all')
+            .then((res) => {
+                if (!res.ok) throw new Error("Ошибка ответа от сервера");
+                return res.json();
+            })
+            .then((data) => {
+                setCustomer(transformToGridRows(data));
+            })
+            .catch((err) => {
+                console.error('Ошибка при загрузке поставщиков', err);
+            })
+            .finally(() => {
+                const elapsed = Date.now() - startTime;
+                const remaining = 1000 - elapsed;
+                setTimeout(() => setLoading(false), remaining > 0 ? remaining : 0);
+            });
+    };
+
+    // --- LOADING SPINNER ---
+    if (loading) {
+        return (
+            <ThemeProvider theme={customTheme}>
+                <MDBox
+                    display="flex"
+                    justifyContent="center"
+                    alignItems="center"
+                    height="55vh"
+                >
+                    <GridLoader color="#1976d2" size={24} margin={2} />
+                </MDBox>
+            </ThemeProvider>
+        );
+    }
 
     return (
         <div>
@@ -86,7 +105,7 @@ export default function KPCreationCustomerFinder() {
                     {/* Фиксированный поиск */}
                     <MDBox px={2} pt={2}>
                         <TextField
-                            placeholder="Поиск поставщика"
+                            placeholder="Поиск заказчика"
                             variant="outlined"
                             size="small"
                             fullWidth
@@ -96,7 +115,7 @@ export default function KPCreationCustomerFinder() {
                                 endAdornment: (
                                     <IconButton size="small">
                                         <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M15.5 14h-.79l-.28-.27A6.471..." />
+                                            <path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 001.48-5.34C15.08 5.02 12.06 2 8.5 2S2 5.02 2 8.5 5.02 15 8.5 15a6.5 6.5 0 005.34-1.48l.27.28v.79l5 5L20.5 19l-5-5zm-7 0C5.47 14 3 11.53 3 8.5S5.47 3 8.5 3 14 5.47 14 8.5 11.53 14 8.5 14z" />
                                         </svg>
                                     </IconButton>
                                 ),
@@ -128,7 +147,9 @@ export default function KPCreationCustomerFinder() {
                             autoHeight={false} // Важно: отключаем autoHeight
                             rowHeight={32}
                             disableSelectionOnClick
-                            onRowClick={() => { }}
+                            onRowClick={(params) => {
+                                setSelectedCustomerId?.(params.id);
+                            }}
                             sx={{
                                 minHeight: '100%', // 🟢 заменено с height на minHeight
                                 '& .MuiDataGrid-columnHeaders': { display: 'none' },
@@ -150,3 +171,5 @@ export default function KPCreationCustomerFinder() {
         </div>
     );
 }
+
+

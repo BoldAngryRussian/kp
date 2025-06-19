@@ -1,182 +1,3 @@
-/*
-import React, { useState } from 'react';
-import MDButton from "components/MDButton";
-import MDBox from "components/MDBox";
-import FormLabel from '@mui/material/FormLabel';
-import MDTypography from "components/MDTypography";
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Radio,
-  RadioGroup,
-  FormControl,
-  FormControlLabel,
-  TextField
-} from '@mui/material';
-
-export default function KPGridEdit({ open, onClose, onApply }) {
-  const [calculateType, setCalculateType] = useState('');
-  const [markupType, setMarkupType] = useState('percent');
-  const [inputValue, setInputValue] = useState('');
-  const [elemsCheckedType, setElemsCheckedType] = useState('all');
-
-const handleRadioCalculateChange = (event) => {
-    setCalculateType(event.target.value);
-};
-
-const handleRadioChange = (event) => {
-    setMarkupType(event.target.value);
-};
-
-const handleElemsRadioChange = (event) => {
-    setElemsCheckedType(event.target.value);
-  };
-
-const handleInputChange = (event) => {
-    // Допустим, принимаем только корректное число с точкой
-    const val = event.target.value;
-    if (val === '' || /^\d*\.?\d{0,2}$/.test(val)) {
-        setInputValue(val);
-    }
-};
-
-const handleApply = () => {
-    // Формируем объект с данными
-    const data = {
-        calculate: calculateType,
-        type: markupType,
-        elems: elemsCheckedType,
-        value: inputValue === '' ? null : parseFloat(inputValue),
-    };
-    if (onApply) {
-        onApply(data);  // Передаем данные родителю
-    }
-    onClose(); // Закрываем диалог
-};
-
-
-  return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      maxWidth="sm"
-      fullWidth
-      PaperProps={{
-        sx: {
-          borderRadius: 3,
-          p: 2,
-          backgroundColor: '#E0FFFF',
-        },
-      }}
-    >
-      <DialogContent>
-        <FormControl sx={{ width: '100%' }}>
-        <MDBox
-            display="flex"
-            justifyContent="space-between"
-            flexWrap="wrap"
-            width="100%"
-            mt={0.5}
-            mb={1}
-        >
-            <RadioGroup
-                row
-                aria-labelledby="demo-row-radio-buttons-group-label"
-                name="row-radio-buttons-group"
-                value={calculateType}
-                onChange={handleRadioCalculateChange}
-                sx={{
-                        justifyContent: "space-between",
-                        width: "100%",
-                    }}
-            >
-            <FormControlLabel value="markup" control={<Radio />} label="Надбавка" />
-            <FormControlLabel value="transport" control={<Radio />} label="Транспорт" />
-            <FormControlLabel value="count" control={<Radio />} label="Количество" />
-            <FormControlLabel value="weight" control={<Radio />} label="Вес" />
-            </RadioGroup>
-        </MDBox>
-        </FormControl>
-        <MDBox display="flex" justifyContent="space-between" width="100%">
-            <FormControl >
-                <MDTypography variant="subtitle2" fontWeight="medium" color="text" mb={1}>Расчет</MDTypography>
-                <MDBox
-                    border={1}
-                    borderColor="grey.300"
-                    borderRadius={2}
-                    p={2}
-                    mt={1}
-                    bgcolor="white"
-                >
-                    <RadioGroup
-                    value={markupType}
-                    onChange={handleRadioChange}
-                    name="markup-type"
-                    >
-                    <FormControlLabel value="percent" control={<Radio />} label="Процент" />
-                    <FormControlLabel value="fixed" control={<Radio />} label="Фиксированно" />
-                    </RadioGroup>
-                </MDBox>
-            </FormControl>
-            <FormControl>
-                <MDTypography variant="subtitle2" fontWeight="medium" color="text" mb={1}>Товары</MDTypography>
-                <MDBox
-                    border={1}
-                    borderColor="grey.300"
-                    borderRadius={2}
-                    p={2}
-                    mt={1}
-                    bgcolor="white"
-                >
-                    <RadioGroup
-                    value={elemsCheckedType}
-                    onChange={handleElemsRadioChange}
-                    name="elems-checked-type"
-                    >
-                    <FormControlLabel value="checked" control={<Radio />} label="Только выделенные" />
-                    <FormControlLabel value="all" control={<Radio />} label="Все" />
-                    </RadioGroup>
-                </MDBox>
-            </FormControl>
-        </MDBox>     
-          <MDBox >
-            <FormControl fullWidth>
-                <MDBox
-                    borderColor="grey.300"
-                    borderRadius={2}
-                    py={3} px={0}
-                    bgcolor="white"
-                >
-                        <TextField
-                            value={inputValue}
-                            onChange={handleInputChange}
-                            variant="outlined"
-                            type="number"
-                            inputProps={{
-                                step: "0.01",         // шаг — два знака после запятой
-                                min: "0",             // минимальное значение (по желанию)
-                                inputMode: "decimal", // на мобилках вызывает цифровую клавиатуру с точкой
-                                pattern: "\\d+(\\.\\d{0,2})?" // ограничение на 2 знака после точки (валидируется вручную)
-                            }}
-                            placeholder="Введите значение"
-                            fullWidth
-                        />
-                </MDBox>
-            </FormControl>
-  </MDBox>   
-      </DialogContent>
-      <DialogActions sx={{ justifyContent: 'flex-end', pr: 3, pb: 2 }}>
-        <MDButton color="success" onClick={handleApply}>Применить</MDButton>
-        <MDButton color="info" onClick={onClose}>Закрыть</MDButton>
-      </DialogActions>
-    </Dialog>
-  );
-}
-  */
-
-
 import React, { useState } from 'react';
 import {
   Dialog, DialogTitle, DialogContent, DialogActions,
@@ -211,7 +32,7 @@ export default function KPGridEdit({ open, onClose, onApply }) {
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: 3, p: 2, backgroundColor: '#E0FFFF' } }}>
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth >
       <DialogTitle>
         <MDTypography variant="h5" fontWeight="bold">Настройка расчёта</MDTypography>
       </DialogTitle>
@@ -230,7 +51,7 @@ export default function KPGridEdit({ open, onClose, onApply }) {
             }}
             sx={{
                 mb: 2,
-                backgroundColor: '#E0FFFF', // чуть светлый фон для контраста
+                //backgroundColor: '#E0FFFF', // чуть светлый фон для контраста
                 borderRadius: 2,
                 '& .MuiTab-root': {
                     fontWeight: 400,
@@ -265,12 +86,12 @@ export default function KPGridEdit({ open, onClose, onApply }) {
             sx={{
                 backgroundColor:
                 calculateType === 'markup'
-                    ? '#fff9e6'
+                    ? '#fffdf5'
                     : calculateType === 'transport'
-                    ? '#e6f4ff'
+                    ? '#f8fbff'
                     : calculateType === 'count'
-                    ? '#e8f5e9'
-                    : '#E6E6FA', // для weight
+                    ? '#f7fdf8'
+                    : '#F7F7FD', // для weight
                 p: 2,
                 borderRadius: 2,
                 flexDirection: 'row',
@@ -305,7 +126,7 @@ export default function KPGridEdit({ open, onClose, onApply }) {
 
                 <MDBox>
                     <MDTypography variant="subtitle2" fontWeight="medium" mb={1}>Значение</MDTypography>
-                    <Box border={1} borderRadius={2} borderColor="grey.300" bgcolor="white" px={2} py={1}>
+                    <Box  borderRadius={2} borderColor="grey.300" bgcolor="white" px={2} py={1}>
                         <TextField
                         value={inputValue}
                         onChange={handleInputChange}
@@ -327,8 +148,8 @@ export default function KPGridEdit({ open, onClose, onApply }) {
       </DialogContent>
 
       <DialogActions sx={{ justifyContent: 'flex-end', pr: 3, pb: 2 }}>
-        <MDButton color="success" onClick={handleApply}>Применить</MDButton>
-        <MDButton color="info" onClick={onClose}>Закрыть</MDButton>
+        <MDButton color="info" variant="contained" onClick={handleApply}>Применить</MDButton>
+        <MDButton onClick={onClose} color="secondary">Отмена</MDButton>
       </DialogActions>
     </Dialog>
   );

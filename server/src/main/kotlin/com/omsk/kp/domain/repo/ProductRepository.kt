@@ -16,7 +16,7 @@ interface ProductRepository : JpaRepository<Product, Long> {
 
     @Query(
         value = """
-            select p.name, p.price, spl.company as company from product p
+            select p.id, p.name, p.price, spl.company as company from product p
             inner join price_list l on p.price_list_id = l.id and p.price_list_version = l.version
             inner join suppliers spl on l.suppliers_id = spl.id
         """,

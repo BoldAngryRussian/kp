@@ -33,7 +33,8 @@ const customTheme = createTheme({
 const columns = [
     { field: 'id', headerName: 'ID', flex: 0.1, hide: true },
     { field: 'name', headerName: 'Название', flex: 0.7 },
-    { field: 'price', headerName: 'Цена', flex: 0.1 },
+    { field: 'company', headerName: 'Компания', flex: 0.1 },
+    { field: 'price', headerName: 'Цена', flex: 0.1 }
 ];
 
 const ProductCatalog = forwardRef(({ onSelect }, ref) => {
@@ -47,7 +48,7 @@ const ProductCatalog = forwardRef(({ onSelect }, ref) => {
     // Загрузка списка продуктов с сервера с искусственной задержкой 1 секунда
     useEffect(() => {
         setLoadingProducts(true);
-        fetch('/api/v1/products/list')
+        fetch('/api/v1/products/all/short')
             .then(res => res.json())
             .then(data => {
                 setProducts(data);

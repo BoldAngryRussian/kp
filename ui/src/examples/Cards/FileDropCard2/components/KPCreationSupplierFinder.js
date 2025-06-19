@@ -4,7 +4,6 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { IconButton, TextField } from "@mui/material";
 import MDBox from "components/MDBox";
 import { GridLoader } from "react-spinners";
-import MDButton from "components/MDButton";
 
 const customTheme = createTheme({
     components: {
@@ -29,7 +28,6 @@ const columns = [
 ];
 
 export default function KPPriceLoadingSupplierFinder({ onLoadingChange, setSelectedSupplierId }) {
-    // selectedSupplierId теперь управляется извне через setSelectedSupplierId проп
     const [loading, setLoading] = useState(false);
     const [searchText, setSearchText] = useState('');
     const [suppliers, setSuppliers] = useState([])

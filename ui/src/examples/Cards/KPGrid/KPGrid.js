@@ -6,10 +6,13 @@ import { GlobalStyles } from '@mui/material';
 import MDButton from "components/MDButton";
 import { ModuleRegistry, AllCommunityModule, themeQuartz } from 'ag-grid-community';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Typography, Box } from '@mui/material';
+import { calculateUpdatedRows } from 'utils/KPCalculation';
+import { KPSummaryCalculation } from 'utils/KPSummaryCalculation'
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-const KPGrid = forwardRef(({ selectedProducts, kpEditData }, ref) => {
+const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary }, ref) => {
+
   const gridRef = useRef(null);
   const gridApiRef = useRef(null);     // новая ссылка на API
   const columnApiRef = useRef(null);   // новая ссылка на columnApi
@@ -18,7 +21,6 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData }, ref) => {
   const [selectedRow, setSelectedRow] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [rowData, setRowData] = useState([]);
-
 
 
   const handleRowDoubleClick = (event) => {
@@ -61,7 +63,7 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData }, ref) => {
     { headerName: "№", field: "num", width: 50, editable: false },
     { headerName: "Поставщик", field: "company", width: 220, editable: false, hideGroup: 'details' },
     { headerName: "Наименование", field: "name", width: 550 },
-    { headerName: "Товар от", field: "date", width: 100, editable: false, hideGroup: 'details' },
+    { headerName: "Прайс", field: "date", width: 100, editable: false, hideGroup: 'details' },
     {
       headerName: "Цена закуп. ед.", field: "purchasePrice", width: 100, editable: false,
       headerStyle: { backgroundColor: '#FFFFF0' },
@@ -102,107 +104,51 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData }, ref) => {
       ],
     },
     {
-      headerName: "Цена продажи, ₽", 
-      field: "salePrice", 
-      width: 120, 
-      editable: false,  
-      hideGroup: 'details',     
+      headerName: "Цена продажи, ₽",
+      field: "salePrice",
+      width: 120,
+      editable: false,
+      hideGroup: 'details',
       headerStyle: { backgroundColor: '#FAF0E6' },
       cellStyle: { backgroundColor: '#FAF0E6' },
-      valueGetter: (params) => {
-        const price = parseFloat(params.data.purchasePrice)
-        const markupTotal = parseFloat(params.data.markupTotal);
-        const transportTotal = parseFloat(params.data.transportTotal);
-        if (!isNaN(price) && !isNaN(markupTotal) && !isNaN(transportTotal)) {
-          return (price + markupTotal + transportTotal).toFixed(2);
-        }
-        return null;
-      },
     },
     { headerName: "Вес, кг", field: "weightKg", width: 100, hideGroup: 'details', },
     { headerName: "Кол-во", field: "amount", width: 90 },
     {
       headerName: "Вес итого, кг", field: "totalWeight", width: 120, editable: false,
-      valueGetter: (params) => {
-        const amount = parseFloat(params.data.amount);
-        const weightKg = parseFloat(params.data.weightKg);
-        if (!isNaN(amount) && !isNaN(weightKg)) {
-          return (amount * weightKg).toFixed(2);
-        }
-        return null;
-      },
     },
     {
-      headerName: "Стоимость закупки, ₽", 
-      field: "totalPurchase", 
-      width: 150, 
+      headerName: "Стоимость закупки, ₽",
+      field: "totalPurchase",
+      width: 150,
       editable: false,
       hideGroup: 'details',
       headerStyle: { backgroundColor: '#FFFFF0' },
       cellStyle: { backgroundColor: '#FFFFF0' },
-      valueGetter: (params) => {
-        const amount = parseFloat(params.data.amount);
-        const price = parseFloat(params.data.purchasePrice);
-        if (!isNaN(amount) && !isNaN(price)) {
-          return (amount * price).toFixed(2);
-        }
-        return null;
-      },
     },
     {
-      headerName: "Стоимость продажи, ₽", 
-      field: "totalSale", 
-      width: 120, 
-      editable: false,      
+      headerName: "Стоимость продажи, ₽",
+      field: "totalSale",
+      width: 120,
+      editable: false,
       headerStyle: { backgroundColor: '#FAF0E6' },
       cellStyle: { backgroundColor: '#FAF0E6' },
-      valueGetter: (params) => {
-        const amount = parseFloat(params.data.amount);
-        const price = parseFloat(params.data.purchasePrice)
-        const markupTotal = parseFloat(params.data.markupTotal);
-        const transportTotal = parseFloat(params.data.transportTotal);
-        const salePrice = (!isNaN(price) && !isNaN(markupTotal) && !isNaN(transportTotal))
-          ? price + markupTotal + transportTotal
-          : NaN;
-        if (!isNaN(amount) && !isNaN(salePrice)) {
-          return (amount * salePrice).toFixed(2);
-        }
-        return null;
-      },
     },
     {
-      headerName: "Транспортные услуги, ₽", 
-      field: "totalTransport", 
-      width: 120, 
+      headerName: "Транспортные услуги, ₽",
+      field: "totalTransport",
+      width: 120,
       editable: false,
-      valueGetter: (params) => {
-        const amount = parseFloat(params.data.amount);
-        const transportTotal = parseFloat(params.data.transportTotal);
-        if (!isNaN(amount) && !isNaN(transportTotal)) {
-          return (transportTotal * amount).toFixed(2);
-        }
-        return null;
-      },
     },
     {
-      headerName: "Маржа, ₽", 
-      field: "margin", 
-      width: 120, 
-      editable: false, 
+      headerName: "Маржа, ₽",
+      field: "margin",
+      width: 120,
+      editable: false,
       aggFunc: "sum",
       hideGroup: 'details',
       headerStyle: { backgroundColor: '#e0f2f1' },
       cellStyle: { backgroundColor: '#e0f2f1' },
-      valueGetter: (params) => {
-        const amount = parseFloat(params.data.amount);
-        const price = parseFloat(params.data.purchasePrice)
-        const markupTotal = parseFloat(params.data.markupTotal);
-        const transportTotal = parseFloat(params.data.transportTotal);
-        if (!isNaN(amount) && !isNaN(transportTotal) && !isNaN(price) && !isNaN(markupTotal)) {
-          return (amount * (price + markupTotal) - (amount * price)).toFixed(2);
-        }
-        return null;
-      },
     },
   ];
   const [columnDefs, setColumnDefs] = useState(initialColumnDefs);
@@ -214,35 +160,10 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData }, ref) => {
   };
 
 
-useImperativeHandle(ref, () => ({
+  useImperativeHandle(ref, () => ({
     getSelectedIds: () => {
       const selectedNodes = gridRef.current?.getSelectedNodes() || [];
       return selectedNodes.map(n => n.data.id);
-    },
-    getCalculatedSummary: () => {
-      let totalPurchase = 0;
-      let totalTransport = 0;
-      let totalSale = 0;
-      let totalMargin = 0;
-
-      rowData.forEach(item => {
-        const purchasePrice = parseFloat(item.purchasePrice) || 0;
-        const transportTotal = parseFloat(item.transportTotal) || 0;
-        const salePrice = parseFloat(item.salePrice) || 0;
-        const margin = parseFloat(item.margin) || 0;
-
-        totalPurchase +=  purchasePrice;
-        totalTransport += transportTotal;
-        totalSale += salePrice;
-        totalMargin += margin;
-      });
-
-      return {
-        totalPurchase: totalPurchase.toFixed(2),
-        totalTransport: totalTransport.toFixed(2),
-        totalSale: totalSale.toFixed(2),
-        totalMargin: totalMargin.toFixed(2),
-      };
     },
     deleteRowsByNum: (ids) => {
       setRowData(prev => {
@@ -307,71 +228,12 @@ useImperativeHandle(ref, () => ({
     }
   }, [selectedProducts]);
 
+
   useEffect(() => {
     if (rowData.length > 0) {
-
-      const value = kpEditData?.value ?? null;
-      const type = kpEditData?.type ?? null;
-      const calculate = kpEditData?.calculate ?? null
-
-      setRowData(prevRowData =>
-        prevRowData.map(row => {
-          let markupPercent = row.markupPercent
-          let markupExtra = row.markupExtra
-          let markupTotal = row.markupTotal
-
-          let transportPercent = row.transportPercent
-          let transportExtra = row.transportExtra
-          let transportTotal = row.transportTotal
-
-          let weightKg = row.weightKg
-          let amount = row.amount
-
-          if (calculate === 'markup' && row.purchasePrice != null && value != null && type != null) {
-            if (type === "percent") {
-              let markupExtraValue = markupExtra ?? 0
-              markupPercent = value
-              markupTotal = (row.purchasePrice * value / 100 + markupExtraValue).toFixed(2);
-            } else if (type === "fixed") {
-              let markupPercentValue = markupPercent ?? 0
-              markupExtra = value
-              markupTotal = (value + (row.purchasePrice * markupPercentValue / 100)).toFixed(2);
-            }
-          }
-
-          if (calculate === 'transport' && row.purchasePrice != null && value != null && type != null) {
-            if (type === "percent") {
-              let transportExtraValue = transportExtra ?? 0
-              transportPercent = value
-              transportTotal = (row.weightKg * value + transportExtraValue).toFixed(2);
-            } else if (type === "fixed") {
-              let transportPercentValue = transportPercent ?? 0
-              transportExtra = value
-              transportTotal = (value + row.weightKg * transportPercentValue).toFixed(2);
-            }
-          }
-
-          if (calculate === 'weight') {
-            weightKg = value
-          }
-
-          if (calculate === 'count') {
-            amount = value
-          }
-
-          return {
-            ...row,
-            markupPercent,
-            markupExtra,
-            markupTotal,
-            transportPercent,
-            transportExtra,
-            transportTotal,
-            weightKg,
-            amount
-          };
-        })
-      );
+      const updated = calculateUpdatedRows(rowData, kpEditData);
+      setRowData(updated);      
+      summary?.(KPSummaryCalculation(updated))
     }
   }, [kpEditData]);
 

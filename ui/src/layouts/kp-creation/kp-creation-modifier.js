@@ -66,7 +66,13 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [findCustomerModalOpen, setFindCustomerModalOpen] = useState(false);
     const [selectedCustomerId, setSelectedCustomerId] = useState(null)
-    const [userConfirmedCustomerId, setUserConfirmedCustomerId] = useState(false)
+    const [userConfirmedCustomerId, setUserConfirmedCustomerId] = useState(false)    
+    const [summary, setSummary] = useState({
+        totalPurchase: "0.00",
+        totalTransport: "0.00",
+        totalSale: "0.00",
+        totalMargin: "0.00",
+    });
 
     useEffect(() => {
         if (gridRef.current) {
@@ -97,19 +103,6 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
         );
     };
 
-    const [summary, setSummary] = useState({
-        totalPurchase: "0.00",
-        totalTransport: "0.00",
-        totalSale: "0.00",
-        totalMargin: "0.00",
-    });
-
-    useEffect(() => {
-        if (!gridRef.current?.getCalculatedSummary) return;
-        const calculated = gridRef.current.getCalculatedSummary();
-        setSummary(calculated);
-    }, [kpEditData]);
-
     const summaryColumns = [
         { Header: "Название", accessor: "label", width: "60%", align: "left", sx: { fontSize: '1rem', fontWeight: 600 } },
         { Header: "Сумма", accessor: "value", width: "40%", align: "right", sx: { fontSize: '1rem', fontWeight: 600 } },
@@ -117,7 +110,7 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
 
     const summaryRows = [
         { label: "💰 Сумма закупки", value: `${summary.totalPurchase} ₽` },
-        { label: "🚛 Транспортные расходы", value: `${summary.totalTransport} ₽` },
+        { label: "🚛 Транспорт", value: `${summary.totalTransport} ₽` },
         { label: "🛒 Цена продажи", value: `${summary.totalSale} ₽` },
         { label: "📈 Маржа", value: (<strong style={{ color: "green", fontSize: "1.1rem" }}>{summary.totalMargin} ₽</strong>), },
     ];
@@ -183,7 +176,7 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
                         </Tooltip>
                     </MDBox>
                     <MDBox px={2}>
-                        <KPGrid ref={gridRef} selectedProducts={selectedProducts} kpEditData={kpEditData} />
+                        <KPGrid ref={gridRef} selectedProducts={selectedProducts} kpEditData={kpEditData} summary={setSummary} />
                     </MDBox>
                 </Card>
 
@@ -258,7 +251,7 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
                     </Card>
 
                     {/* Левая карточка — таблица итогов */}
-                    <Card sx={{ width: "25%" }}>
+                    <Card sx={{ width: "30%" }}>
                         <MDBox p={1}>
                             <DataTable
                                 table={{ columns: summaryColumns, rows: summaryRows }}

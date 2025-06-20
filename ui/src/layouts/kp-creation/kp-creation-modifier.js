@@ -73,6 +73,7 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
         totalSale: "0.00",
         totalMargin: "0.00",
     });
+    const [confirmSaveOpen, setConfirmSaveOpen] = useState(false);
 
     useEffect(() => {
         if (gridRef.current) {
@@ -158,7 +159,7 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
                         </Tooltip>
 
                         <Tooltip title="Сохранить">
-                            <IconButton>
+                            <IconButton onClick={() => setConfirmSaveOpen(true)}>
                                 <SaveIcon />
                             </IconButton>
                         </Tooltip>
@@ -337,6 +338,29 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
                         Выбрать заказчика
                     </MDButton>
                     <MDButton onClick={() => setFindCustomerModalOpen(false)} color="secondary">Отмена</MDButton>
+                </DialogActions>
+            </Dialog>
+            <Dialog
+                open={confirmSaveOpen}
+                onClose={() => setConfirmSaveOpen(false)}
+            >
+                <DialogContent>
+                    <MDTypography variant="h6">Вы уверены, что хотите сохранить изменения?</MDTypography>
+                </DialogContent>
+                <DialogActions>
+                    <MDButton
+                        onClick={() => {
+                            setConfirmSaveOpen(false);
+                            // TODO: добавить функцию сохранения здесь
+                        }}
+                        color="info"
+                        variant="contained"
+                    >
+                        Сохранить
+                    </MDButton>
+                    <MDButton onClick={() => setConfirmSaveOpen(false)} color="secondary">
+                        Отмена
+                    </MDButton>
                 </DialogActions>
             </Dialog>
         </div>

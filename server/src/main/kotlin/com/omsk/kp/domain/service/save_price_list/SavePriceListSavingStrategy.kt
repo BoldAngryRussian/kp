@@ -1,4 +1,4 @@
-package com.omsk.kp.domain.service.save
+package com.omsk.kp.domain.service.save_price_list
 
 import com.omsk.kp.converter.ProductDtoToProductConverter
 import com.omsk.kp.domain.model.PriceList

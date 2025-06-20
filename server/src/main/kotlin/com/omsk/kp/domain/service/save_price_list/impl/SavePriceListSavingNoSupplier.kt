@@ -1,10 +1,10 @@
-package com.omsk.kp.domain.service.save.impl
+package com.omsk.kp.domain.service.save_price_list.impl
 
 import com.omsk.kp.converter.ProductDtoToProductConverter
 import com.omsk.kp.domain.model.PriceList
 import com.omsk.kp.domain.service.PriceListService
 import com.omsk.kp.domain.service.ProductService
-import com.omsk.kp.domain.service.save.SavePriceListSavingStrategy
+import com.omsk.kp.domain.service.save_price_list.SavePriceListSavingStrategy
 import com.omsk.kp.dto.SavePriceDTO
 import org.springframework.stereotype.Component
 

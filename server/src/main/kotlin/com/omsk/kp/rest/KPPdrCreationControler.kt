@@ -1,6 +1,7 @@
 package com.omsk.kp.rest
 
 import com.omsk.kp.service.pdf.PDFGenerator
+import com.omsk.kp.utils.REST_V1
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -9,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping(REST_V1)
 class KPPdrCreationControler(
     private val pdfGenerator: PDFGenerator
 ) {

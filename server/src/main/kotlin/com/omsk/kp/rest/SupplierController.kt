@@ -1,5 +1,6 @@
 package com.omsk.kp.rest
 
+import com.omsk.kp.utils.REST_V1
 import com.omsk.kp.domain.service.SupplierService
 import com.omsk.kp.dto.ContactSaveDTO
 import com.omsk.kp.service.save.SupplierSaveService
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/api/v1/supplier")
+@RequestMapping("${REST_V1}/supplier")
 class SupplierController(
     private val service: SupplierService,
     private val saveService: SupplierSaveService,

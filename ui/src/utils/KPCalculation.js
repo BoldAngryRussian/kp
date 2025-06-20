@@ -1,63 +1,29 @@
-const calculateUpdatedRows = (rowData, kpEditData) => {
+const calculateUpdatedRows = (rowData, kpEditData, selectedIds) => {
     if (!rowData || rowData.length === 0 || !kpEditData) return rowData;
 
-    const value = kpEditData.value ?? null;
-    const type = kpEditData.type ?? null;
-    const calculate = kpEditData.calculate ?? null;
+    const recalculatedRow = recalculateDataAfterKPEditExecuted(rowData, kpEditData, selectedIds)
+    return recalculationWhenRowDataChanged(recalculatedRow)
+}
 
+const recalculationWhenRowDataChanged = (rowData) => {
     return rowData.map(row => {
-
-        let markupPercent = row.markupPercent;
-        let markupExtra = row.markupExtra;
-        let markupTotal = row.markupTotal;
-
-        let transportPercent = row.transportPercent;
-        let transportExtra = row.transportExtra;
-        let transportTotal = row.transportTotal;
-
-        let weightKg = row.weightKg;
-        let amount = row.amount;
-
-        if (calculate === 'weight') {
-            weightKg = value;
-        }
-
-        if (calculate === 'count') {
-            amount = value;
-        }
-
+        const amount = row.amount;
+        const weightKg = row.weightKg;
         const totalWeight = totalWeightCalculation(amount, weightKg)
-
-        const markupResult = markupCalculation(calculate, row, value, type)
-        if (markupResult) {
-            markupPercent = markupResult.markupPercent
-            markupExtra = markupResult.markupExtra
-            markupTotal = markupResult.markupTotal
-        }
-
-        const transportResult = transportCalculation(calculate, row, value, type)
-        if (transportResult) {
-            transportPercent = transportResult.transportPercent
-            transportExtra = transportResult.transportExtra
-            transportTotal = transportResult.transportTotal
-        }
-
-        let salePrice = salePriceCalculation(row.purchasePrice, markupTotal, transportTotal)
-        let totalPurchase = totalPurchaseCalculation(amount, row.purchasePrice)
-        let totalSale = totalSaleCalculation(amount, row.purchasePrice, markupTotal, transportTotal)
-        let totalTransport = totalTransportCalculation(amount, transportTotal)
-        let margin = marginCalculation(totalSale, totalPurchase, totalTransport)
+        const markupTotal = markupCalculation(row)
+        const transportTotal = transportCalculation(row)
+        const salePrice = salePriceCalculation(row.purchasePrice, markupTotal, transportTotal)
+        const totalPurchase = totalPurchaseCalculation(amount, row.purchasePrice)
+        const totalSale = totalSaleCalculation(amount, row.purchasePrice, markupTotal, transportTotal)
+        const totalTransport = totalTransportCalculation(amount, transportTotal)
+        const margin = marginCalculation(totalSale, totalPurchase, totalTransport)
 
         return {
             ...row,
             salePrice,
             totalPurchase,
             totalSale,
-            markupPercent,
-            markupExtra,
             markupTotal,
-            transportPercent,
-            transportExtra,
             transportTotal,
             totalTransport,
             totalWeight,
@@ -68,53 +34,78 @@ const calculateUpdatedRows = (rowData, kpEditData) => {
     });
 }
 
-const markupCalculation = (calculate, row, value, type) => {
+const recalculateDataAfterKPEditExecuted = (rowData, kpEditData, selectedIds) => {
+    const value = kpEditData.value ?? null;
+    const type = kpEditData.type ?? null;
+    const calculate = kpEditData.calculate ?? null;
+    const elems = kpEditData.elems ?? null;
 
-    let markupPercent = row.markupPercent;
-    let markupExtra = row.markupExtra;
-    let markupTotal = row.markupTotal;
+    return rowData.map(row => {
 
-    if (calculate === 'markup' && row.purchasePrice != null && value != null && type != null) {
-        if (type === "percent") {
-            let markupExtraValue = markupExtra ?? 0;
-            markupPercent = value;
-            markupTotal = (row.purchasePrice * value / 100 + markupExtraValue).toFixed(2);
+        //  Если пользователь указал применить только для выделенных
+        if (elems === 'checked' && !selectedIds.includes(row.id))
+            return row
 
-            return { markupPercent, markupExtra, markupTotal };
-        } else if (type === "fixed") {
-            let markupPercentValue = markupPercent ?? 0;
-            markupExtra = value;
-            markupTotal = (value + (row.purchasePrice * markupPercentValue / 100)).toFixed(2);
+        let weightKg = row.weightKg;
+        let amount = row.amount;
+        let markupPercent = row.markupPercent;
+        let markupExtra = row.markupExtra;
+        let transportPercent = row.transportPercent;
+        let transportExtra = row.transportExtra;
 
-            return { markupPercent, markupExtra, markupTotal };
+        if (calculate === 'weight') {
+            weightKg = value;
         }
-    }
-    return null;
+
+        if (calculate === 'count') {
+            amount = value;
+        }
+
+        if (calculate === 'markup' && type === "percent") {
+            markupPercent = value;
+        }
+
+        if (calculate === 'markup' && type === "fixed") {
+            markupExtra = value;
+        }
+
+        if (calculate === 'transport' && type === "percent") {
+            transportPercent = value;
+        }
+
+        if (calculate === 'transport' && type === "fixed") {
+            transportExtra = value;
+        }
+
+
+        return {
+            ...row,
+            weightKg,
+            amount,
+            markupPercent,
+            markupExtra,
+            transportPercent,
+            transportExtra
+        }
+    })
 }
 
-const transportCalculation = (calculate, row, value, type) => {
+const markupCalculation = (row) => {
+    const markupPercent = parseFloat(row.markupPercent) || 0;
+    const markupExtra = parseFloat(row.markupExtra) || 0;
+    const purchasePrice = parseFloat(row.purchasePrice);
 
-    let transportPercent = row.transportPercent;
-    let transportExtra = row.transportExtra;
-    let transportTotal = row.transportTotal;
+    if (isNaN(purchasePrice)) return null;
 
-    if (calculate === 'transport' && row.purchasePrice != null && value != null && type != null) {
-        if (type === "percent") {
-            let transportExtraValue = transportExtra ?? 0;
-            transportPercent = value;
-            transportTotal = (row.weightKg * value + transportExtraValue).toFixed(2);
+    const result = markupExtra + (purchasePrice * markupPercent / 100);
+    return result > 0 ? result.toFixed(2) : null;
+};
 
-            return { transportPercent, transportExtra, transportTotal }
-        } else if (type === "fixed") {
-            let transportPercentValue = transportPercent ?? 0;
-            transportExtra = value;
-            transportTotal = (value + row.weightKg * transportPercentValue).toFixed(2);
-
-            return { transportPercent, transportExtra, transportTotal }
-        }
-    }
-
-    return null;
+const transportCalculation = (row) => {
+    let transportPercent = parseFloat(row.transportPercent) || 0;
+    let transportExtra = parseFloat(row.transportExtra) || 0;
+    let result = transportExtra + (row.weightKg * transportPercent)
+    return (result > 0) ? result.toFixed(2) : null
 }
 
 
@@ -132,10 +123,12 @@ const salePriceCalculation = (purchasePrice, markupTotal, transportTotal) => {
 }
 
 const totalPurchaseCalculation = (amount, purchasePrice) => {
-    if (!isNaN(amount) && !isNaN(purchasePrice)) {
-        return (
-            parseFloat(amount) * parseFloat(purchasePrice)
-        ).toFixed(2);
+    if (amount != null && purchasePrice != null) {
+        if (!isNaN(amount) && !isNaN(purchasePrice)) {
+            return (
+                parseFloat(amount) * parseFloat(purchasePrice)
+            ).toFixed(2);
+        }
     }
     return null;
 }
@@ -151,8 +144,8 @@ const totalSaleCalculation = (amount, purchasePrice, markupTotal, transportTotal
 }
 
 const totalTransportCalculation = (amount, transportTotal) => {
-    if (amount != null && transportTotal != null){
-        if (!isNaN(amount) && !isNaN(transportTotal)){
+    if (amount != null && transportTotal != null) {
+        if (!isNaN(amount) && !isNaN(transportTotal)) {
             return (parseFloat(amount) * parseFloat(transportTotal)).toFixed(2)
         }
     }
@@ -161,7 +154,7 @@ const totalTransportCalculation = (amount, transportTotal) => {
 
 const marginCalculation = (totalSale, totalPurchase, totalTransport) => {
     if (totalSale != null && totalPurchase != null && totalTransport != null) {
-        if (!isNaN(totalSale) && !isNaN(totalPurchase) && !isNaN(totalTransport)) {            
+        if (!isNaN(totalSale) && !isNaN(totalPurchase) && !isNaN(totalTransport)) {
             return (parseFloat(totalSale) - parseFloat(totalPurchase) - parseFloat(totalTransport)).toFixed(2);
         }
     }
@@ -169,12 +162,12 @@ const marginCalculation = (totalSale, totalPurchase, totalTransport) => {
 }
 
 const totalWeightCalculation = (amount, weightKg) => {
-    if (amount != null && weightKg != null){
-        if (!isNaN(amount) && !isNaN(weightKg)){
-            return  (parseFloat(amount) * parseFloat(weightKg)).toFixed(2)
+    if (amount != null && weightKg != null) {
+        if (!isNaN(amount) && !isNaN(weightKg)) {
+            return (parseFloat(amount) * parseFloat(weightKg)).toFixed(2)
         }
     }
     return null
 }
 
-export { calculateUpdatedRows };
+export { calculateUpdatedRows, recalculationWhenRowDataChanged };

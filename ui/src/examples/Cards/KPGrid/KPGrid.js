@@ -4,9 +4,9 @@ import React, { useMemo, useState, useRef, useEffect, forwardRef, useImperativeH
 import { AgGridReact } from "ag-grid-react";
 import { GlobalStyles } from '@mui/material';
 import MDButton from "components/MDButton";
-import { ModuleRegistry, AllCommunityModule, themeQuartz } from 'ag-grid-community';
+import { ModuleRegistry, AllCommunityModule } from 'ag-grid-community';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Typography, Box } from '@mui/material';
-import { calculateUpdatedRows } from 'utils/KPCalculation';
+import { calculateUpdatedRows, recalculationWhenRowDataChanged } from 'utils/KPCalculation';
 import { KPSummaryCalculation } from 'utils/KPSummaryCalculation'
 
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -17,7 +17,6 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary }, ref) => {
   const gridApiRef = useRef(null);     // новая ссылка на API
   const columnApiRef = useRef(null);   // новая ссылка на columnApi
   const gridStyle = useMemo(() => ({ height: "100%", width: "100%", position: 'relative' }), []);
-  const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0, data: null });
   const [selectedRow, setSelectedRow] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [rowData, setRowData] = useState([]);
@@ -36,20 +35,6 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary }, ref) => {
   };
 
 
-  const handleCellContextMenu = (event) => {
-    event.event.preventDefault(); // отключаем системное меню    
-    setContextMenu({
-      visible: true,
-      x: event.event.clientX - 200,
-      y: event.event.clientY,
-      data: event.data,
-    });
-  };
-
-  const closeContextMenu = () => {
-    setContextMenu({ ...contextMenu, visible: false });
-  };
-
   const defaultColDef = useMemo(() => {
     return {
       editable: true,
@@ -62,7 +47,7 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary }, ref) => {
   const initialColumnDefs = [
     { headerName: "№", field: "num", width: 50, editable: false },
     { headerName: "Поставщик", field: "company", width: 220, editable: false, hideGroup: 'details' },
-    { headerName: "Наименование", field: "name", width: 550 },
+    { headerName: "Наименование", field: "name", width: 630 },
     { headerName: "Прайс", field: "date", width: 100, editable: false, hideGroup: 'details' },
     {
       headerName: "Цена закуп. ед.", field: "purchasePrice", width: 100, editable: false,
@@ -77,7 +62,7 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary }, ref) => {
         backgroundColor: '#F5F5DC'
       },
       children: [
-        { headerName: "% от цены", field: "markupPercent", width: 80 },
+        { headerName: "от цены, %", field: "markupPercent", width: 80 },
         { headerName: "+доп, ₽", field: "markupExtra", width: 80 },
         {
           headerName: "Итого, ₽", field: "markupTotal", width: 100, editable: false,
@@ -159,21 +144,21 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary }, ref) => {
     columnApiRef.current = params.columnApi; // ← самый надёжный способ
   };
 
+  const getSelectedIds = () => {
+    const selectedNodes = gridRef.current?.getSelectedNodes() || [];
+    return selectedNodes.map(n => n.data.id);
+  };
 
   useImperativeHandle(ref, () => ({
-    getSelectedIds: () => {
-      const selectedNodes = gridRef.current?.getSelectedNodes() || [];
-      return selectedNodes.map(n => n.data.id);
-    },
+    getSelectedIds,
     deleteRowsByNum: (ids) => {
-      setRowData(prev => {
-        const filtered = prev.filter(row => !ids.includes(row.id));
-
-        return filtered.map((row, index) => ({
+      const filtered = rowData.filter(row => !ids.includes(row.id));
+      const updateRowData = filtered.map((row, index) => ({
           ...row,
           num: index + 1, // пересчёт номера
         }));
-      });
+      setRowData(updateRowData)
+      summary?.(KPSummaryCalculation(updateRowData))
     },
 
     toggleColumnGroupVisibility: (groupName, visible) => {
@@ -231,16 +216,26 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary }, ref) => {
 
   useEffect(() => {
     if (rowData.length > 0) {
-      const updated = calculateUpdatedRows(rowData, kpEditData);
-      setRowData(updated);      
+      const updated = calculateUpdatedRows(rowData, kpEditData, getSelectedIds());
+      setRowData(updated);
       summary?.(KPSummaryCalculation(updated))
     }
   }, [kpEditData]);
+
+  const handleCellValueChange = () => {
+    const allRows = gridRef.current?.getRenderedNodes().map(node => node.data) || [];
+    if (allRows.length > 0) {
+      const updated = recalculationWhenRowDataChanged(allRows)
+      setRowData(updated);
+      summary?.(KPSummaryCalculation(updated))
+    }
+  };
 
   return (
     <>
       <GlobalStyles
         styles={{
+
           '.ag-theme-alpine .ag-cell': {
             fontWeight: 'normal !important',
             fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif !important"',
@@ -298,16 +293,13 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary }, ref) => {
           <AgGridReact
             rowData={rowData}
             columnDefs={columnDefs}
-            //theme={theme}
             headerHeight={60}
             defaultColDef={defaultColDef}
             rowSelection="multiple"
+            onCellValueChanged={handleCellValueChange}
             onRowSelected={(event) => console.log('Selected row:', event.data)}
             onCellDoubleClicked={handleRowDoubleClick}
-            //onColumnHeaderClicked={handleColumnHeaderClick}
-            //onCellContextMenu={handleCellContextMenu}
             suppressContextMenu={true}
-            onCellContextMenu={handleCellContextMenu}
             suppressMaintainedSelection={true}
             onGridReady={onGridReady}
             pagination={true}

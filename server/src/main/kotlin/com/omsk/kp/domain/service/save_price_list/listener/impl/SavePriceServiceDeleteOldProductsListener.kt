@@ -1,8 +1,8 @@
-package com.omsk.kp.domain.service.save.listener.impl
+package com.omsk.kp.domain.service.save_price_list.listener.impl
 
 import com.omsk.kp.domain.model.PriceList
 import com.omsk.kp.domain.service.ProductService
-import com.omsk.kp.domain.service.save.listener.SavePriceServiceListener
+import com.omsk.kp.domain.service.save_price_list.listener.SavePriceServiceListener
 import org.springframework.stereotype.Component
 
 @Component

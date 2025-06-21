@@ -21,7 +21,7 @@ data class User(
     val details: String,
     val passwordHash: String,
     @Enumerated(EnumType.STRING)
-    val role: UserRoleType = UserRoleType.USER,
+    val role: UserRoleType = UserRoleType.EMPTY,
     val createdAt: Instant = Instant.now(),
 
     @Id
@@ -30,5 +30,7 @@ data class User(
 )
 
 enum class UserRoleType {
-    USER, ADMIN
+    EMPTY, USER, ADMIN
 }
+
+fun User.isUserWaitForAuthorization() = role == UserRoleType.EMPTY

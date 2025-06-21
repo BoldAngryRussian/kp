@@ -43,21 +43,6 @@ function Footer({ light }) {
           px={1.5}
         >
           <MDBox
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            flexWrap="wrap"
-            color={light ? "white" : "text"}
-            fontSize={size.sm}
-          >
-            &copy; {new Date().getFullYear()}, сделано с 
-            <MDBox fontSize={size.md} color={light ? "white" : "dark"} mb={-0.5} mx={0.25}>
-              <Icon color="inherit" fontSize="inherit">
-                favorite
-              </Icon>
-            </MDBox>
-          </MDBox>
-          <MDBox
             component="ul"
             sx={({ breakpoints }) => ({
               display: "flex",
@@ -74,17 +59,6 @@ function Footer({ light }) {
               },
             })}
           >
-            <MDBox component="li" pr={2} lineHeight={1}>
-              <Link href="https://www.creative-tim.com/" target="_blank">
-                <MDTypography
-                  variant="button"
-                  fontWeight="regular"
-                  color={light ? "white" : "dark"}
-                >
-                  Murka Inc
-                </MDTypography>
-              </Link>
-            </MDBox>
           </MDBox>
         </MDBox>
       </Container>

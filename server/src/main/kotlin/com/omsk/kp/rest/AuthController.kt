@@ -19,10 +19,20 @@ class AuthController(
 ) {
 
     @PostMapping("/login")
-    fun login(@RequestBody request: LoginRequestDTO): ResponseEntity<Map<String, String?>> =
-        ResponseEntity.ok(
-            mapOf("token" to userLoginService.getToken(request))
+    fun login(@RequestBody request: LoginRequestDTO): ResponseEntity<Map<String, String>> {
+        val info = userLoginService.getTokenWithUser(request)
+        return ResponseEntity.ok(
+            mapOf(
+                "tkp" to info.token,
+                "email" to info.email,
+                "firstName" to info.firstName,
+                "secondName" to info.secondName,
+                "thirdName" to info.thirdName,
+                "role" to info.role.name,
+                "userId" to info.userId
+            )
         )
+    }
 
     @PostMapping("/signup")
     fun signUp(@RequestBody request: SignUpRequestDTO): ResponseEntity<Any> {

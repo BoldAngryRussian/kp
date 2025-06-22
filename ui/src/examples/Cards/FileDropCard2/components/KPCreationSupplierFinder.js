@@ -4,6 +4,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { IconButton, TextField } from "@mui/material";
 import MDBox from "components/MDBox";
 import { GridLoader } from "react-spinners";
+import { authFetch } from 'utils/authFetch'
 
 const customTheme = createTheme({
     components: {
@@ -54,7 +55,7 @@ export default function KPPriceLoadingSupplierFinder({ onLoadingChange, setSelec
         setLoading(true);
         const startTime = Date.now();
 
-        fetch('/api/v1/supplier/all')
+        authFetch('/api/v1/supplier/all')
             .then((res) => {
                 if (!res.ok) throw new Error("Ошибка ответа от сервера");
                 return res.json();

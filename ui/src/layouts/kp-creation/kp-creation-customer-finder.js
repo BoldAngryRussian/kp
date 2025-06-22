@@ -4,6 +4,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { IconButton, TextField } from "@mui/material";
 import MDBox from "components/MDBox";
 import { GridLoader } from "react-spinners";
+import { authFetch } from 'utils/authFetch'
 
 const customTheme = createTheme({
     components: {
@@ -56,7 +57,7 @@ export default function KPCreationCustomerFinder({ setSelectedCustomerId }) {
         setLoading(true);
         const startTime = Date.now();
 
-        fetch('/api/v1/customer/all')
+        authFetch('/api/v1/customer/all')
             .then((res) => {
                 if (!res.ok) throw new Error("Ошибка ответа от сервера");
                 return res.json();

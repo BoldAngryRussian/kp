@@ -22,6 +22,7 @@ import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
 import AddIcon from "@mui/icons-material/Add";
+import { authFetch } from 'utils/authFetch'
 
 const customTheme = createTheme({
   components: {
@@ -118,7 +119,7 @@ export default function ContactApp() {
     const endpoint = category === 'supplier'
       ? `/api/v1/supplier/update`
       : `/api/v1/customer/update`;
-    const response = await fetch(endpoint, {
+    const response = await authFetch(endpoint, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -189,7 +190,7 @@ export default function ContactApp() {
       ? '/api/v1/supplier/save'
       : '/api/v1/customer/save';
 
-    const response = await fetch(endpoint, {
+    const response = await authFetch(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -235,7 +236,7 @@ export default function ContactApp() {
 
   const deleteContactById = (id, category) => {
     const endpoint = category === "supplier" ? `/api/v1/supplier/${id}/delete` : `/api/v1/customer/${id}/delete`;
-    return fetch(endpoint, {
+    return authFetch(endpoint, {
       method: 'DELETE',
     }).then((res) => {
       if (!res.ok) {
@@ -249,7 +250,7 @@ export default function ContactApp() {
   const fetchContactDetails = (id, category, setSelected, setLoading) => {
     loadingTimeout = setTimeout(() => setLoading(true), 300);
     const endpoint = category === "supplier" ? `/api/v1/supplier/${id}` : `/api/v1/customer/${id}`;
-    fetch(endpoint)
+    authFetch(endpoint)
       .then((res) => {
         if (!res.ok) {
           throw new Error("Ошибка загрузки деталей");
@@ -276,7 +277,7 @@ export default function ContactApp() {
 
   const handleSupplierClick = () => {
     loadingTimeout = setTimeout(() => setLoading(true), 300);
-    fetch('/api/v1/supplier/all')
+    authFetch('/api/v1/supplier/all')
       .then((res) => {
         if (!res.ok) {
           throw new Error("Ошибка ответа от сервера");
@@ -297,7 +298,7 @@ export default function ContactApp() {
 
   const handleCustomerClick = () => {
     loadingTimeout = setTimeout(() => setLoading(true), 300);
-    fetch('/api/v1/customer/all')
+    authFetch('/api/v1/customer/all')
       .then((res) => {
         if (!res.ok) {
           throw new Error("Ошибка ответа от сервера");
@@ -353,7 +354,7 @@ export default function ContactApp() {
 
   return (
     <MDBox width="100%" display="flex" flexDirection="column" gap={2}>
-      <Card id="dictionaries" sx={{ width: "100%", height: 'calc(100vh - 70px)' }}>
+      <Card id="dictionaries" sx={{ width: "100%", height: 'calc(100vh - 90px)' }}>
         <MDBox display="flex" height="100%">
           {/* Левая колонка */}
           <MDBox width="14.28%" p={2}>

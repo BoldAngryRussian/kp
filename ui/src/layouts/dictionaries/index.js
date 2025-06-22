@@ -12,11 +12,7 @@ return (
         <DashboardLayout>
           <Fade in={true} timeout={500}>
             <div>
-              <MDBox mt={2}>
-                <MDBox width="100%">
-                  <ContactApp />
-                </MDBox>
-              </MDBox>
+              <ContactApp />
             </div>
           </Fade>
         </DashboardLayout>

@@ -14,6 +14,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 // Material Dashboard 2 React context
 import { useMaterialUIController } from "context";
 import { useState, useEffect } from "react";
+import { authFetch } from 'utils/authFetch'
 
 const customTheme = createTheme({
     components: {
@@ -52,7 +53,7 @@ function PriceListCustomerInformation({ customerId, onEditCustomerClick }) {
         const startTime = Date.now();
 
         const endpoint = `/api/v1/customer/${id}`;
-        fetch(endpoint)
+        authFetch(endpoint)
             .then((res) => {
                 if (!res.ok) {
                     throw new Error("Ошибка загрузки деталей");

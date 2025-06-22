@@ -1,43 +1,20 @@
 import React, { useState } from "react";
-import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import {
   Avatar,
   Box,
-  Button,
   Card,
   Divider,
   Grid,
-  IconButton,
-  List,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
   TextField,
-  Typography
 } from "@mui/material";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
-import PersonIcon from "@mui/icons-material/Person";
 import DescriptionIcon from "@mui/icons-material/Description";
-import ArticleIcon from "@mui/icons-material/Article";
-import LockIcon from "@mui/icons-material/Lock";
-import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
-import SettingsIcon from "@mui/icons-material/Settings";
-import StarIcon from "@mui/icons-material/Star";
-import StarBorderIcon from "@mui/icons-material/StarBorder";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import MDTypography from "components/MDTypography";
 import MDBox from "components/MDBox";
 import MDButton from "components/MDButton";
-import MDInput from "components/MDInput";
-import FolderOpenIcon from "@mui/icons-material/FolderOpen";
-import LocalShippingIcon from "@mui/icons-material/LocalShipping";
-import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
-import AddIcon from "@mui/icons-material/Add";
 
 const suppliers = [
   { id: 1, name: 'ООО "Ромашка"' },
@@ -106,7 +83,7 @@ export default function UserProfileApp() {
         id="dictionaries"
         sx={{
           width: "100%",
-          height: 'calc(100vh - 120px)',
+          height: 'calc(100vh - 85px)',
           overflow: 'auto',
           maxWidth: '100%',
         }}

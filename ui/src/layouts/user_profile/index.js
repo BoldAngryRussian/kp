@@ -9,7 +9,7 @@ export default function UserProfile() {
   return (
         <DashboardLayout>
           <Fade in={true} timeout={500}>
-            <MDBox mt={8} mb={3}>                
+            <MDBox>                
                 <UserProfileApp/>
             </MDBox>
           </Fade>

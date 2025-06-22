@@ -12,6 +12,7 @@ import MDProgress from "components/MDProgress";
 import WholeSale from 'assets/images/wholesale.png'
 import KPPriceLoadingSupplierFinder from 'examples/Cards/FileDropCard2/components/KPCreationSupplierFinder'
 import PriceListSupplierInformation from 'examples/Cards/FileDropCard2/components/PriceListSupplierDetailInfo'
+import { authFetch } from 'utils/authFetch'
 
 import { GridLoader } from "react-spinners";
 
@@ -69,7 +70,7 @@ function PriceListLoader() {
     const formData = new FormData();
     formData.append("file", file);
     setShowSpinner(true);
-    fetch("/api/v1/prices/recognize", {
+    authFetch("/api/v1/prices/recognize", {
       method: "POST",
       body: formData,
     })
@@ -148,7 +149,7 @@ function PriceListLoader() {
       }))
     };
 
-    fetch("/api/v1/prices/save", {
+    authFetch("/api/v1/prices/save", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

@@ -49,7 +49,6 @@ import brandDark from "assets/images/logo-ct-dark.png";
 import PrivateRoute from "components/PrivateRoute"; // путь зависит от расположения файла
 
 export default function App() {
-  console.log('App component rendered');
   const [controller, dispatch] = useMaterialUIController();
   const {
     miniSidenav,
@@ -61,7 +60,7 @@ export default function App() {
     whiteSidenav,
     darkMode,
   } = controller;
-  console.log('lsyout = ' + layout);
+
   const [onMouseEnter, setOnMouseEnter] = useState(false);
   const [rtlCache, setRtlCache] = useState(null);
   const { pathname } = useLocation();
@@ -166,7 +165,6 @@ const getRoutes = (allRoutes) =>
             onMouseEnter={handleOnMouseEnter}
             onMouseLeave={handleOnMouseLeave}
           />
-          <Configurator />
         </>
       )}
       {layout === "vr" && <Configurator />}

@@ -1,18 +1,3 @@
-/**
-=========================================================
-* Material Dashboard 2 React - v2.2.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
 import { useEffect } from "react";
 
 // react-router-dom components
@@ -26,11 +11,16 @@ import MDBox from "components/MDBox";
 
 // Material Dashboard 2 React context
 import { useMaterialUIController, setLayout } from "context";
+import MDTypography from "components/MDTypography";
 
 function DashboardLayout({ children }) {
   const [controller, dispatch] = useMaterialUIController();
   const { miniSidenav } = controller;
   const { pathname } = useLocation();
+  const email = localStorage.getItem("email")
+  const firstName = localStorage.getItem("firstName")
+  const secondName = localStorage.getItem("secondName")
+  const role = localStorage.getItem("role")
 
   useEffect(() => {
     setLayout(dispatch, "dashboard");
@@ -51,6 +41,14 @@ function DashboardLayout({ children }) {
         },
       })}
     >
+      <MDBox display="flex" justifyContent="flex-end">
+        {email ? (
+          <MDTypography variant="overline" color="text">
+            {firstName} {secondName}
+            {role === "USER" ? ", Менеджер" : role === "ADMIN" ? ", Администратор" : ""}
+          </MDTypography>
+        ) : null}
+      </MDBox>
       {children}
     </MDBox>
   );

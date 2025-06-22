@@ -8,13 +8,13 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import KPCreationStart from "./kp-creation-start";
 
 function KPCreationStartLayout() {
+    const email = localStorage.getItem("email")
+    const firstName = localStorage.getItem("firstName")
+    const secondName = localStorage.getItem("secondName")
+    const role = localStorage.getItem("role")
     return (
         <DashboardLayout>
-            <MDBox py={3}>
-                <MDBox>
-                    <KPCreationStart />
-                </MDBox>
-            </MDBox>
+            <KPCreationStart />
         </DashboardLayout>
     )
 }

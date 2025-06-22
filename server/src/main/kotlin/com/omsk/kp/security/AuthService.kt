@@ -12,10 +12,12 @@ class AuthService(
     private val userService: UserService,
     private val passwordEncoder: PasswordEncoder
 ) {
-    fun authenticate(loginRequestDTO: LoginRequestDTO): User? {
+    fun authenticate(loginRequestDTO: LoginRequestDTO): User {
         val passwordHash = passwordEncoder.encode(loginRequestDTO.password)
         val user = userService.findByEmail(loginRequestDTO.email)
-        if (user != null && user.isUserWaitForAuthorization())
+        if (user == null)
+            throw RuntimeException("Пользователь ${loginRequestDTO.email} в системе не обнаружен!")
+        if (user.isUserWaitForAuthorization())
             throw RuntimeException(VALIDATION_ERROR)
         return user
         /*

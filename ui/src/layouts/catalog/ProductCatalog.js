@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from "re
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { DataGrid, useGridApiRef } from '@mui/x-data-grid';
 import { v4 as uuidv4 } from 'uuid';
+import { authFetch } from 'utils/authFetch'
 
 // @mui material components
 import Card from "@mui/material/Card";
@@ -49,7 +50,7 @@ const ProductCatalog = forwardRef(({ onSelect }, ref) => {
     // Загрузка списка продуктов с сервера с искусственной задержкой 1 секунда
     useEffect(() => {
         setLoadingProducts(true);
-        fetch('/api/v1/products/all/short')
+        authFetch('/api/v1/products/all/short')
             .then(res => res.json())
             .then(data => {
                 setProducts(data);

@@ -8,11 +8,9 @@ export default function KpExecuting() {
   return (
         <DashboardLayout>
           <Fade in={true} timeout={500}>
-            <MDBox mt={8} mb={3} >                
-              <MDBox width="100%">
+            <div>
                 <KpExecutingApp/>
-              </MDBox>                
-            </MDBox>
+            </div>
           </Fade>
         </DashboardLayout>
   );

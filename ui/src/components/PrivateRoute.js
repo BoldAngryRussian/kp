@@ -7,6 +7,8 @@ const isAuthenticated = () => {
 };
 
 export default function PrivateRoute({ element }) {
-  const isAuthenticated = localStorage.getItem("auth") === "true";
+  const isAuthenticated = !!localStorage.getItem("kpt") && 
+  !!localStorage.getItem("email") &&
+  !!localStorage.getItem("firstName");
   return isAuthenticated ? element : <Navigate to="/authentication/sign-in" />;
 }

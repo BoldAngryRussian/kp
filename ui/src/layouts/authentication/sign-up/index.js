@@ -1,27 +1,9 @@
-/**
-=========================================================
-* Material Dashboard 2 React - v2.2.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
 // react-router-dom components
 import { Link } from "react-router-dom";
 
 // @mui material components
 import Card from "@mui/material/Card";
-import Checkbox from "@mui/material/Checkbox";
-import Snackbar from "@mui/material/Snackbar";
-import MuiAlert from "@mui/material/Alert";
-import MDSnackbar from "components/MDSnackbar";
+import { useNavigate } from "react-router-dom";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
@@ -38,6 +20,7 @@ import bgImage from "assets/images/bg-sign-in-blue.jpg";
 import { useState, useEffect } from "react";
 
 function Cover() {
+  const navigate = useNavigate();
   const [firstName, setFirstName] = useState("");
   const [secondName, setSecondName] = useState("");
   const [thirdName, setThirdName] = useState("");
@@ -46,6 +29,8 @@ function Cover() {
   const [password, setPassword] = useState("");
   const [openErrorSnackbar, setOpenErrorSnackbar] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [signupMessage, setSignupMessage] = useState("");
+  const [openSignupSnackbar, setOpenSignupSnackbar] = useState(false);
 
   useEffect(() => {
     if (errorMessage) {
@@ -56,6 +41,17 @@ function Cover() {
       return () => clearTimeout(timer);
     }
   }, [errorMessage]);
+
+  useEffect(() => {
+    if (signupMessage) {
+      const timer = setTimeout(() => {
+        setSignupMessage("");
+        setOpenSignupSnackbar(false);
+        navigate("/authentication/sign-in");
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [signupMessage]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -88,12 +84,21 @@ function Cover() {
         const errorData = await response.json(); // ← читаем тело ответа
         setErrorMessage(errorData.error || "Ошибка регистрации");
         setOpenErrorSnackbar(true);
+      } else {
+        setSignupMessage("Вы успешно зарегистрированы! Ожидайте валидации администратором")
       }
 
       // можно показать уведомление или перенаправить
       console.log("Регистрация успешна");
     } catch (error) {
       console.error(error);
+    } finally {
+      setFirstName("");
+      setSecondName("");
+      setThirdName("");
+      setPhone("");
+      setEmail("");
+      setPassword("");
     }
   };
 
@@ -181,7 +186,13 @@ function Cover() {
               />
             </MDBox>
             <MDBox mt={4} mb={1}>
-              <MDButton variant="gradient" color="info" fullWidth onClick={handleSubmit}>
+              <MDButton
+                variant="gradient"
+                color="info"
+                fullWidth
+                onClick={handleSubmit}
+                disabled={!firstName || !secondName || !thirdName || !phone || !email || !password}
+              >
                 Зарегистрировать
               </MDButton>
             </MDBox>
@@ -224,6 +235,30 @@ function Cover() {
         >
           <MDTypography variant="body2" fontWeight="medium" color="error">
             {errorMessage}
+          </MDTypography>
+        </MDBox>
+      )}
+      {signupMessage && (
+        <MDBox
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          sx={{
+            position: 'fixed',
+            top: 20,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            backgroundColor: '#7FFFD4',
+            border: '1px solid rgb(129, 192, 152)',
+            borderRadius: '6px',
+            padding: '12px 24px',
+            boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+            zIndex: 9999,
+            transition: 'opacity 0.5s ease-in-out'
+          }}
+        >
+          <MDTypography variant="body2" fontWeight="medium" color="success">
+            {signupMessage}
           </MDTypography>
         </MDBox>
       )}

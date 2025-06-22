@@ -37,6 +37,7 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import KPGridEdit from "examples/Modals/KPGridEdit";
 import { styled } from '@mui/material/styles';
+import { authFetch } from 'utils/authFetch'
 
 
 const StyledTooltip = styled(({ className, ...props }) => (
@@ -138,7 +139,7 @@ function Products() {
     useEffect(() => {
         console.log("useEffect вызван");
         setLoadingProducts(true);
-        fetch('/api/v1/products/list')
+        authFetch('/api/v1/products/list')
         .then(res => res.json())
         .then(data => {
             setProducts(data);            
@@ -194,7 +195,7 @@ const summary = useMemo(() => {
 }, [selectedProducts]);
 
     const handleOpenPdf = () => {
-      fetch("/api/v1/pdf")
+      authFetch("/api/v1/pdf")
         .then(res => {
           if (!res.ok) throw new Error("Ошибка загрузки PDF");
           return res.blob();

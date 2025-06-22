@@ -56,8 +56,12 @@ function Basic() {
         return response.json();
       })
       .then((data) => {
-        localStorage.setItem("auth", "true");
-        localStorage.setItem("token", data.token);
+        localStorage.setItem("kpt", data.tkp);
+        localStorage.setItem("email", data.email);
+        localStorage.setItem("firstName", data.firstName);
+        localStorage.setItem("secondName", data.secondName);
+        localStorage.setItem("thirdName", data.thirdName);
+        localStorage.setItem("role", data.role);
         navigate("/creating-kp");
       })
       .catch((error) => {

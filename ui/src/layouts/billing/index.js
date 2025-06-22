@@ -8,11 +8,7 @@ function Billing() {
     <DashboardLayout>
       <Fade in={true} timeout={500}>
         <div>
-          <MDBox>
-            <MDBox width="100%">
-              <PriceListLoader />
-            </MDBox>
-          </MDBox>
+            <PriceListLoader />
         </div>
       </Fade>
     </DashboardLayout>

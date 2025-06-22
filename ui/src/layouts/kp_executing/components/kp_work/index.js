@@ -11,7 +11,7 @@ import baseTheme from 'assets/theme'; // или createTheme() если ты не
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import SaveIcon from '@mui/icons-material/Save';
-import { BorderColor } from "@mui/icons-material";
+import OrdersOverview from 'layouts/dashboard/components/OrdersOverview'
 
 
 const customTheme = deepmerge(baseTheme, {
@@ -41,6 +41,30 @@ const customTheme = deepmerge(baseTheme, {
     },
   },
 });
+
+const productColumns = [
+  { field: 'id', headerName: '#', width: 60 },
+  { field: 'name', headerName: 'Наименование', flex: 1 },
+  { field: 'purchase', headerName: 'Закупка, ₽', width: 120 },
+  { field: 'markup', headerName: 'Наценка, ₽', width: 120 },
+  { field: 'price', headerName: 'Продажа, ₽', width: 120 },
+  { field: 'amount', headerName: 'Количество', width: 120 },
+  { field: 'weight', headerName: 'Вес, кг', width: 120 },
+  { field: 'margin', headerName: 'Маржа, ₽', width: 120 }
+];
+
+const productRows = [
+  { id: 1, name: 'Голец н/р 25+ П-50 18 ТУ ЕАС ...', purchase: 100, markup: 13, price: 45, amount: 500, weight: 4500, margin: 10 },
+  { id: 2, name: 'Кальмар тушка фас.800гр ...', purchase: 100, markup: 13, price: 45, amount: 500, weight: 4500, margin: 10 },
+  { id: 3, name: 'Макрурус тушка ПБГ 6/х(1-2)М ...', purchase: 100, markup: 13, price: 45, amount: 500, weight: 4500, margin: 10 },
+  { id: 4, name: 'Сельдь т/о 400+ L ТУ ЕАС ...', purchase: 100, markup: 13, price: 45, amount: 500, weight: 4500, margin: 10 },
+  { id: 5, name: 'Кефаль ПБГ 800+ ЕАС ...', purchase: 100, markup: 13, price: 45, amount: 500, weight: 4500, margin: 10 },
+  { id: 6, name: 'Голец н/р 25+ П-50 18 ТУ ЕАС ...', purchase: 100, markup: 13, price: 45, amount: 500, weight: 4500, margin: 10 },
+  { id: 7, name: 'Кальмар тушка фас.800гр ...', purchase: 100, markup: 13, price: 45, amount: 500, weight: 4500, margin: 10 },
+  { id: 8, name: 'Макрурус тушка ПБГ 6/х(1-2)М ...', purchase: 100, markup: 13, price: 45, amount: 500, weight: 4500, margin: 10 },
+  { id: 9, name: 'Сельдь т/о 400+ L ТУ ЕАС ...', purchase: 100, markup: 13, price: 45, amount: 500, weight: 4500, margin: 10 },
+  { id: 10, name: 'Кефаль ПБГ 800+ ЕАС ...', purchase: 100, markup: 13, price: 45, amount: 500, weight: 4500, margin: 10 },
+];
 
 const columns = [
   { field: 'id', headerName: 'ID', flex: 0.1, hide: true },
@@ -73,11 +97,18 @@ const columns = [
 ];
 
 export default function KpExecutingApp() {
+
+
   const filteredProducts = [
     { id: 1, status: "В работе", kp_ref: 1, castomer: 'ООО "Лютик"', manager: "Иванов В.В", date: '01-01-2025', amount: '100.000', phone: '+7(926)777-77-77', weight: '20.000' },
     { id: 2, status: "На согласовании", kp_ref: 2, castomer: 'ООО "Озон"', manager: "Сидоров В.В", date: '01-01-2025', amount: '250.000', phone: '+7(926)888-88-88', weight: '10.000' },
     { id: 3, status: "Готово", kp_ref: 3, castomer: 'ООО "Цветочек"', manager: "Петров В.В", date: '01-01-2025', amount: '1.000.000', phone: '+7(926)999-99-99', weight: '15.000' },
+    { id: 4, status: "В работе", kp_ref: 4, castomer: 'ООО "Лютик"', manager: "Иванов В.В", date: '01-01-2025', amount: '100.000', phone: '+7(926)777-77-77', weight: '20.000' },
+    { id: 5, status: "На согласовании", kp_ref: 5, castomer: 'ООО "Озон"', manager: "Сидоров В.В", date: '01-01-2025', amount: '250.000', phone: '+7(926)888-88-88', weight: '10.000' },
+    { id: 6, status: "Готово", kp_ref: 6, castomer: 'ООО "Цветочек"', manager: "Петров В.В", date: '01-01-2025', amount: '1.000.000', phone: '+7(926)999-99-99', weight: '15.000' },
   ].map(row => ({ ...row, id: row.id.toString() }));
+
+
   return (
     <MDBox width="100%" display="flex" flexDirection="column" gap={2}>
       <Card>
@@ -107,7 +138,7 @@ export default function KpExecutingApp() {
           </MDBox>
         </MDBox>
         <ThemeProvider theme={customTheme}>
-          <MDBox display="flex" alignItems="center" width="100%" px={2} py={1} mt={3}>
+          <MDBox display="flex" alignItems="center" width="100%" px={2} py={1} mt={3} sx={{ minHeight: 200, maxHeight: 1000, height: 'auto' }}>
             <DataGrid
               rows={filteredProducts}
               columns={columns}
@@ -185,8 +216,17 @@ export default function KpExecutingApp() {
             <strong>Создано от:</strong> 01-01-2025
           </MDTypography>
         </MDBox>
-        <MDBox display="flex" justifyContent="space-between" px={1} mt={2} mb={2}>
-          <MDBox flex={1} mx={1} sx={{ BorderColor: '#f0f0f0', borderRadius: 2, p: 2 }}>
+        <MDBox display="flex" justifyContent="space-between" px={1} mt={2} mb={1}>
+          <MDBox
+            flex={1}
+            mx={1}
+            sx={{
+              border: '1px solid',
+              borderColor: '#f0f0f0',
+              borderRadius: 2,
+              p: 2
+            }}
+          >
             <MDTypography variant="body2" fontWeight="bold" color="text" gutterBottom>
               Заказчик:
             </MDTypography>
@@ -195,7 +235,16 @@ export default function KpExecutingApp() {
             <MDTypography variant="body2" color="text">+7(926)555-55-55</MDTypography>
             <MDTypography variant="body2" color="text">ivan.ivanov@mail.ru</MDTypography>
           </MDBox>
-          <MDBox flex={1} mx={1} sx={{ BorderColor: '#f0f0f0', borderRadius: 2, p: 2 }}>
+          <MDBox
+            flex={1}
+            mx={1}
+            sx={{
+              border: '1px solid',
+              borderColor: '#f0f0f0',
+              borderRadius: 2,
+              p: 2
+            }}
+          >
             <MDTypography variant="body2" fontWeight="bold" color="text" gutterBottom>
               Менеджер:
             </MDTypography>
@@ -203,7 +252,16 @@ export default function KpExecutingApp() {
             <MDTypography variant="body2" color="text">+7(926)777-77-77</MDTypography>
             <MDTypography variant="body2" color="text">petr.petrov@gmail.com</MDTypography>
           </MDBox>
-          <MDBox flex={1} mx={1} sx={{ BorderColor: '#f0f0f0', borderRadius: 2, p: 2 }}>
+          <MDBox
+            flex={1}
+            mx={1}
+            sx={{
+              border: '1px solid',
+              borderColor: '#f0f0f0',
+              borderRadius: 2,
+              p: 2
+            }}
+          >
             <MDTypography variant="body2" fontWeight="bold" color="text" gutterBottom>
               Финансы:
             </MDTypography>
@@ -229,8 +287,55 @@ export default function KpExecutingApp() {
             </MDBox>
           </MDBox>
         </MDBox>
+        {/* Таблица продуктов */}
+        <Card>
+          <MDBox p={2} sx={{ minHeight: 200, maxHeight: 1000, height: 'auto' }}>
+            <ThemeProvider theme={customTheme}>
+              <DataGrid
+                rows={productRows}
+                columns={productColumns}
+                disableRowSelectionOnClick
+                initialState={{
+                  pagination: {
+                    paginationModel: {
+                      pageSize: 20,
+                      page: 0,
+                    },
+                  },
+                }}
+                pageSizeOptions={[20, 50, 100]}
+                pagination
+                rowHeight={32}
+                //pageSizeOptions={[10]}
+                //hideFooterPagination
+                sx={{
+                  fontSize: '0.875rem',
+                  fontFamily: 'Roboto, sans-serif',
+                  '& .MuiDataGrid-columnHeader:focus, & .MuiDataGrid-columnHeader:focus-within': {
+                    outline: 'none',
+                  },
+                  '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': {
+                    outline: 'none',
+                  },
+                  '& .MuiDataGrid-row:focus, & .MuiDataGrid-row:focus-within': {
+                    outline: 'none',
+                  },
+                  '& .MuiDataGrid-row': {
+                    backgroundColor: '#fff',
+                  },
+                  '& .MuiDataGrid-row.Mui-selected': {
+                    backgroundColor: '#e3f2fd !important',
+                  },
+                  '& .MuiDataGrid-row.Mui-selected:hover': {
+                    backgroundColor: '#bbdefb !important',
+                  },
+                }}
+              />
+            </ThemeProvider>
+          </MDBox>
+        </Card>
       </Card>
+      <OrdersOverview />
     </MDBox>
-
   )
 }

@@ -16,4 +16,6 @@ class UserService(
         repo.findFirstByEmailAndPasswordHash(email, passwordHash)
 
     fun findByEmail(email: String) = repo.findByEmail(email)
+
+    fun findById(id: Long) = repo.findById(id)
 }

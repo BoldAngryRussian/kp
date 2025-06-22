@@ -62,6 +62,7 @@ function Basic() {
         localStorage.setItem("secondName", data.secondName);
         localStorage.setItem("thirdName", data.thirdName);
         localStorage.setItem("role", data.role);
+        localStorage.setItem("userId", data.userId)
         navigate("/creating-kp");
       })
       .catch((error) => {

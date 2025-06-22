@@ -1,36 +1,34 @@
 package com.omsk.kp.domain.service.save_kp
 
-import com.omsk.kp.domain.service.CommercialOfferDetailsDescriptionService
+import com.omsk.kp.domain.service.UserService
 import com.omsk.kp.domain.service.save_kp.converter.KPSaveDtoToCommercialOffer
-import com.omsk.kp.domain.service.save_kp.converter.KPSaveDtoToCommercialOfferDetails
 import com.omsk.kp.dto.KPSaveDTO
+import com.omsk.kp.dto.KPSaveResultDTO
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import kotlin.jvm.optionals.getOrNull
 
 @Service
 class KPSaveService(
-    private val commercialOfferService: CommercialOfferService,
-    private val commercialOfferDetailsService: CommercialOfferDetailsService,
-    private val commercialOfferDetailsDescriptionService: CommercialOfferDetailsDescriptionService
+    private val userService: UserService,
+    private val kpDetailsService: KPDetailsService,
+    private val commercialOfferService: CommercialOfferService
 ) {
-
     private val kpSaveDtoToCommercialOffer = KPSaveDtoToCommercialOffer()
-    private val kpSaveDtoToCommercialOfferDetails = KPSaveDtoToCommercialOfferDetails()
 
     @Transactional
-    fun save(dto: KPSaveDTO) {
+    fun save(dto: KPSaveDTO): KPSaveResultDTO {
+        val manager = userService
+            .findById(dto.managerId)
+            .getOrNull()
+            ?: throw RuntimeException("Менеджер не найден!")
+
         val offer = kpSaveDtoToCommercialOffer
             .convert(dto)
             .let( commercialOfferService::save )
 
-        kpSaveDtoToCommercialOfferDetails
-            .convert(dto, offer.id!!)
-            .let(commercialOfferDetailsService::saveAll)
+        kpDetailsService.save(offer.id!!, dto)
 
-        dto.terms
-            ?.let { desc ->
-                commercialOfferDetailsDescriptionService
-                    .save(desc, offer.id!!)
-            }
+        return KPSaveResultDTO(offer, manager)
     }
 }

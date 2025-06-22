@@ -1,5 +1,4 @@
 // Material Dashboard 2 React layouts
-import Dashboard from "layouts/dashboard";
 import Billing from "layouts/billing";
 import SignIn from "layouts/authentication/sign-in";
 import SignUp from "layouts/authentication/sign-up"

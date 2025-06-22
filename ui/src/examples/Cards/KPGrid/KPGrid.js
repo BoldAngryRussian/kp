@@ -160,7 +160,6 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary }, ref) => {
       setRowData(updateRowData)
       summary?.(KPSummaryCalculation(updateRowData))
     },
-
     toggleColumnGroupVisibility: (groupName, visible) => {
       const updatedDefs = columnDefs.map(col => {
         if (col.hideGroup === groupName) {
@@ -169,8 +168,10 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary }, ref) => {
         return col;
       });
       setColumnDefs(updatedDefs);
-    }
-
+    },
+    getRowData: () => {
+      return rowData;
+    },
   }));
 
   useEffect(() => {

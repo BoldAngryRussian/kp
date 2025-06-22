@@ -12,4 +12,7 @@ class CommercialOfferDetailsService(
     @Transactional
     fun saveAll(commercialOfferDetails: List<CommercialOfferDetails>) = repo
         .saveAll(commercialOfferDetails)
+
+    @Transactional
+    fun deleteByOfferId(offerId: Long) = repo.deleteByOfferId(offerId)
 }

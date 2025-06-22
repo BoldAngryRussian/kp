@@ -1,13 +1,13 @@
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 
 // @mui material components
 import Card from "@mui/material/Card";
-import Icon from "@mui/material/Icon";
 import Tooltip from '@mui/material/Tooltip';
 
 import { Dialog, DialogContent, DialogActions, Button, Fade } from "@mui/material";
 
-import BillingInformation from "layouts/billing/components/BillingInformation";
+import CircularProgress from '@mui/material/CircularProgress';
+
 import VisibilityIcon from '@mui/icons-material/Visibility';
 
 import IconButton from '@mui/material/IconButton';
@@ -36,6 +36,7 @@ import ProductCatalog from "layouts/catalog/ProductCatalog";
 
 import KPCreationCustomerFinder from 'layouts/kp-creation/kp-creation-customer-finder'
 import PriceListCustomerInformation from 'layouts/kp-creation/kp-creation-customer-detail-info'
+import { authFetch } from 'utils/authFetch'
 
 
 const StyledTooltip = styled(({ className, ...props }) => (
@@ -53,8 +54,6 @@ const StyledTooltip = styled(({ className, ...props }) => (
     },
 }));
 
-
-
 export default function KPCreationModifier({ selectedFromCatalog }) {
     const gridRef = useRef(null);
     const catalogRef = useRef();
@@ -66,20 +65,34 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [findCustomerModalOpen, setFindCustomerModalOpen] = useState(false);
     const [selectedCustomerId, setSelectedCustomerId] = useState(null)
-    const [userConfirmedCustomerId, setUserConfirmedCustomerId] = useState(false)    
+    const [userConfirmedCustomerId, setUserConfirmedCustomerId] = useState(false)
     const [summary, setSummary] = useState({
         totalPurchase: "0.00",
         totalTransport: "0.00",
         totalSale: "0.00",
         totalMargin: "0.00",
     });
+    const [isSaving, setIsSaving] = useState(false);
     const [confirmSaveOpen, setConfirmSaveOpen] = useState(false);
+    const [deliveryTerms, setDeliveryTerms] = useState("");
+    const [kpId, setKpId] = useState("");
+    const [createdManager, setCreatedManager] = useState({
+        firstName: "",
+        secondName: "",
+        created: ""
+    })
+    const [saveMode, setSaveMode] = useState("create"); // "create" или "update"
 
     useEffect(() => {
         if (gridRef.current) {
             gridRef.current.toggleColumnGroupVisibility('details', detailsVisible);
         }
     }, [detailsVisible]);
+
+    const handleOpenConfirmSave = () => {
+        setSaveMode(kpId && kpId !== "" ? "update" : "create");
+        setConfirmSaveOpen(true);
+    };
 
     const handleCatalogSelection = (newProducts) => {
         setSelectedProducts(prev => {
@@ -128,10 +141,79 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
         setFindCustomerModalOpen(true);
     };
 
+    // Функция сохранения КП
+    const saveKP = () => {
+        const userId = localStorage.getItem("userId");
+        const data = gridRef.current?.getRowData();
+        if (!selectedCustomerId || data.length === 0 || userId === '') return;
+
+        setIsSaving(true);
+        const saveStart = Date.now(); // ← запоминаем время начала
+
+        const payload = {
+            offerId: kpId,
+            customerId: selectedCustomerId,
+            managerId: userId,
+            terms: deliveryTerms,
+            elems: data.map((product) => ({
+                name: product.name || "",
+                price: parseInt(product.price, 10) || 0,
+                markupExtra: product.markupExtra || null,
+                markupPercent: product.markupPercent || null,
+                transportExtra: product.transportExtra || null,
+                transportPercent: product.transportPercent || null,
+                quantity: product.amount || 0,
+                weightKg: product.weightKg || 0,
+            })),
+        };
+
+        const url = kpId && kpId !== "" ? "/api/v1/kp/update" : "/api/v1/kp/save";
+
+        authFetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+        })
+            .then((res) => {
+                if (!res.ok) throw new Error("Ошибка при сохранении КП");
+                return res.json();
+            })
+            .then((data) => {
+                setKpId(data.id)
+                setCreatedManager(
+                    {
+                        firstName: data.firstName,
+                        secondName: data.secondName,
+                        created: data.created
+                    }
+                )
+            })
+            .catch((error) => {
+                console.error("Save error:", error);
+            })
+            .finally(() => {
+                const elapsed = Date.now() - saveStart;
+                const remaining = Math.max(0, 2000 - elapsed);
+                setTimeout(() => {
+                    setIsSaving(false);
+                    setConfirmSaveOpen(false);
+                }, remaining);
+            });
+    };
+
     return (
         <div>
             <KPGridEdit open={openDialog} onClose={() => setOpenDialog(false)} onApply={handleApplyKPGridEdit} />
             <MDBox mb={3}>
+                {kpId && (
+                    <MDBox mb={1} display="flex" justifyContent="flex-end">
+                        <MDTypography variant="caption" color="success.main">
+                            Коммерческое предложение {kpId}, создал менеджер {createdManager.firstName} {createdManager.secondName} от {createdManager.created}
+                        </MDTypography>
+                    </MDBox>
+                )}
                 <Card>
                     <MDBox
                         m={2} // ← равномерные отступы со всех сторон
@@ -159,9 +241,14 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
                         </Tooltip>
 
                         <Tooltip title="Сохранить">
-                            <IconButton onClick={() => setConfirmSaveOpen(true)}>
-                                <SaveIcon />
-                            </IconButton>
+                            <span>
+                                <IconButton
+                                    onClick={handleOpenConfirmSave}
+                                    disabled={selectedProducts.length === 0 || userConfirmedCustomerId === null || deliveryTerms === ''}
+                                >
+                                    <SaveIcon />
+                                </IconButton>
+                            </span>
                         </Tooltip>
 
                         <Tooltip title="Удалить">
@@ -209,8 +296,8 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
                                                 cursor: "pointer"
                                             }}
                                         />
-                                        <MDTypography variant="h6" mt={2}>
-                                            Пожалуйста, выберите поставщика
+                                        <MDTypography variant="body2" mt={2} sx={{ color: 'text.disabled' }}>
+                                            Пожалуйста, выберите заказчика
                                         </MDTypography>
                                     </MDBox>
                                 )}
@@ -221,6 +308,8 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
                     <Card sx={{ width: "50%" }}>
                         <MDBox p={1}>
                             <TextField
+                                value={deliveryTerms}
+                                onChange={(e) => setDeliveryTerms(e.target.value)}
                                 placeholder="Условия оплаты, дата и место поставки"
                                 multiline
                                 rows={10}
@@ -342,23 +431,31 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
             </Dialog>
             <Dialog
                 open={confirmSaveOpen}
-                onClose={() => setConfirmSaveOpen(false)}
+                onClose={() => !isSaving && setConfirmSaveOpen(false)}
+                disableEscapeKeyDown={isSaving}
             >
                 <DialogContent>
-                    <MDTypography variant="h6">Вы уверены, что хотите сохранить изменения?</MDTypography>
+                    <MDTypography variant="h6">
+                        {saveMode === "update"
+                            ? <>Обновить <strong style={{ color: 'orange' }}>существующее</strong> коммерческое предложение?</>
+                            : <>Сохранить <strong style={{ color: 'green' }}>новое</strong> коммерческое предложение?</>}
+                    </MDTypography>
                 </DialogContent>
                 <DialogActions>
                     <MDButton
-                        onClick={() => {
-                            setConfirmSaveOpen(false);
-                            // TODO: добавить функцию сохранения здесь
-                        }}
+                        onClick={saveKP}
                         color="info"
                         variant="contained"
+                        disabled={isSaving}
+                        startIcon={isSaving ? <CircularProgress size={20} color="inherit" /> : null}
                     >
                         Сохранить
                     </MDButton>
-                    <MDButton onClick={() => setConfirmSaveOpen(false)} color="secondary">
+                    <MDButton
+                        onClick={() => setConfirmSaveOpen(false)}
+                        color="secondary"
+                        disabled={isSaving}
+                    >
                         Отмена
                     </MDButton>
                 </DialogActions>

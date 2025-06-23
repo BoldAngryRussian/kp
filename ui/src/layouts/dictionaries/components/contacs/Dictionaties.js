@@ -14,7 +14,6 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
-import SaveIcon from "@mui/icons-material/Save";
 import MDTypography from "components/MDTypography";
 import MDBox from "components/MDBox";
 import MDButton from "components/MDButton";
@@ -46,18 +45,6 @@ const columns = [
   { field: 'name', headerName: 'Поставщик', flex: 1 },
 ];
 
-const contacts = [
-  {
-    id: 1,
-    name: "Иванов Иван Иванович",
-    department: "Отдел продаж",
-    company: 'ООО "Рога и Копыта"',
-    phone: "+7(926)777-77-77",
-    email: "ivanov.ivan@mail.ru",
-    address: "г.Омск, ул.Цветочная, д.1",
-    notes: "Хорошая кампания делает много заказов",
-  }
-];
 
 const categories = [
   { id: "supplier", label: "Поставщики", color: "#6366f1" },

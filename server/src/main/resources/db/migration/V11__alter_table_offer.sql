@@ -1,0 +1,1 @@
+ALTER TABLE commercial_offer ADD COLUMN type VARCHAR(25) DEFAULT 'NEW';

@@ -12,4 +12,6 @@ interface CommercialOfferDetailsRepository: JpaRepository<CommercialOfferDetails
         nativeQuery = true
     )
     fun deleteByOfferId(offerId: Long)
+
+    fun findAllByCommercialOfferId(offerId: Long): List<CommercialOfferDetails>
 }

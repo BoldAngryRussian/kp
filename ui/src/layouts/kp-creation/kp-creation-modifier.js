@@ -13,6 +13,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SaveIcon from '@mui/icons-material/Save';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 // Material Dashboard 2 React examples
 import DataTable from "examples/Tables/DataTable";
@@ -105,6 +106,12 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
     const handleApplyKPGridEdit = (data) => {
         setKpEditData(data); // сохраняем в состояние, если надо
         setOpenDialog(false); // закрываем диалог
+    };
+
+    const handleCopySelected = () => {
+        setKpId("");
+        setSaveMode("copy");
+        setConfirmSaveOpen(true);
     };
 
     const handleDeleteSelected = () => {
@@ -257,13 +264,19 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
                             </IconButton>
                         </Tooltip>
 
+                        <Tooltip title="Копировать">
+                            <IconButton onClick={handleCopySelected}>
+                                <ContentCopyIcon />
+                            </IconButton>
+                        </Tooltip>
+
                         <Tooltip title={detailsVisible ? "Скрыть колонки" : "Показать колонки"}>
                             <IconButton onClick={() => setDetailsVisible(prev => !prev)}>
                                 {detailsVisible ? <VisibilityOffIcon /> : <VisibilityIcon />}
                             </IconButton>
                         </Tooltip>
                     </MDBox>
-                    <MDBox px={2}>
+                    <MDBox px={2} sx={{ minHeight: 200, maxHeight: 2000, height: 'auto' }}>
                         <KPGrid ref={gridRef} selectedProducts={selectedProducts} kpEditData={kpEditData} summary={setSummary} />
                     </MDBox>
                 </Card>
@@ -436,9 +449,13 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
             >
                 <DialogContent>
                     <MDTypography variant="h6">
-                        {saveMode === "update"
-                            ? <>Обновить <strong style={{ color: 'orange' }}>существующее</strong> коммерческое предложение?</>
-                            : <>Сохранить <strong style={{ color: 'green' }}>новое</strong> коммерческое предложение?</>}
+                        {saveMode === "update" ? (
+                            <>Обновить <strong style={{ color: 'orange' }}>существующее</strong> коммерческое предложение?</>
+                        ) : saveMode === "copy" ? (
+                            <>Сделать <strong style={{ color: 'blue' }}>копию</strong> коммерческого предложения?</>
+                        ) : (
+                            <>Сохранить <strong style={{ color: 'green' }}>новое</strong> коммерческое предложение?</>
+                        )}
                     </MDTypography>
                 </DialogContent>
                 <DialogActions>

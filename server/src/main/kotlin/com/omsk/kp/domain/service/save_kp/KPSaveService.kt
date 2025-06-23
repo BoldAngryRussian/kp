@@ -1,5 +1,7 @@
 package com.omsk.kp.domain.service.save_kp
 
+import com.omsk.kp.domain.model.CommercialOfferHistoryType
+import com.omsk.kp.domain.service.CommercialOfferHistoryService
 import com.omsk.kp.domain.service.UserService
 import com.omsk.kp.domain.service.save_kp.converter.KPSaveDtoToCommercialOffer
 import com.omsk.kp.dto.KPSaveDTO
@@ -12,7 +14,8 @@ import kotlin.jvm.optionals.getOrNull
 class KPSaveService(
     private val userService: UserService,
     private val kpDetailsService: KPDetailsService,
-    private val commercialOfferService: CommercialOfferService
+    private val commercialOfferService: CommercialOfferService,
+    private val commercialOfferHistoryService: CommercialOfferHistoryService
 ) {
     private val kpSaveDtoToCommercialOffer = KPSaveDtoToCommercialOffer()
 
@@ -28,6 +31,9 @@ class KPSaveService(
             .let( commercialOfferService::save )
 
         kpDetailsService.save(offer.id!!, dto)
+
+        commercialOfferHistoryService
+            .save(offer.id!!, dto.managerId, CommercialOfferHistoryType.CREATE)
 
         return KPSaveResultDTO(offer, manager)
     }

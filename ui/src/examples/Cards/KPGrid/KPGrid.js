@@ -154,9 +154,9 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary }, ref) => {
     deleteRowsByNum: (ids) => {
       const filtered = rowData.filter(row => !ids.includes(row.id));
       const updateRowData = filtered.map((row, index) => ({
-          ...row,
-          num: index + 1, // пересчёт номера
-        }));
+        ...row,
+        num: index + 1, // пересчёт номера
+      }));
       setRowData(updateRowData)
       summary?.(KPSummaryCalculation(updateRowData))
     },

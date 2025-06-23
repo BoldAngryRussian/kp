@@ -13,4 +13,6 @@ class CommercialOfferService(
     fun save(commercialOffer: CommercialOffer) = repo.save(commercialOffer)
 
     fun findById(id: Long) = repo.findById(id)
+
+    fun findAllShort() = repo.findAllShort()
 }

@@ -9,11 +9,11 @@ import jakarta.persistence.Id
 import java.time.Instant
 
 @Entity
-data class CommercialOffer(
-    val managerId: Long,
-    val customerId: Long,
+data class CommercialOfferHistory(
+    val commercialOfferId: Long,
+    val userId: Long,
     @Enumerated(EnumType.STRING)
-    val type: CommercialOfferType = CommercialOfferType.NEW,
+    val userAction: CommercialOfferHistoryType = CommercialOfferHistoryType.CREATE,
     val createdAt: Instant = Instant.now(),
 
     @Id
@@ -21,8 +21,9 @@ data class CommercialOffer(
     val id: Long? = null
 )
 
-enum class CommercialOfferType {
-    NEW,
-    WAIT_CUSTOMER,
-    FINISHED
+enum class CommercialOfferHistoryType{
+    CREATE,
+    DATA_CHANGE,
+    STATUS_CHANGED,
+    CLOSED
 }

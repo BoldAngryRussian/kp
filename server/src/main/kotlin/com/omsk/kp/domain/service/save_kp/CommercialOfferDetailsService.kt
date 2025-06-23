@@ -15,4 +15,6 @@ class CommercialOfferDetailsService(
 
     @Transactional
     fun deleteByOfferId(offerId: Long) = repo.deleteByOfferId(offerId)
+
+    fun findAllByOfferId(offerId: Long) = repo.findAllByCommercialOfferId(offerId)
 }

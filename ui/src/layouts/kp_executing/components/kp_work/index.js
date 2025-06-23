@@ -1,8 +1,8 @@
 import React from "react";
+import { useState, useEffect } from "react";
 import MDBox from "components/MDBox";
 import { Card } from "@mui/material";
 import MDTypography from "components/MDTypography";
-import Icon from "@mui/material/Icon";
 import { DataGrid } from '@mui/x-data-grid';
 import { ThemeProvider } from '@mui/material/styles';
 import MDBadge from "components/MDBadge";
@@ -12,6 +12,8 @@ import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import SaveIcon from '@mui/icons-material/Save';
 import OrdersOverview from 'layouts/dashboard/components/OrdersOverview'
+import { authFetch } from 'utils/authFetch'
+import { GridLoader } from "react-spinners";
 
 
 const customTheme = deepmerge(baseTheme, {
@@ -53,18 +55,6 @@ const productColumns = [
   { field: 'margin', headerName: 'Маржа, ₽', width: 120 }
 ];
 
-const productRows = [
-  { id: 1, name: 'Голец н/р 25+ П-50 18 ТУ ЕАС ...', purchase: 100, markup: 13, price: 45, amount: 500, weight: 4500, margin: 10 },
-  { id: 2, name: 'Кальмар тушка фас.800гр ...', purchase: 100, markup: 13, price: 45, amount: 500, weight: 4500, margin: 10 },
-  { id: 3, name: 'Макрурус тушка ПБГ 6/х(1-2)М ...', purchase: 100, markup: 13, price: 45, amount: 500, weight: 4500, margin: 10 },
-  { id: 4, name: 'Сельдь т/о 400+ L ТУ ЕАС ...', purchase: 100, markup: 13, price: 45, amount: 500, weight: 4500, margin: 10 },
-  { id: 5, name: 'Кефаль ПБГ 800+ ЕАС ...', purchase: 100, markup: 13, price: 45, amount: 500, weight: 4500, margin: 10 },
-  { id: 6, name: 'Голец н/р 25+ П-50 18 ТУ ЕАС ...', purchase: 100, markup: 13, price: 45, amount: 500, weight: 4500, margin: 10 },
-  { id: 7, name: 'Кальмар тушка фас.800гр ...', purchase: 100, markup: 13, price: 45, amount: 500, weight: 4500, margin: 10 },
-  { id: 8, name: 'Макрурус тушка ПБГ 6/х(1-2)М ...', purchase: 100, markup: 13, price: 45, amount: 500, weight: 4500, margin: 10 },
-  { id: 9, name: 'Сельдь т/о 400+ L ТУ ЕАС ...', purchase: 100, markup: 13, price: 45, amount: 500, weight: 4500, margin: 10 },
-  { id: 10, name: 'Кефаль ПБГ 800+ ЕАС ...', purchase: 100, markup: 13, price: 45, amount: 500, weight: 4500, margin: 10 },
-];
 
 const columns = [
   { field: 'id', headerName: 'ID', flex: 0.1, hide: true },
@@ -72,14 +62,20 @@ const columns = [
   {
     field: 'status',
     headerName: 'Статус',
-    flex: 0.2,
+    flex: 0.1,
     renderCell: (params) => (
       <MDBadge
-        badgeContent={params.value}
+        badgeContent={
+          params.value === "FINISHED"
+            ? "Оплачено"
+            : params.value === "WAIT_CUSTOMER"
+              ? "У заказчика"
+              : "Новый"
+        }
         color={
-          params.value === "Готово"
+          params.value === "FINISHED"
             ? "success"
-            : params.value === "На согласовании"
+            : params.value === "WAIT_CUSTOMER"
               ? "warning"
               : "info"
         }
@@ -88,7 +84,7 @@ const columns = [
       />
     )
   },
-  { field: 'castomer', headerName: 'Заказчик', flex: 0.2 },
+  { field: 'castomer', headerName: 'Заказчик', flex: 0.3 },
   { field: 'phone', headerName: 'Телефон', flex: 0.2 },
   { field: 'manager', headerName: 'Менеджер', flex: 0.2 },
   { field: 'weight', headerName: 'Вес(т)', flex: 0.2 },
@@ -98,15 +94,104 @@ const columns = [
 
 export default function KpExecutingApp() {
 
+  const [productRows, setProductRows] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadingDetails, setLoadingDetails] = useState(false);
+  const [company, setCompany] = useState("")
+  const [created, setCreated] = useState("")
+  const [customer, setCustomer] = useState({
+    name: "",
+    address: "",
+    phone: "",
+    email: ""
+  })
+  const [manager, setManager] = useState({
+    name: "",
+    phone: "",
+    email: ""
+  })
+  const [total, setTotal] = useState({
+    weight: "",
+    pricePurchase: "",
+    priceTransport: "",
+    priceSell: "",
+    marga: ""
+  })
+  const [showLoader, setShowLoader] = useState(false);
+  const [history, setHistory] = useState([])
 
-  const filteredProducts = [
-    { id: 1, status: "В работе", kp_ref: 1, castomer: 'ООО "Лютик"', manager: "Иванов В.В", date: '01-01-2025', amount: '100.000', phone: '+7(926)777-77-77', weight: '20.000' },
-    { id: 2, status: "На согласовании", kp_ref: 2, castomer: 'ООО "Озон"', manager: "Сидоров В.В", date: '01-01-2025', amount: '250.000', phone: '+7(926)888-88-88', weight: '10.000' },
-    { id: 3, status: "Готово", kp_ref: 3, castomer: 'ООО "Цветочек"', manager: "Петров В.В", date: '01-01-2025', amount: '1.000.000', phone: '+7(926)999-99-99', weight: '15.000' },
-    { id: 4, status: "В работе", kp_ref: 4, castomer: 'ООО "Лютик"', manager: "Иванов В.В", date: '01-01-2025', amount: '100.000', phone: '+7(926)777-77-77', weight: '20.000' },
-    { id: 5, status: "На согласовании", kp_ref: 5, castomer: 'ООО "Озон"', manager: "Сидоров В.В", date: '01-01-2025', amount: '250.000', phone: '+7(926)888-88-88', weight: '10.000' },
-    { id: 6, status: "Готово", kp_ref: 6, castomer: 'ООО "Цветочек"', manager: "Петров В.В", date: '01-01-2025', amount: '1.000.000', phone: '+7(926)999-99-99', weight: '15.000' },
-  ].map(row => ({ ...row, id: row.id.toString() }));
+  const onOfferIdSelected = (kpRef) => {
+    //setLoadingDetails(true);
+    //setShowLoader(true);
+
+    const start = performance.now();
+
+    authFetch(`/api/v1/offer/${kpRef}/details`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Ошибка при загрузке данных");
+        }
+        return response.json();
+      })
+      .then(data => {
+        const processed = data.products.map((row, index) => ({
+          name: row.name,
+          purchase: row.purchasePrice,
+          markup: row.markupPrice,
+          price: row.sellPrice,
+          amount: row.quantity,
+          weight: row.weight,
+          margin: row.marga,
+          id: (index + 1).toString(),
+        }));
+        setTotal(data.finance);
+        setManager(data.manager);
+        setCustomer(data.customer);
+        setCreated(data.created);
+        setCompany(data.customerName);
+        setHistory(data.history)
+        setProductRows(processed);
+      })
+      .catch(error => {
+        console.error("Ошибка:", error);
+      })
+      .finally(() => {
+          setLoadingDetails(false);
+          setShowLoader(false);
+      });
+
+  };
+
+  useEffect(() => {
+    setLoading(true);
+    authFetch("/api/v1/offer/all/short")
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Ошибка при загрузке данных");
+        }
+        return response.json();
+      })
+      .then(data => {
+        const processed = data.map((row, index) => ({
+          status: row.type,
+          kp_ref: row.id,
+          castomer: row.company,
+          manager: `${row.managerFirstName} ${row.managerSecondName[0]}. ${row.managerThirdName[0]}.`,
+          date: row.date,
+          phone: row.phone,
+          weight: row.weight,
+          amount: row.pricePurchase,
+          id: (index + 1).toString(), // ID для DataGrid
+        }));
+        setFilteredProducts(processed);
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error("Ошибка:", error);
+        setLoading(false);
+      });
+  }, []);
 
 
   return (
@@ -116,185 +201,25 @@ export default function KpExecutingApp() {
           display="flex"
           justifyContent="space-between"
           alignItems="center"
-          p={3}
+          px={3} pt={1}
           sx={{ width: "100%" }}
         >
           <MDTypography variant="h6" fontWeight="medium">
             Управление созданными КП
           </MDTypography>
-          <MDBox display="flex" alignItems="center" lineHeight={0}>
-            <Icon
-              sx={{
-                fontWeight: "bold",
-                color: ({ palette: { info } }) => info.main,
-                mt: -0.5,
-              }}
-            >
-              done
-            </Icon>
-            <MDTypography variant="button" fontWeight="regular" color="text">
-              &nbsp;<strong>74</strong> на текущий момент
-            </MDTypography>
-          </MDBox>
         </MDBox>
         <ThemeProvider theme={customTheme}>
-          <MDBox display="flex" alignItems="center" width="100%" px={2} py={1} mt={3} sx={{ minHeight: 200, maxHeight: 1000, height: 'auto' }}>
-            <DataGrid
-              rows={filteredProducts}
-              columns={columns}
-              initialState={{
-                pagination: {
-                  paginationModel: {
-                    pageSize: 20,
-                    page: 0,
-                  },
-                },
-              }}
-              pageSizeOptions={[20, 50, 100]}
-              pagination
-              rowHeight={32}
-              columnVisibilityModel={{
-                id: false,
-              }}
-              sx={{
-                fontSize: '0.875rem',
-                fontFamily: 'Roboto, sans-serif',
-                '& .MuiDataGrid-columnHeader:focus, & .MuiDataGrid-columnHeader:focus-within': {
-                  outline: 'none',
-                },
-                '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': {
-                  outline: 'none',
-                },
-                '& .MuiDataGrid-row:focus, & .MuiDataGrid-row:focus-within': {
-                  outline: 'none',
-                },
-                '& .MuiDataGrid-row': {
-                  backgroundColor: '#fff',
-                },
-                '& .MuiDataGrid-row.Mui-selected': {
-                  backgroundColor: '#e3f2fd !important',
-                },
-                '& .MuiDataGrid-row.Mui-selected:hover': {
-                  backgroundColor: '#bbdefb !important',
-                },
-              }}
-            />
-          </MDBox>
-        </ThemeProvider>
-      </Card>
-      <Card>
-        {/* Блок с кнопками */}
-        <MDBox
-          m={2}
-          flex={2}
-          sx={{
-            backgroundColor: '#e3f2fd',
-            height: '50px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-end',
-            borderRadius: 2,
-            px: 1
-          }}
-        >
-          <Tooltip title="Сохранить">
-            <span>
-              <IconButton
-              //disabled={selectedSupplierIdFinal == null}
-              //onClick={() => setConfirmSaveOpen(true)}
-              >
-                <SaveIcon />
-              </IconButton>
-            </span>
-          </Tooltip>
-        </MDBox>
-        <MDBox display="flex" justifyContent="space-between" px={5}>
-          <MDTypography variant="body1" fontWeight="bold" color="text">
-            ООО "Ромашка и Ко"
-          </MDTypography>
-          <MDTypography variant="body2" color="text">
-            <strong>Создано от:</strong> 01-01-2025
-          </MDTypography>
-        </MDBox>
-        <MDBox display="flex" justifyContent="space-between" px={1} mt={2} mb={1}>
-          <MDBox
-            flex={1}
-            mx={1}
-            sx={{
-              border: '1px solid',
-              borderColor: '#f0f0f0',
-              borderRadius: 2,
-              p: 2
-            }}
-          >
-            <MDTypography variant="body2" fontWeight="bold" color="text" gutterBottom>
-              Заказчик:
-            </MDTypography>
-            <MDTypography variant="body2" color="text">Иванов Иван Иванович</MDTypography>
-            <MDTypography variant="body2" color="text">г.Омск, ул.Малая Цветочная, д.1</MDTypography>
-            <MDTypography variant="body2" color="text">+7(926)555-55-55</MDTypography>
-            <MDTypography variant="body2" color="text">ivan.ivanov@mail.ru</MDTypography>
-          </MDBox>
-          <MDBox
-            flex={1}
-            mx={1}
-            sx={{
-              border: '1px solid',
-              borderColor: '#f0f0f0',
-              borderRadius: 2,
-              p: 2
-            }}
-          >
-            <MDTypography variant="body2" fontWeight="bold" color="text" gutterBottom>
-              Менеджер:
-            </MDTypography>
-            <MDTypography variant="body2" color="text">Петров Петр</MDTypography>
-            <MDTypography variant="body2" color="text">+7(926)777-77-77</MDTypography>
-            <MDTypography variant="body2" color="text">petr.petrov@gmail.com</MDTypography>
-          </MDBox>
-          <MDBox
-            flex={1}
-            mx={1}
-            sx={{
-              border: '1px solid',
-              borderColor: '#f0f0f0',
-              borderRadius: 2,
-              p: 2
-            }}
-          >
-            <MDTypography variant="body2" fontWeight="bold" color="text" gutterBottom>
-              Финансы:
-            </MDTypography>
-            <MDBox display="flex" justifyContent="space-between">
-              <MDTypography variant="body2" color="text">Вес:</MDTypography>
-              <MDTypography variant="body2" color="text">20 тонн</MDTypography>
-            </MDBox>
-            <MDBox display="flex" justifyContent="space-between">
-              <MDTypography variant="body2" color="text">Закупка:</MDTypography>
-              <MDTypography variant="body2" color="text">1.000.000 ₽</MDTypography>
-            </MDBox>
-            <MDBox display="flex" justifyContent="space-between">
-              <MDTypography variant="body2" color="text">Доставка:</MDTypography>
-              <MDTypography variant="body2" color="text">60.000 ₽</MDTypography>
-            </MDBox>
-            <MDBox display="flex" justifyContent="space-between">
-              <MDTypography variant="body2" color="text">Продажа:</MDTypography>
-              <MDTypography variant="body2" color="text">1.200.000 ₽</MDTypography>
-            </MDBox>
-            <MDBox display="flex" justifyContent="space-between">
-              <MDTypography variant="body2" color="text">Маржа:</MDTypography>
-              <MDTypography variant="body2" fontWeight="bold" color="success">200.000 ₽</MDTypography>
-            </MDBox>
-          </MDBox>
-        </MDBox>
-        {/* Таблица продуктов */}
-        <Card>
-          <MDBox p={2} sx={{ minHeight: 200, maxHeight: 1000, height: 'auto' }}>
-            <ThemeProvider theme={customTheme}>
+          <MDBox display="flex" alignItems="center" width="100%" px={2} py={1} sx={{ height: 'auto' }}>
+            {loading ? (
+              <MDBox display="flex" justifyContent="center" alignItems="center" width="100%" height={300}>
+                <GridLoader color="#1976d2" size={24} margin={2} />
+              </MDBox>
+            ) : (
               <DataGrid
-                rows={productRows}
-                columns={productColumns}
-                disableRowSelectionOnClick
+                rows={filteredProducts}
+                columns={columns}
+                onRowClick={(params) => onOfferIdSelected(params.row.kp_ref)}
+                autoHeight // <-- Автоматическая высота таблицы
                 initialState={{
                   pagination: {
                     paginationModel: {
@@ -306,8 +231,9 @@ export default function KpExecutingApp() {
                 pageSizeOptions={[20, 50, 100]}
                 pagination
                 rowHeight={32}
-                //pageSizeOptions={[10]}
-                //hideFooterPagination
+                columnVisibilityModel={{
+                  id: false,
+                }}
                 sx={{
                   fontSize: '0.875rem',
                   fontFamily: 'Roboto, sans-serif',
@@ -331,11 +257,171 @@ export default function KpExecutingApp() {
                   },
                 }}
               />
-            </ThemeProvider>
+            )}
           </MDBox>
-        </Card>
+        </ThemeProvider>
       </Card>
-      <OrdersOverview />
+      {loadingDetails && showLoader ? (
+        <MDBox display="flex" justifyContent="center" alignItems="center" py={3}>
+          <GridLoader color="#1976d2" size={24} margin={2} />
+        </MDBox>
+      ) : (
+        <Card>
+          {/* Блок с кнопками */}
+          <MDBox
+            m={2}
+            flex={2}
+            sx={{
+              backgroundColor: '#e3f2fd',
+              height: '50px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'flex-end',
+              borderRadius: 2,
+              px: 1
+            }}
+          >
+            <Tooltip title="Сохранить">
+              <span>
+                <IconButton
+                //disabled={selectedSupplierIdFinal == null}
+                //onClick={() => setConfirmSaveOpen(true)}
+                >
+                  <SaveIcon />
+                </IconButton>
+              </span>
+            </Tooltip>
+          </MDBox>
+          <MDBox display="flex" justifyContent="space-between" px={5}>
+            <MDTypography variant="body1" fontWeight="bold" color="text">
+              {company}
+            </MDTypography>
+            <MDTypography variant="body2" color="text">
+              <strong>Создано от:</strong> {created}
+            </MDTypography>
+          </MDBox>
+          <MDBox display="flex" justifyContent="space-between" px={1} mt={2} mb={1}>
+            <MDBox
+              flex={1}
+              mx={1}
+              sx={{
+                border: '1px solid',
+                borderColor: '#f0f0f0',
+                borderRadius: 2,
+                p: 2
+              }}
+            >
+              <MDTypography variant="body2" fontWeight="bold" color="text" gutterBottom>
+                Заказчик:
+              </MDTypography>
+              <MDTypography variant="body2" color="text">{customer.name}</MDTypography>
+              <MDTypography variant="body2" color="text">{customer.address}</MDTypography>
+              <MDTypography variant="body2" color="text">{customer.phone}</MDTypography>
+              <MDTypography variant="body2" color="text">{customer.email}</MDTypography>
+            </MDBox>
+            <MDBox
+              flex={1}
+              mx={1}
+              sx={{
+                border: '1px solid',
+                borderColor: '#f0f0f0',
+                borderRadius: 2,
+                p: 2
+              }}
+            >
+              <MDTypography variant="body2" fontWeight="bold" color="text" gutterBottom>
+                Менеджер:
+              </MDTypography>
+              <MDTypography variant="body2" color="text">{manager.name}</MDTypography>
+              <MDTypography variant="body2" color="text">{manager.phone}</MDTypography>
+              <MDTypography variant="body2" color="text">{manager.email}</MDTypography>
+            </MDBox>
+            <MDBox
+              flex={1}
+              mx={1}
+              sx={{
+                border: '1px solid',
+                borderColor: '#f0f0f0',
+                borderRadius: 2,
+                p: 2
+              }}
+            >
+              <MDTypography variant="body2" fontWeight="bold" color="text" gutterBottom>
+                Финансы:
+              </MDTypography>
+              <MDBox display="flex" justifyContent="space-between">
+                <MDTypography variant="body2" color="text">Вес:</MDTypography>
+                <MDTypography variant="body2" color="text">{total.weight}</MDTypography>
+              </MDBox>
+              <MDBox display="flex" justifyContent="space-between">
+                <MDTypography variant="body2" color="text">Закупка:</MDTypography>
+                <MDTypography variant="body2" color="text">{total.pricePurchase} ₽</MDTypography>
+              </MDBox>
+              <MDBox display="flex" justifyContent="space-between">
+                <MDTypography variant="body2" color="text">Доставка:</MDTypography>
+                <MDTypography variant="body2" color="text">{total.priceTransport} ₽</MDTypography>
+              </MDBox>
+              <MDBox display="flex" justifyContent="space-between">
+                <MDTypography variant="body2" color="text">Продажа:</MDTypography>
+                <MDTypography variant="body2" color="text">{total.priceSell} ₽</MDTypography>
+              </MDBox>
+              <MDBox display="flex" justifyContent="space-between">
+                <MDTypography variant="body2" color="text">Маржа:</MDTypography>
+                <MDTypography variant="body2" fontWeight="bold" color="success">{total.marga} ₽</MDTypography>
+              </MDBox>
+            </MDBox>
+          </MDBox>
+          {/* Таблица продуктов */}
+          <Card>
+            <MDBox p={2} sx={{ height: 'auto' }}>
+              <ThemeProvider theme={customTheme}>
+                <DataGrid
+                  rows={productRows}
+                  columns={productColumns}
+                  disableRowSelectionOnClick
+                  initialState={{
+                    pagination: {
+                      paginationModel: {
+                        pageSize: 20,
+                        page: 0,
+                      },
+                    },
+                  }}
+                  pageSizeOptions={[20, 50, 100]}
+                  pagination
+                  rowHeight={32}
+                  //pageSizeOptions={[10]}
+                  //hideFooterPagination
+                  sx={{
+                    fontSize: '0.875rem',
+                    fontFamily: 'Roboto, sans-serif',
+                    '& .MuiDataGrid-columnHeader:focus, & .MuiDataGrid-columnHeader:focus-within': {
+                      outline: 'none',
+                    },
+                    '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': {
+                      outline: 'none',
+                    },
+                    '& .MuiDataGrid-row:focus, & .MuiDataGrid-row:focus-within': {
+                      outline: 'none',
+                    },
+                    '& .MuiDataGrid-row': {
+                      backgroundColor: '#fff',
+                    },
+                    '& .MuiDataGrid-row.Mui-selected': {
+                      backgroundColor: '#e3f2fd !important',
+                    },
+                    '& .MuiDataGrid-row.Mui-selected:hover': {
+                      backgroundColor: '#bbdefb !important',
+                    },
+                  }}
+                />
+              </ThemeProvider>
+            </MDBox>
+          </Card>
+
+        </Card>
+      )}
+      <OrdersOverview data={history} />
     </MDBox>
   )
 }

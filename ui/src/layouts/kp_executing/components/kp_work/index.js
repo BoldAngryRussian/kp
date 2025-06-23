@@ -95,6 +95,7 @@ const columns = [
 export default function KpExecutingApp() {
 
   const [productRows, setProductRows] = useState([]);
+  const [selectedRowId, setSelectedRowId] = useState(null);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingDetails, setLoadingDetails] = useState(false);
@@ -120,6 +121,31 @@ export default function KpExecutingApp() {
   })
   const [showLoader, setShowLoader] = useState(false);
   const [history, setHistory] = useState([])
+
+  // Экспорт в Excel
+const handleExport = async () => {
+  try {
+    const response = await authFetch("/api/v1/export/excel");
+
+    if (!response.ok) {
+      throw new Error("Ошибка при экспорте файла");
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "export.xlsx";
+    document.body.appendChild(a);
+    a.click();
+
+    a.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("Ошибка при экспорте:", error);
+  }
+};
 
   const onOfferIdSelected = (kpRef) => {
     //setLoadingDetails(true);
@@ -218,7 +244,10 @@ export default function KpExecutingApp() {
               <DataGrid
                 rows={filteredProducts}
                 columns={columns}
-                onRowClick={(params) => onOfferIdSelected(params.row.kp_ref)}
+                onRowClick={(params) => {
+                  setSelectedRowId(params.id);
+                  onOfferIdSelected(params.row.kp_ref);
+                }}
                 autoHeight // <-- Автоматическая высота таблицы
                 initialState={{
                   pagination: {
@@ -256,6 +285,7 @@ export default function KpExecutingApp() {
                     backgroundColor: '#bbdefb !important',
                   },
                 }}
+                selectionModel={selectedRowId ? [selectedRowId] : []}
               />
             )}
           </MDBox>
@@ -265,9 +295,8 @@ export default function KpExecutingApp() {
         <MDBox display="flex" justifyContent="center" alignItems="center" py={3}>
           <GridLoader color="#1976d2" size={24} margin={2} />
         </MDBox>
-      ) : (
+      ) : selectedRowId === null ? (<div></div>) : (
         <Card>
-          {/* Блок с кнопками */}
           <MDBox
             m={2}
             flex={2}
@@ -288,6 +317,15 @@ export default function KpExecutingApp() {
                 //onClick={() => setConfirmSaveOpen(true)}
                 >
                   <SaveIcon />
+                </IconButton>
+              </span>
+            </Tooltip>
+            <Tooltip title="Экспорт">
+              <span>
+                <IconButton
+                  onClick={handleExport}
+                >
+                  <i className="material-icons">file_download</i>
                 </IconButton>
               </span>
             </Tooltip>
@@ -371,7 +409,6 @@ export default function KpExecutingApp() {
               </MDBox>
             </MDBox>
           </MDBox>
-          {/* Таблица продуктов */}
           <Card>
             <MDBox p={2} sx={{ height: 'auto' }}>
               <ThemeProvider theme={customTheme}>
@@ -418,10 +455,9 @@ export default function KpExecutingApp() {
               </ThemeProvider>
             </MDBox>
           </Card>
-
-        </Card>
+        </Card>          
       )}
-      <OrdersOverview data={history} />
+      {selectedRowId === null ? (<div></div>) : (<OrdersOverview data={history} />) }                
     </MDBox>
   )
 }

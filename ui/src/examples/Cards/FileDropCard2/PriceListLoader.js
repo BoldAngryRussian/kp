@@ -12,6 +12,7 @@ import WholeSale from 'assets/images/wholesale.png'
 import KPPriceLoadingSupplierFinder from 'examples/Cards/FileDropCard2/components/KPCreationSupplierFinder'
 import PriceListSupplierInformation from 'examples/Cards/FileDropCard2/components/PriceListSupplierDetailInfo'
 import { authFetch } from 'utils/authFetch'
+import screenshort from "assets/images/Screenshot.png";
 
 import { GridLoader } from "react-spinners";
 
@@ -165,7 +166,7 @@ function PriceListLoader() {
       .catch((error) => {
         console.error("Ошибка при загрузке:", error);
         setUploadErrorMessage("Не удалось загрузить прайс-лист на сервер.");
-    })
+      })
   };
 
 
@@ -327,6 +328,28 @@ function PriceListLoader() {
         {showSpinner && (
           <MDBox display="flex" justifyContent="center" alignItems="center" mt={20}>
             <GridLoader color="#1976d2" size={24} margin={2} />
+          </MDBox>
+        )}
+        {summaryRows.length === 0 && !showSpinner && (
+          <MDBox display="flex" flexDirection="column" alignItems="center" justifyContent="center">
+            <MDTypography variant="body2" mt={2} sx={{ color: 'text.disabled', fontSize: '0.75rem' }}>
+              Для правильной загрузки прайс-листа
+            </MDTypography>
+            <MDTypography variant="body2" sx={{ color: 'text.disabled', fontSize: '0.75rem' }}>
+              файл должен содержать 2 колонки с наименованием продукта и ценой
+            </MDTypography>
+            <img
+              src={screenshort}
+              alt="Скриншот"
+              style={{
+                marginTop: "12px",
+                maxWidth: "60%",
+                borderRadius: "8px",
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                filter: "grayscale(100%)",
+                opacity: 0.15,
+              }}
+            />
           </MDBox>
         )}
         {!showSpinner && summaryRows.length > 0 && (

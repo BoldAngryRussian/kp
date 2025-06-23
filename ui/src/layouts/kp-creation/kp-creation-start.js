@@ -71,6 +71,7 @@ export default function KPCreationStart() {
                                 Создать
                             </MDButton>
                         </MDBox>
+                        {/*
                         <MDBox pt={2}>
                             <MDButton
                                 variant="text"
@@ -90,6 +91,7 @@ export default function KPCreationStart() {
                                 Редактировать
                             </MDButton>
                         </MDBox>
+                         */}
                     </MDBox>
                 </MDBox>
             )}

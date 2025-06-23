@@ -125,7 +125,8 @@ export default function KpExecutingApp() {
   // Экспорт в Excel
 const handleExport = async () => {
   try {
-    const response = await authFetch("/api/v1/export/excel");
+    const selectedKpRef = filteredProducts.find(row => row.id === selectedRowId)?.kp_ref;
+    const response = await authFetch(`/api/v1/export/${selectedKpRef}/excel`);
 
     if (!response.ok) {
       throw new Error("Ошибка при экспорте файла");
@@ -310,16 +311,6 @@ const handleExport = async () => {
               px: 1
             }}
           >
-            <Tooltip title="Сохранить">
-              <span>
-                <IconButton
-                //disabled={selectedSupplierIdFinal == null}
-                //onClick={() => setConfirmSaveOpen(true)}
-                >
-                  <SaveIcon />
-                </IconButton>
-              </span>
-            </Tooltip>
             <Tooltip title="Экспорт">
               <span>
                 <IconButton

@@ -15,4 +15,6 @@ class CommercialOfferDetailsDescriptionService(
 
     @Transactional
     fun deleteByOfferId(offerId: Long) = repo.deleteByOfferId(offerId)
+
+    fun findByOfferId(offerId: Long) = repo.findFirstById(offerId)
 }

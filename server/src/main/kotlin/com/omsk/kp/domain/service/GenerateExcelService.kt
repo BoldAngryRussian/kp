@@ -1,5 +1,10 @@
 package com.omsk.kp.domain.service
 
+import com.omsk.kp.domain.model.CommercialOfferDetails
+import com.omsk.kp.domain.model.getDescOrEmpty
+import com.omsk.kp.domain.model.getSellPrice
+import com.omsk.kp.domain.service.save_kp.CommercialOfferDetailsService
+import com.omsk.kp.domain.service.save_kp.CommercialOfferService
 import org.springframework.stereotype.Service
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.time.LocalDate
@@ -10,19 +15,30 @@ import org.apache.poi.ss.usermodel.*
 
 
 @Service
-class GenerateExcelService {
-    fun generate(): ByteArray {
-        // Загрузить шаблон
+class GenerateExcelService(
+    private val commercialOfferDetailsService: CommercialOfferDetailsService,
+    private val commercialOfferDetailsDescriptionService: CommercialOfferDetailsDescriptionService
+) {
+    fun generate(offerId: Long): ByteArray {
+        val products = commercialOfferDetailsService
+            .findAllByOfferId(offerId)
+
+        val desc = commercialOfferDetailsDescriptionService
+            .findByOfferId(offerId)
+
+        if (products.isEmpty())
+        throw RuntimeException("Не найдено информации по КП №${offerId}")
+
         val templateInputStream = ClassPathResource("excel/template.xlsx").inputStream
         val workbook = XSSFWorkbook(templateInputStream)
 
         mapOf(
             "DATE" to LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
-            "TERMS" to "Тут просто какой-то текст для замены",
+            "TERMS" to desc.getDescOrEmpty(),
             "SUMMA" to "1,000,000 Руб"
         ).forEach { findAndReplace(it.key, it.value, workbook) }
 
-        copy(workbook)
+        copy(workbook, products)
 
         // Сохранить в память
         val outStream = ByteArrayOutputStream()
@@ -46,11 +62,27 @@ class GenerateExcelService {
         }
     }
 
-    private fun copy(workbook: XSSFWorkbook) {
+    private fun copy(workbook: XSSFWorkbook, products: List<CommercialOfferDetails>) {
         val sheet: Sheet = workbook.getSheetAt(0)
         val templateRowIndex = 9 // строка №10
         val templateRow = sheet.getRow(templateRowIndex)
 
+        var i = 0
+        val dataList = mutableListOf<List<String>>()
+        products
+            .map {
+                dataList.add(
+                    listOf(
+                        (++i).toString(),
+                        it.name,
+                        "кг",
+                        it.quantity.toString(),
+                        it.getSellPrice().toString(),
+                        (it.quantity * it.getSellPrice()).toString()
+                    )
+                )
+            }
+        /*
         val dataList = listOf(
             listOf("1", "Тушка", "кг", "500", "121", "10000"),
             listOf("2", "Тушка", "кг", "500", "121", "10000"),
@@ -70,6 +102,8 @@ class GenerateExcelService {
             listOf("16", "Кальмар", "кг", "700", "122", "10000"),
             listOf("17", "Осетр", "кг", "800", "123", "10000"),
         )
+
+         */
 
         // 1. Сдвигаем строки ВНИЗ
         sheet.shiftRows(templateRowIndex + 1, sheet.lastRowNum, dataList.size)

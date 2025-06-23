@@ -14,3 +14,5 @@ data class CommercialOfferDetailsDescription(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null
 )
+
+fun CommercialOfferDetailsDescription?.getDescOrEmpty() = this?.description ?: ""

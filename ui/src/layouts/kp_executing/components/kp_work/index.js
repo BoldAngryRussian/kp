@@ -88,7 +88,7 @@ const columns = [
   { field: 'phone', headerName: 'Телефон', flex: 0.2 },
   { field: 'manager', headerName: 'Менеджер', flex: 0.2 },
   { field: 'weight', headerName: 'Вес(т)', flex: 0.2 },
-  { field: 'amount', headerName: 'Сумма продажи', flex: 0.2 },
+  { field: 'amount', headerName: 'Сумма закупки', flex: 0.2 },
   { field: 'date', headerName: 'Создано', flex: 0.2 },
 ];
 

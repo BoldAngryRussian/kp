@@ -2,8 +2,8 @@ package com.omsk.kp.domain.service
 
 import com.omsk.kp.domain.model.CommercialOfferDetails
 import com.omsk.kp.domain.model.getDescOrEmpty
+import com.omsk.kp.domain.model.getSellPrice
 import com.omsk.kp.domain.model.getSellPriceTotal
-import com.omsk.kp.domain.model.getSellPriceByQuantity
 import com.omsk.kp.domain.service.save_kp.CommercialOfferDetailsService
 import com.omsk.kp.utils.formatToAmount
 import org.springframework.stereotype.Service
@@ -34,11 +34,11 @@ class GenerateExcelService(
         val workbook = XSSFWorkbook(templateInputStream)
 
         var allSellPricesTotal = 0.0
-        products.forEach { allSellPricesTotal += it.getSellPriceByQuantity() }
+        products.forEach { allSellPricesTotal += it.getSellPriceTotal() }
         mapOf(
-            "DATE" to LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
-            "TERMS" to desc.getDescOrEmpty(),
-            "SUMMA" to formatToAmount(allSellPricesTotal)
+            DATE to LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
+            TERMS to desc.getDescOrEmpty(),
+            SUMMA to formatToAmount(allSellPricesTotal)
         ).forEach { findAndReplace(it.key, it.value, workbook) }
 
         copy(workbook, products)
@@ -80,8 +80,8 @@ class GenerateExcelService(
                         it.name,
                         "кг",
                         it.quantity.toString(),
-                        formatToAmount(it.getSellPriceTotal()),
-                        formatToAmount(it.getSellPriceByQuantity())
+                        formatToAmount(it.getSellPrice()),
+                        formatToAmount(it.getSellPriceTotal())
                     )
                 )
             }
@@ -118,5 +118,11 @@ class GenerateExcelService(
         }
         // 💡 Сдвигаем всё, начиная со строки ВЫШЕ шаблона (его индекс)
         sheet.shiftRows(templateRowIndex + 1, sheet.lastRowNum, -1)
+    }
+
+    companion object {
+        const val DATE = "DATE"
+        const val TERMS = "TERMS"
+        const val SUMMA = "SUMMA"
     }
 }

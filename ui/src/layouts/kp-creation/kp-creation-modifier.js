@@ -132,7 +132,7 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
     const summaryRows = [
         { label: "💰 Сумма закупки", value: `${summary.totalPurchase} ₽` },
         { label: "🚛 Транспорт", value: `${summary.totalTransport} ₽` },
-        { label: "🛒 Цена продажи", value: `${summary.totalSale} ₽` },
+        { label: "🛒 Сумма продажи", value: `${summary.totalSale} ₽` },
         { label: "📈 Маржа", value: (<strong style={{ color: "green", fontSize: "1.1rem" }}>{summary.totalMargin} ₽</strong>), },
     ];
 

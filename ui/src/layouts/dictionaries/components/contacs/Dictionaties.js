@@ -85,6 +85,9 @@ export default function ContactApp() {
   const [email2Update, setEmail2Update] = useState('');
   const [phone2Update, setPhone2Update] = useState('');
   const [details2Update, setDetails2Update] = useState('');
+  const [addres2Update, setAddres2Update] = useState('')
+
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   useEffect(() => {
     handleSupplierClick();
@@ -99,8 +102,10 @@ export default function ContactApp() {
       setEmail2Update(selected.email);
       setPhone2Update(selected.phone);
       setDetails2Update(selected.notes);
+      setAddres2Update(selected.address)
     }
   }, [selected]);
+
   // Update contact function
   const updateContact = async (updContact, category) => {
     const endpoint = category === 'supplier'
@@ -325,6 +330,7 @@ export default function ContactApp() {
             email: email2Update,
             phone: phone2Update,
             details: details2Update,
+            address: addres2Update
           },
           activeCategory
         ),
@@ -533,7 +539,7 @@ export default function ContactApp() {
                   </MDTypography>
                   {!isEditMode && (
                     <MDBox>
-                      <IconButton size="small" onClick={() => setIsEditMode(true)}>
+                      <IconButton size="small" onClick={() => setIsEditDialogOpen(true)}>
                         <EditIcon fontSize="small" />
                       </IconButton>
                       <IconButton size="small" onClick={() => setConfirmDeleteOpen(true)}>
@@ -543,38 +549,6 @@ export default function ContactApp() {
                   )}
                 </MDBox>
                 <Divider flexItem sx={{ borderColor: '#cfd8dc', borderWidth: '3px' }} />
-                {isEditMode ? (
-                  <MDBox component="form" display="flex" flexDirection="column" gap={2}>
-                    <TextField label="Фамилия" fullWidth value={secondName2Update} onChange={(e) => setSecondName2Update(e.target.value)} />
-                    <TextField label="Имя" fullWidth value={firstName2Update} onChange={(e) => setFirstName2Update(e.target.value)} />
-                    <TextField label="Отчество" fullWidth value={thirdName2Update} onChange={(e) => setThirdName2Update(e.target.value)} />
-                    <TextField label="Кампания" fullWidth value={company2Update} onChange={(e) => setCompany2Update(e.target.value)} />
-                    <TextField label="Email" fullWidth value={email2Update} onChange={(e) => setEmail2Update(e.target.value)} />
-                    <TextField label="Телефон" fullWidth value={phone2Update} onChange={(e) => setPhone2Update(e.target.value)} />
-                    <TextField
-                      label="Дополнительная информация"
-                      fullWidth
-                      value={details2Update}
-                      onChange={(e) => setDetails2Update(e.target.value)}
-                      multiline
-                      rows={5}
-                    />
-                    <MDBox display="flex" gap={2} mt={2}>
-                      <MDButton
-                        color="info"
-                        variant="contained"
-                        onClick={handleSaveEditContact}
-                        disabled={isSaving}
-                      >
-                        {isSaving && <CircularProgress size={16} color="inherit" sx={{ mr: 1 }} />}
-                        Обновить
-                      </MDButton>
-                      <MDButton color="secondary" onClick={() => setIsEditMode(false)}>
-                        Отмена
-                      </MDButton>
-                    </MDBox>
-                  </MDBox>
-                ) : (
                   <>
                     <MDBox display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                       <MDBox display="flex" alignItems="center">
@@ -611,7 +585,6 @@ export default function ContactApp() {
                       <Typography color="text">{selected.notes}</Typography>
                     </MDBox>
                   </>
-                )}
               </>
             )}
           </MDBox>
@@ -667,6 +640,55 @@ export default function ContactApp() {
             Удалить
           </MDButton>
           <MDButton onClick={() => setConfirmDeleteOpen(false)} color="secondary">
+            Отмена
+          </MDButton>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={isEditDialogOpen}
+        onClose={() => !isSaving && setIsEditDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Редактировать контакт</DialogTitle>
+        <DialogContent dividers>
+          <MDBox component="form" display="flex" flexDirection="column" gap={2}>
+            <TextField label="Фамилия" fullWidth value={secondName2Update} onChange={(e) => setSecondName2Update(e.target.value)} disabled={isSaving} />
+            <TextField label="Имя" fullWidth value={firstName2Update} onChange={(e) => setFirstName2Update(e.target.value)} disabled={isSaving} />
+            <TextField label="Отчество" fullWidth value={thirdName2Update} onChange={(e) => setThirdName2Update(e.target.value)} disabled={isSaving} />
+            <TextField label="Кампания" fullWidth value={company2Update} onChange={(e) => setCompany2Update(e.target.value)} disabled={isSaving} />
+            <TextField label="Email" fullWidth value={email2Update} onChange={(e) => setEmail2Update(e.target.value)} disabled={isSaving} />
+            <TextField label="Адрес" fullWidth value={addres2Update} onChange={(e) => setAddres2Update(e.target.value)} disabled={isSaving} />
+            <TextField label="Телефон" fullWidth value={phone2Update} onChange={(e) => setPhone2Update(e.target.value)} disabled={isSaving} />
+            <TextField
+              label="Дополнительная информация"
+              fullWidth
+              value={details2Update}
+              onChange={(e) => setDetails2Update(e.target.value)}
+              multiline
+              rows={5}
+              disabled={isSaving}
+            />
+          </MDBox>
+        </DialogContent>
+        <DialogActions>
+          <MDButton
+            color="info"
+            variant="contained"
+            onClick={async () => {
+              await handleSaveEditContact();
+              setIsEditDialogOpen(false); // Закрываем только после успешного сохранения
+            }}
+            disabled={isSaving}
+          >
+            {isSaving && <CircularProgress size={16} color="inherit" sx={{ mr: 1 }} />}
+            Обновить
+          </MDButton>
+          <MDButton
+            color="secondary"
+            onClick={() => setIsEditDialogOpen(false)}
+            disabled={isSaving}
+          >
             Отмена
           </MDButton>
         </DialogActions>

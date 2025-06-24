@@ -13,5 +13,5 @@ interface CommercialOfferDetailsDescriptionRepository: JpaRepository<CommercialO
     )
     fun deleteByOfferId(offerId: Long)
 
-    fun findFirstById(offerId: Long): CommercialOfferDetailsDescription?
+    fun findFirstByCommercialOfferId(offerId: Long): CommercialOfferDetailsDescription?
 }

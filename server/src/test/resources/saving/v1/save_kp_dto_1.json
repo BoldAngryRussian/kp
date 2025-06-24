@@ -1,0 +1,25 @@
+{
+  "customerId" : 15,
+  "managerId" : 20,
+  "offerId" : null,
+  "terms" : "Просто добавить в срок",
+  "elems" : [ {
+    "name" : "Голец н/р 25+ П-50 18 ТУ ЕАС Камчатморепродукт ООО (18.07.23-29.07.23) 1/22/11       БВС   *   Спец. Цена на остаток !   *",
+    "price" : 19000,
+    "markupExtra" : 12.0,
+    "markupPercent" : null,
+    "transportExtra" : 17.0,
+    "transportPercent" : null,
+    "quantity" : 100,
+    "weightKg" : 0.25
+  }, {
+    "name" : "Макрурус тушка ПБГ б/х(1-2)M ТУ ЕАС Прометей СРТМ/Росрыбфлот ООО (19.02.25-14.03.25) 1/18",
+    "price" : 19600,
+    "markupExtra" : 12.0,
+    "markupPercent" : null,
+    "transportExtra" : 17.0,
+    "transportPercent" : null,
+    "quantity" : 100,
+    "weightKg" : 0.25
+  } ]
+}

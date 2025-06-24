@@ -24,13 +24,18 @@ data class CommercialOfferDetails(
     val id: Long? = null
 )
 
-fun CommercialOfferDetails.getPurchasePrice() = quantity * price / 100
+fun CommercialOfferDetails.getPriceInRub() = price / 100
+fun CommercialOfferDetails.getPurchasePriceTotal() = quantity * getPriceInRub()
 fun CommercialOfferDetails.getTotalWeight() = weightKg * quantity
 fun CommercialOfferDetails.getMarkupPercentOrZero() = markupPercent ?: 0.0
 fun CommercialOfferDetails.getMarkupExtraOrZero() = markupExtra ?: 0.0
-fun CommercialOfferDetails.getMarkupTotal() = quantity * (getMarkupExtraOrZero() + ( getPurchasePrice() * getMarkupPercentOrZero() / 100 ))
+fun CommercialOfferDetails.getMarkupTotal() =
+    quantity * (getMarkupExtraOrZero() + ( getPriceInRub() * getMarkupPercentOrZero() / 100 ))
 fun CommercialOfferDetails.getTransportExtraOrZero() = transportExtra ?: 0.0
 fun CommercialOfferDetails.getTransportPercentOrZero() = transportPercent ?: 0.0
-fun CommercialOfferDetails.getTransportTotal() = quantity * (getTransportExtraOrZero() + (getTotalWeight() * getTransportPercentOrZero()))
-fun CommercialOfferDetails.getSellPrice() = getPurchasePrice() + getMarkupTotal() + getTransportTotal()
-fun CommercialOfferDetails.getMarga() = getSellPrice() - getPurchasePrice() - getTransportTotal()
+fun CommercialOfferDetails.getTransportTotal() =
+    quantity * (getTransportExtraOrZero() + (weightKg * getTransportPercentOrZero()))
+fun CommercialOfferDetails.getSellPriceTotal() =
+    quantity * getPriceInRub() + getMarkupTotal() + getTransportTotal()
+fun CommercialOfferDetails.getSellPriceByQuantity() = quantity * getSellPriceTotal()
+fun CommercialOfferDetails.getMarga() = getSellPriceTotal() - getPurchasePriceTotal() - getTransportTotal()

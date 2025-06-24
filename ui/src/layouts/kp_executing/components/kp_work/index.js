@@ -88,7 +88,7 @@ const columns = [
   { field: 'phone', headerName: 'Телефон', flex: 0.2 },
   { field: 'manager', headerName: 'Менеджер', flex: 0.2 },
   { field: 'weight', headerName: 'Вес(т)', flex: 0.2 },
-  { field: 'amount', headerName: 'Общая сумма', flex: 0.2 },
+  { field: 'amount', headerName: 'Сумма продажи', flex: 0.2 },
   { field: 'date', headerName: 'Создано', flex: 0.2 },
 ];
 
@@ -148,6 +148,10 @@ const handleExport = async () => {
   }
 };
 
+const formatNumber = (value) => {
+  return Number(value).toLocaleString('ru-RU');
+};
+
   const onOfferIdSelected = (kpRef) => {
     //setLoadingDetails(true);
     //setShowLoader(true);
@@ -164,12 +168,12 @@ const handleExport = async () => {
       .then(data => {
         const processed = data.products.map((row, index) => ({
           name: row.name,
-          purchase: row.purchasePrice,
-          markup: row.markupPrice,
-          price: row.sellPrice,
-          amount: row.quantity,
-          weight: row.weight,
-          margin: row.marga,
+          purchase: formatNumber(row.purchasePrice),
+          markup: formatNumber(row.markupPrice),
+          price: formatNumber(row.sellPrice),
+          amount: formatNumber(row.quantity),
+          weight: formatNumber(row.weight),
+          margin: formatNumber(row.marga),
           id: (index + 1).toString(),
         }));
         setTotal(data.finance);
@@ -207,8 +211,8 @@ const handleExport = async () => {
           manager: `${row.managerFirstName} ${row.managerSecondName[0]}. ${row.managerThirdName[0]}.`,
           date: row.date,
           phone: row.phone,
-          weight: row.weight,
-          amount: row.pricePurchase,
+          weight: formatNumber(row.weight),
+          amount: formatNumber(row.pricePurchase),
           id: (index + 1).toString(), // ID для DataGrid
         }));
         setFilteredProducts(processed);
@@ -380,23 +384,23 @@ const handleExport = async () => {
               </MDTypography>
               <MDBox display="flex" justifyContent="space-between">
                 <MDTypography variant="body2" color="text">Вес:</MDTypography>
-                <MDTypography variant="body2" color="text">{total.weight}</MDTypography>
+                <MDTypography variant="body2" color="text">{formatNumber(total.weight)} кг</MDTypography>
               </MDBox>
               <MDBox display="flex" justifyContent="space-between">
                 <MDTypography variant="body2" color="text">Закупка:</MDTypography>
-                <MDTypography variant="body2" color="text">{total.pricePurchase} ₽</MDTypography>
+                <MDTypography variant="body2" color="text">{formatNumber(total.pricePurchase)} ₽</MDTypography>
               </MDBox>
               <MDBox display="flex" justifyContent="space-between">
                 <MDTypography variant="body2" color="text">Доставка:</MDTypography>
-                <MDTypography variant="body2" color="text">{total.priceTransport} ₽</MDTypography>
+                <MDTypography variant="body2" color="text">{formatNumber(total.priceTransport)} ₽</MDTypography>
               </MDBox>
               <MDBox display="flex" justifyContent="space-between">
                 <MDTypography variant="body2" color="text">Продажа:</MDTypography>
-                <MDTypography variant="body2" color="text">{total.priceSell} ₽</MDTypography>
+                <MDTypography variant="body2" color="text">{formatNumber(total.priceSell)} ₽</MDTypography>
               </MDBox>
               <MDBox display="flex" justifyContent="space-between">
                 <MDTypography variant="body2" color="text">Маржа:</MDTypography>
-                <MDTypography variant="body2" fontWeight="bold" color="success">{total.marga} ₽</MDTypography>
+                <MDTypography variant="body2" fontWeight="bold" color="success">{formatNumber(total.marga)} ₽</MDTypography>
               </MDBox>
             </MDBox>
           </MDBox>

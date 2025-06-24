@@ -5,8 +5,8 @@ import com.omsk.kp.domain.model.Customer
 import com.omsk.kp.domain.model.User
 import com.omsk.kp.domain.model.getMarga
 import com.omsk.kp.domain.model.getMarkupTotal
-import com.omsk.kp.domain.model.getPurchasePrice
-import com.omsk.kp.domain.model.getSellPrice
+import com.omsk.kp.domain.model.getPurchasePriceTotal
+import com.omsk.kp.domain.model.getSellPriceTotal
 import com.omsk.kp.domain.model.getTotalWeight
 import com.omsk.kp.domain.model.getTransportTotal
 import com.omsk.kp.domain.projection.CommercialOfferHistoryFull
@@ -59,10 +59,10 @@ data class KPTotalInfoProduct (
 ) {
     constructor(commercialOfferDetails: CommercialOfferDetails): this(
         name = commercialOfferDetails.name,
-        purchasePrice = commercialOfferDetails.getPurchasePrice(),
+        purchasePrice = commercialOfferDetails.getPurchasePriceTotal(),
         markupPrice = commercialOfferDetails.getMarkupTotal(),
         transportPrice = commercialOfferDetails.getTransportTotal(),
-        sellPrice = commercialOfferDetails.getSellPrice(),
+        sellPrice = commercialOfferDetails.getSellPriceTotal(),
         quantity = commercialOfferDetails.quantity,
         weight = commercialOfferDetails.getTotalWeight(),
         marga = commercialOfferDetails.getMarga(),

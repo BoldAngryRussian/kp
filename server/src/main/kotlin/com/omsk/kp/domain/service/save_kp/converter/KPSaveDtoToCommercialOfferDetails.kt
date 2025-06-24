@@ -14,7 +14,7 @@ class KPSaveDtoToCommercialOfferDetails {
                     it.markupExtra,
                     it.markupPercent,
                     it.transportExtra,
-                    it.markupPercent,
+                    it.transportPercent,
                     it.quantity,
                     it.weightKg,
                     commercialOfferId,

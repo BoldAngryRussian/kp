@@ -12,7 +12,7 @@ interface CommercialOfferRepository: JpaRepository<CommercialOffer, Long> {
                 p.id, p.manager_id, p.customer_id, TO_CHAR(p.created_at, 'DD-MM-YYYY') as date, p.type,
 				c.company, c.phone,
 				u.first_name as manager_first_name, u.second_name as manager_second_name, u.third_name as manager_third_name,
-                l.weight, l.price_purchase, l.price_transport, l.price_sell, l.marga
+                (l.weight / 1000.0) as weight, l.price_purchase, l.price_transport, l.price_sell, l.marga
             from commercial_offer p
 			    inner join customers c on c.id = p.customer_id
 			    inner join users u on u.id = p.manager_id

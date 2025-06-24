@@ -1,0 +1,187 @@
+{
+  "customerId" : 15,
+  "managerId" : 20,
+  "offerId" : null,
+  "terms" : "Доставить вовремя и в срок.\n1. Доставить до подъезда\n2. Выгрузить аккуратно",
+  "elems" : [ {
+    "name" : "Голец н/р 25+ П-50 18 ТУ ЕАС Камчатморепродукт ООО (18.07.23-29.07.23) 1/22/11       БВС   *   Спец. Цена на остаток !   *",
+    "price" : 19000,
+    "markupExtra" : 9.0,
+    "markupPercent" : 2.0,
+    "transportExtra" : 17.0,
+    "transportPercent" : 4.0,
+    "quantity" : 2000,
+    "weightKg" : 0.25
+  }, {
+    "name" : "Голец н/р 30+ П-19 24 ТУ ЕАС Востокинвест ООО 1/22/11                                           + спец. цены на объем от 500 кг. !!!",
+    "price" : 22000,
+    "markupExtra" : 1.0,
+    "markupPercent" : 8.0,
+    "transportExtra" : 17.0,
+    "transportPercent" : 6.0,
+    "quantity" : 2000,
+    "weightKg" : 0.35
+  }, {
+    "name" : "Голец н/р 25-35 ВП-31 24 ТУ ЕАС Рыбхолкам ООО (21.07.24-11.09.24) 1/27                *   Спец. Цена на остаток !   *         Не крупный !!",
+    "price" : 35000,
+    "markupExtra" : 9.0,
+    "markupPercent" : 2.0,
+    "transportExtra" : 17.0,
+    "transportPercent" : 4.0,
+    "quantity" : 2000,
+    "weightKg" : 0.25
+  }, {
+    "name" : "Горбуша н/р 24 ТУ ЕАС Ухта-Пром ООО (22.07.24-08.08.24) 1/22/11",
+    "price" : 44200,
+    "markupExtra" : 9.0,
+    "markupPercent" : 2.0,
+    "transportExtra" : 17.0,
+    "transportPercent" : 4.0,
+    "quantity" : 2000,
+    "weightKg" : 0.25
+  }, {
+    "name" : "Горбуша ПСГ П-16 18 ТУ ЕАС Пымта ООО 1/22/11    Переработочная  !!!!",
+    "price" : 44200,
+    "markupExtra" : 9.0,
+    "markupPercent" : 2.0,
+    "transportExtra" : 17.0,
+    "transportPercent" : 4.0,
+    "quantity" : 500,
+    "weightKg" : 1.0
+  }, {
+    "name" : "Горбуша ПБГ 24 ТУ ЕАС Меридиан ООО 1/22/11",
+    "price" : 44200,
+    "markupExtra" : 9.0,
+    "markupPercent" : 2.0,
+    "transportExtra" : 17.0,
+    "transportPercent" : 4.0,
+    "quantity" : 2000,
+    "weightKg" : 0.25
+  }, {
+    "name" : "Горбуша ПБГ П-14/1 24 ТУ ЕАС Тымлатский РК ООО 1/24/12                                            Переработочная  !!!!                                            Спец. цена от 500 кг. !!!",
+    "price" : 45000,
+    "markupExtra" : 9.0,
+    "markupPercent" : 2.0,
+    "transportExtra" : 17.0,
+    "transportPercent" : 4.0,
+    "quantity" : 2000,
+    "weightKg" : 0.25
+  }, {
+    "name" : "Горбуша ПБГ 18 ТУ ЕАС Камбер ООО (20.07.24-01.09.24) 1/22/11                                            Переработочная  !!!!",
+    "price" : 45200,
+    "markupExtra" : 9.0,
+    "markupPercent" : 2.0,
+    "transportExtra" : 17.0,
+    "transportPercent" : 4.0,
+    "quantity" : 2000,
+    "weightKg" : 0.35
+  }, {
+    "name" : "Кальмар тушка ТУ ЕАС Мыс Олюторский/Океанрыбфлот АО 1/22/11",
+    "price" : 34200,
+    "markupExtra" : 1.0,
+    "markupPercent" : 8.0,
+    "transportExtra" : 17.0,
+    "transportPercent" : 6.0,
+    "quantity" : 2000,
+    "weightKg" : 0.25
+  }, {
+    "name" : "Кальмар тушка (ФИЛЕ)ТУ ЕАС Петр Ильин РС/Акрос АО 1/22,5/7,5",
+    "price" : 54500,
+    "markupExtra" : 9.0,
+    "markupPercent" : 2.0,
+    "transportExtra" : 17.0,
+    "transportPercent" : 4.0,
+    "quantity" : 500,
+    "weightKg" : 0.25
+  }, {
+    "name" : "Кальмар тушка фас.800гр.ТМ СКС(ГП) ЕАС Бутовск БМРТ/Меркурий ООО 1/10/1 цена за 1 шт.=0,8 кг.",
+    "price" : 28000,
+    "markupExtra" : 9.0,
+    "markupPercent" : 2.0,
+    "transportExtra" : 17.0,
+    "transportPercent" : 4.0,
+    "quantity" : 2000,
+    "weightKg" : 0.25
+  }, {
+    "name" : "Камбала н/р 25+ ЖП М ТУ ЕАС Капитан Теплюков ПЗ/Колхоз Октябрь ОАО (29.01.25-24.02.25) 1/22/11",
+    "price" : 18600,
+    "markupExtra" : 9.0,
+    "markupPercent" : 2.0,
+    "transportExtra" : 17.0,
+    "transportPercent" : 4.0,
+    "quantity" : 2000,
+    "weightKg" : 0.25
+  }, {
+    "name" : "Камбала н/р 28+ ЖП L ТУ ЕАС Капитан Теплюков ПЗ/Колхоз Октябрь ОАО (29.01.25-24.02.25) 1/22/11",
+    "price" : 20300,
+    "markupExtra" : 9.0,
+    "markupPercent" : 2.0,
+    "transportExtra" : 17.0,
+    "transportPercent" : 4.0,
+    "quantity" : 500,
+    "weightKg" : 0.25
+  }, {
+    "name" : "Камбала б/г 21+ ЖБ S ТУ ЕАС Камчаттралфлот ООО (31.12.24-15.02.25) 1/17",
+    "price" : 24200,
+    "markupExtra" : 9.0,
+    "markupPercent" : 2.0,
+    "transportExtra" : 17.0,
+    "transportPercent" : 4.0,
+    "quantity" : 2000,
+    "weightKg" : 0.25
+  }, {
+    "name" : "Камбала б/г 18+ ББ 2S ТУ ЕАС Камчаттралфлот ООО (31.12.24-15.02.25) 1/17",
+    "price" : 21700,
+    "markupExtra" : 9.0,
+    "markupPercent" : 2.0,
+    "transportExtra" : 17.0,
+    "transportPercent" : 4.0,
+    "quantity" : 2000,
+    "weightKg" : 0.25
+  }, {
+    "name" : "Камбала б/г 18+ ББ IQF 2S ТУ ЕАС Камчаттралфлот ООО (02.03.25-10.03.25) 1/14                *   штучная заморозка  *",
+    "price" : 25500,
+    "markupExtra" : 1.0,
+    "markupPercent" : 8.0,
+    "transportExtra" : 17.0,
+    "transportPercent" : 6.0,
+    "quantity" : 2000,
+    "weightKg" : 0.35
+  }, {
+    "name" : "Кета ПБГ 14 ТУ ЕАС Восточное РПК ООО 1/22/11                                                                                                        продукция с нерестовыми изменениями        !!!",
+    "price" : 42000,
+    "markupExtra" : 9.0,
+    "markupPercent" : 2.0,
+    "transportExtra" : 17.0,
+    "transportPercent" : 4.0,
+    "quantity" : 500,
+    "weightKg" : 1.0
+  }, {
+    "name" : "Кета ПБГ 1,8-2,7 12 ТУ ЕАС Камчатские Промыслы ООО 1/20/10      * Спец.Предложение недели (16-й) ! Минимальная  Цена! *",
+    "price" : 55000,
+    "markupExtra" : 9.0,
+    "markupPercent" : 2.0,
+    "transportExtra" : 17.0,
+    "transportPercent" : 4.0,
+    "quantity" : 2000,
+    "weightKg" : 0.25
+  }, {
+    "name" : "Кижуч ПСГ S 12 ТУ ЕАС Ясный СРТМ/Гранис ООО (03.08.24-31.08.24) 1/15                                штучная заморозка , супер качество !!!",
+    "price" : 64500,
+    "markupExtra" : 1.0,
+    "markupPercent" : 8.0,
+    "transportExtra" : 17.0,
+    "transportPercent" : 6.0,
+    "quantity" : 2000,
+    "weightKg" : 0.25
+  }, {
+    "name" : "Макрурус тушка ПБГ б/х(1-2)M ТУ ЕАС Прометей СРТМ/Росрыбфлот ООО (19.02.25-14.03.25) 1/18",
+    "price" : 19600,
+    "markupExtra" : 9.0,
+    "markupPercent" : 2.0,
+    "transportExtra" : 17.0,
+    "transportPercent" : 4.0,
+    "quantity" : 500,
+    "weightKg" : 0.35
+  } ]
+}

@@ -1,5 +1,6 @@
 package com.omsk.kp.rest
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.omsk.kp.domain.service.save_kp.KPSaveService
 import com.omsk.kp.domain.service.save_kp.KPUpdateService
 import com.omsk.kp.dto.KPSaveDTO
@@ -17,10 +18,18 @@ class KPSaveController(
     private val kpUpdateService: KPUpdateService
 ) {
     @PostMapping("/save")
-    fun save(@RequestBody dto: KPSaveDTO): KPSaveResultDTO =
-        kpSaveService.save(dto)
+    fun save(@RequestBody dto: KPSaveDTO): KPSaveResultDTO {
+        val mapper = jacksonObjectMapper()
+        val json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dto)
+        return kpSaveService.save(dto)
+    }
+
 
     @PostMapping("/update")
-    fun update(@RequestBody dto: KPSaveDTO): KPSaveResultDTO =
-        kpUpdateService.update(dto)
+    fun update(@RequestBody dto: KPSaveDTO): KPSaveResultDTO{
+        val mapper = jacksonObjectMapper()
+        val json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dto)
+        return kpUpdateService.update(dto)
+    }
+
 }

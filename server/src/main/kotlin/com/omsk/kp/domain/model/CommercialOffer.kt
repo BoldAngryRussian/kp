@@ -13,7 +13,7 @@ data class CommercialOffer(
     val managerId: Long,
     val customerId: Long,
     @Enumerated(EnumType.STRING)
-    val type: CommercialOfferType = CommercialOfferType.NEW,
+    var type: CommercialOfferType = CommercialOfferType.NEW,
     val createdAt: Instant = Instant.now(),
 
     @Id
@@ -24,5 +24,10 @@ data class CommercialOffer(
 enum class CommercialOfferType {
     NEW,
     WAIT_CUSTOMER,
-    FINISHED
+    FINISHED;
+
+    companion object {
+        private val map = entries.associateBy { it.name }
+        fun fromString(value: String): CommercialOfferType? = map[value]
+    }
 }

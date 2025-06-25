@@ -18,3 +18,9 @@ data class KPSaveElemDTO (
     val quantity: Int,
     val weightKg: Double
 )
+
+data class KPUpdateStatusDTO(
+    val offerId: Long,
+    val managerId: Long,
+    val new: String
+)

@@ -4,6 +4,7 @@ import com.omsk.kp.domain.model.CommercialOffer
 import com.omsk.kp.domain.repo.CommercialOfferRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import kotlin.jvm.optionals.getOrNull
 
 @Service
 class CommercialOfferService(
@@ -12,7 +13,7 @@ class CommercialOfferService(
     @Transactional
     fun save(commercialOffer: CommercialOffer) = repo.save(commercialOffer)
 
-    fun findById(id: Long) = repo.findById(id)
+    fun findById(id: Long) = repo.findById(id).getOrNull()
 
     fun findAllShort() = repo.findAllShort()
 }

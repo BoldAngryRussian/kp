@@ -20,17 +20,14 @@ class KPOfferComplexCalculation(
     fun calculate(offerId: Long): KPOfferComplexInfo {
         val offer = commercialOfferService
             .findById(offerId)
-            .getOrNull()
             ?: throw RuntimeException("Коммерческое предложение не найдено!")
 
         val customer = customerService
             .findById(offer.customerId)
-            .getOrNull()
             ?: throw RuntimeException("Заказчик не найден!")
 
         val manager = userService
             .findById(offer.managerId)
-            .getOrNull()
             ?: throw RuntimeException("Менеджер не найден!")
 
         val products = commercialOfferDetailsService

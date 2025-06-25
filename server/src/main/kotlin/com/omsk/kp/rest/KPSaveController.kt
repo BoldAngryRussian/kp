@@ -5,6 +5,7 @@ import com.omsk.kp.domain.service.save_kp.KPSaveService
 import com.omsk.kp.domain.service.save_kp.KPUpdateService
 import com.omsk.kp.dto.KPSaveDTO
 import com.omsk.kp.dto.KPSaveResultDTO
+import com.omsk.kp.dto.KPUpdateStatusDTO
 import com.omsk.kp.utils.REST_V1
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -19,17 +20,17 @@ class KPSaveController(
 ) {
     @PostMapping("/save")
     fun save(@RequestBody dto: KPSaveDTO): KPSaveResultDTO {
-        val mapper = jacksonObjectMapper()
-        val json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dto)
         return kpSaveService.save(dto)
     }
 
-
     @PostMapping("/update")
     fun update(@RequestBody dto: KPSaveDTO): KPSaveResultDTO{
-        val mapper = jacksonObjectMapper()
-        val json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dto)
         return kpUpdateService.update(dto)
+    }
+
+    @PostMapping("/status/update")
+    fun update(@RequestBody dto: KPUpdateStatusDTO): Long {
+        return kpUpdateService.updateStatus(dto)
     }
 
 }

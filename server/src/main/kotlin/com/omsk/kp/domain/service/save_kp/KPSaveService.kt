@@ -23,7 +23,6 @@ class KPSaveService(
     fun save(dto: KPSaveDTO): KPSaveResultDTO {
         val manager = userService
             .findById(dto.managerId)
-            .getOrNull()
             ?: throw RuntimeException("Менеджер не найден!")
 
         val offer = kpSaveDtoToCommercialOffer

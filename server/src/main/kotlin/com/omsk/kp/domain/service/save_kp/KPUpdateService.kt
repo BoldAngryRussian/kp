@@ -1,15 +1,16 @@
 package com.omsk.kp.domain.service.save_kp
 
 import com.omsk.kp.domain.model.CommercialOfferHistoryType
+import com.omsk.kp.domain.model.CommercialOfferType
 import com.omsk.kp.domain.service.CommercialOfferDetailsDescriptionService
 import com.omsk.kp.domain.service.CommercialOfferHistoryService
 import com.omsk.kp.domain.service.CommercialOfferTotalService
 import com.omsk.kp.domain.service.UserService
 import com.omsk.kp.dto.KPSaveDTO
 import com.omsk.kp.dto.KPSaveResultDTO
+import com.omsk.kp.dto.KPUpdateStatusDTO
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import kotlin.jvm.optionals.getOrNull
 
 @Service
 class KPUpdateService(
@@ -26,13 +27,9 @@ class KPUpdateService(
     fun update(dto: KPSaveDTO): KPSaveResultDTO {
         val manager = userService
             .findById(dto.managerId)
-            .getOrNull()
             ?: throw RuntimeException("Менеджер не найден!")
 
-        val offer = commercialOfferService
-            .findById(dto.offerId!!)
-            .getOrNull()
-            ?: throw RuntimeException("Коммерческое предложение не найдено!")
+        val offer = findOffer(dto.offerId!!)
 
         commercialOfferTotalService.deleteByOfferId(offer.id!!)
         commercialOfferDetailsService.deleteByOfferId(offer.id!!)
@@ -45,4 +42,24 @@ class KPUpdateService(
 
         return KPSaveResultDTO(offer, manager)
     }
+
+    @Transactional
+    fun updateStatus(dto: KPUpdateStatusDTO): Long {
+        val offer = findOffer(dto.offerId)
+
+        offer.type = CommercialOfferType
+            .fromString(dto.new)
+            ?: throw RuntimeException("Данного типа ${dto.new} не существует!")
+
+        commercialOfferHistoryService
+            .save(offer.id!!, dto.managerId, CommercialOfferHistoryType.STATUS_CHANGED)
+
+        return commercialOfferService
+            .save(offer)
+            .id!!
+    }
+
+    private fun findOffer(offerId: Long) = commercialOfferService
+        .findById(offerId)
+        ?: throw RuntimeException("Коммерческое предложение не найдено!")
 }

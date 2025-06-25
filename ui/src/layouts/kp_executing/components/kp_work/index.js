@@ -14,6 +14,13 @@ import SaveIcon from '@mui/icons-material/Save';
 import OrdersOverview from 'layouts/dashboard/components/OrdersOverview'
 import { authFetch } from 'utils/authFetch'
 import { GridLoader } from "react-spinners";
+import Dialog from "@mui/material/Dialog";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import Radio from "@mui/material/Radio";
+import RadioGroup from "@mui/material/RadioGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import MDButton from "components/MDButton";
 
 
 const customTheme = deepmerge(baseTheme, {
@@ -93,7 +100,8 @@ const columns = [
 ];
 
 export default function KpExecutingApp() {
-
+  const [statusDialogOpen, setStatusDialogOpen] = useState(false);
+  const [newStatus, setNewStatus] = useState("");
   const [productRows, setProductRows] = useState([]);
   const [selectedRowId, setSelectedRowId] = useState(null);
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -122,35 +130,40 @@ export default function KpExecutingApp() {
   const [showLoader, setShowLoader] = useState(false);
   const [history, setHistory] = useState([])
 
-  // Экспорт в Excel
-const handleExport = async () => {
-  try {
-    const selectedKpRef = filteredProducts.find(row => row.id === selectedRowId)?.kp_ref;
-    const response = await authFetch(`/api/v1/export/${selectedKpRef}/excel`);
 
-    if (!response.ok) {
-      throw new Error("Ошибка при экспорте файла");
-    }
-
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "export.xlsx";
-    document.body.appendChild(a);
-    a.click();
-
-    a.remove();
-    window.URL.revokeObjectURL(url);
-  } catch (error) {
-    console.error("Ошибка при экспорте:", error);
+  const handleChangeStatus = () => {
+    setStatusDialogOpen(true)
   }
-};
 
-const formatNumber = (value) => {
-  return Number(value).toLocaleString('ru-RU');
-};
+  // Экспорт в Excel
+  const handleExport = async () => {
+    try {
+      const selectedKpRef = filteredProducts.find(row => row.id === selectedRowId)?.kp_ref;
+      const response = await authFetch(`/api/v1/export/${selectedKpRef}/excel`);
+
+      if (!response.ok) {
+        throw new Error("Ошибка при экспорте файла");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "export.xlsx";
+      document.body.appendChild(a);
+      a.click();
+
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Ошибка при экспорте:", error);
+    }
+  };
+
+  const formatNumber = (value) => {
+    return Number(value).toLocaleString('ru-RU');
+  };
 
   const onOfferIdSelected = (kpRef) => {
     //setLoadingDetails(true);
@@ -188,8 +201,8 @@ const formatNumber = (value) => {
         console.error("Ошибка:", error);
       })
       .finally(() => {
-          setLoadingDetails(false);
-          setShowLoader(false);
+        setLoadingDetails(false);
+        setShowLoader(false);
       });
 
   };
@@ -223,6 +236,45 @@ const formatNumber = (value) => {
         setLoading(false);
       });
   }, []);
+
+  const updateStatus = async () => {
+    const userId = localStorage.getItem("userId");
+    const selectedKpRef = filteredProducts.find(row => row.id === selectedRowId)?.kp_ref;
+
+    try {
+      const response = await authFetch("/api/v1/kp/status/update", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          offerId: selectedKpRef,
+          managerId: userId,
+          new: newStatus,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Ошибка при обновлении статуса");
+      }
+
+      // 🟢 Обновление данных в таблице
+      setFilteredProducts(prev =>
+        prev.map(row =>
+          row.id === selectedRowId
+            ? { ...row, status: newStatus }
+            : row
+        )
+      );
+
+      const result = await response.json();
+      console.log("Обновление выполнено:", result);
+      setStatusDialogOpen(false)
+    } catch (error) {
+      console.error("Ошибка при вызове updateStatus:", error);
+      // можно добавить alert или toast здесь
+    }
+  };
 
 
   return (
@@ -315,6 +367,15 @@ const formatNumber = (value) => {
               px: 1
             }}
           >
+            <Tooltip title="Сменить статус">
+              <span>
+                <IconButton
+                  onClick={handleChangeStatus}
+                >
+                  <i className="material-icons">camera</i>
+                </IconButton>
+              </span>
+            </Tooltip>
             <Tooltip title="Экспорт">
               <span>
                 <IconButton
@@ -450,9 +511,32 @@ const formatNumber = (value) => {
               </ThemeProvider>
             </MDBox>
           </Card>
-        </Card>          
+        </Card>
       )}
-      {selectedRowId === null ? (<div></div>) : (<OrdersOverview data={history} />) }                
+      {selectedRowId === null ? (<div></div>) : (<OrdersOverview data={history} />)}
+      <Dialog open={statusDialogOpen} onClose={() => setStatusDialogOpen(false)}>
+        <DialogContent>
+          <MDTypography variant="h6">Выберите новый статус:</MDTypography>
+          <RadioGroup value={newStatus} onChange={(e) => setNewStatus(e.target.value)}>
+            <FormControlLabel value="NEW" control={<Radio />} label="Новый" />
+            <FormControlLabel value="WAIT_CUSTOMER" control={<Radio />} label="Ожидает ответа заказчика" />
+            <FormControlLabel value="FINISHED" control={<Radio />} label="Оплачено" />
+          </RadioGroup>
+        </DialogContent>
+        <DialogActions>
+          <MDButton
+            onClick={() => {
+              console.log("Выбранный статус:", newStatus);
+              updateStatus()
+            }}
+            color="info"
+            variant="contained"
+          >
+            Сохранить
+          </MDButton>
+          <MDButton onClick={() => setStatusDialogOpen(false)} color="secondary">Отмена</MDButton>
+        </DialogActions>
+      </Dialog>
     </MDBox>
   )
 }

@@ -13,13 +13,13 @@ import java.time.Instant
 @Table(name = "users")
 data class User(
 
-    val firstName: String,
-    val secondName: String,
-    val thirdName: String,
-    val phone: String,
-    val email: String,
-    val details: String,
-    val passwordHash: String,
+    var firstName: String,
+    var secondName: String,
+    var thirdName: String,
+    var phone: String,
+    var email: String,
+    var details: String,
+    var passwordHash: String,
     @Enumerated(EnumType.STRING)
     val role: UserRoleType = UserRoleType.EMPTY,
     val createdAt: Instant = Instant.now(),

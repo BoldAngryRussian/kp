@@ -523,7 +523,7 @@ export default function ContactApp() {
                     opacity: 0.3,
                   }}
                 />
-                <MDTypography variant="h6" mt={2}>
+                <MDTypography variant="h6" mt={2} sx={{ color: 'text.disabled' }}>
                   Пожалуйста, выберите контакт
                 </MDTypography>
               </MDBox>

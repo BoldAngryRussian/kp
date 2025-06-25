@@ -4,6 +4,7 @@ import com.omsk.kp.domain.model.Customer
 import com.omsk.kp.domain.repo.CustomerRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import kotlin.jvm.optionals.getOrNull
 
 @Service
 class CustomerService(
@@ -16,5 +17,5 @@ class CustomerService(
     fun delete(id: Long) = repo.deleteById(id)
 
     fun findAllShort() = repo.findAllShort()
-    fun findById(id: Long) = repo.findById(id)
+    fun findById(id: Long) = repo.findById(id).getOrNull()
 }

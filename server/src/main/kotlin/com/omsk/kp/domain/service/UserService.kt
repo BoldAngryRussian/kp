@@ -4,6 +4,7 @@ import com.omsk.kp.domain.model.User
 import com.omsk.kp.domain.repo.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import kotlin.jvm.optionals.getOrNull
 
 @Service
 class UserService(
@@ -17,5 +18,5 @@ class UserService(
 
     fun findByEmail(email: String) = repo.findByEmail(email)
 
-    fun findById(id: Long) = repo.findById(id)
+    fun findById(id: Long) = repo.findById(id).getOrNull()
 }

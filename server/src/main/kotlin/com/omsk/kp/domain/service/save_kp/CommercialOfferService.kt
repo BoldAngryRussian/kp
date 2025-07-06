@@ -13,6 +13,9 @@ class CommercialOfferService(
     @Transactional
     fun save(commercialOffer: CommercialOffer) = repo.save(commercialOffer)
 
+    @Transactional
+    fun delete(entity: CommercialOffer) = repo.delete(entity)
+
     fun findById(id: Long) = repo.findById(id).getOrNull()
 
     fun findAllShort() = repo.findAllShort()

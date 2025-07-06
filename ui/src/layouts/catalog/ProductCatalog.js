@@ -3,6 +3,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { DataGrid, useGridApiRef } from '@mui/x-data-grid';
 import { v4 as uuidv4 } from 'uuid';
 import { authFetch } from 'utils/authFetch'
+import TextField from "@mui/material/TextField";
 
 // @mui material components
 import Card from "@mui/material/Card";
@@ -12,6 +13,7 @@ import { GridLoader } from "react-spinners";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
+import { Visibility } from "@mui/icons-material";
 
 const customTheme = createTheme({
     components: {
@@ -36,7 +38,8 @@ const columns = [
     { field: 'name', headerName: 'Название', flex: 0.7 },
     { field: 'company', headerName: 'Компания', flex: 0.1 },
     { field: 'date', headerName: 'Товар от', flex: 0.1 },
-    { field: 'price', headerName: 'Цена', flex: 0.1 }
+    { field: 'price', headerName: 'Цена', flex: 0.1 },
+    { field: 'price_formatted', headerName: 'Цена', flex: 0.1 }
 ];
 
 const ProductCatalog = forwardRef(({ onSelect }, ref) => {
@@ -46,6 +49,8 @@ const ProductCatalog = forwardRef(({ onSelect }, ref) => {
     const [products, setProducts] = useState([]);
     const [filteredProducts, setFilteredProducts] = useState([]);
     const [loadingProducts, setLoadingProducts] = useState(false);
+    const [searchText, setSearchText] = useState('');
+
 
     // Загрузка списка продуктов с сервера с искусственной задержкой 1 секунда
     useEffect(() => {
@@ -53,8 +58,17 @@ const ProductCatalog = forwardRef(({ onSelect }, ref) => {
         authFetch('/api/v1/products/all/short')
             .then(res => res.json())
             .then(data => {
-                setProducts(data);
-                setFilteredProducts(data);
+                const converted = data.map(product => ({
+                    ...product,
+                    price_formatted: (product.price / 100).toLocaleString('ru-RU', {
+                        style: 'currency',
+                        currency: 'RUB',
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                    })
+                }));
+                setProducts(converted);
+                setFilteredProducts(converted);
             })
             .catch(() => setStatus('❌ Ошибка при загрузке списка продуктов'))
             .finally(() => setLoadingProducts(false));
@@ -78,9 +92,18 @@ const ProductCatalog = forwardRef(({ onSelect }, ref) => {
         handleAddToKP
     }));
 
+    useEffect(() => {
+        setFilteredProducts(
+            products.filter(p =>
+                p.name?.toLowerCase().includes(searchText.toLowerCase())
+            )
+        );
+    }, [searchText, products]);
+
     return (
         <div>
             {loadingProducts ? (
+
                 <MDBox
                     display="flex"
                     justifyContent="center"
@@ -97,6 +120,15 @@ const ProductCatalog = forwardRef(({ onSelect }, ref) => {
                         overflow: 'hidden', // если нужно
                     }}
                 >
+                    <TextField
+                        label="Фильтрация по названию"
+                        variant="outlined"
+                        size="small"
+                        fullWidth
+                        value={searchText}
+                        onChange={(e) => setSearchText(e.target.value)}
+                        sx={{ mb: 2 }}
+                    />
                     <ThemeProvider theme={customTheme}>
                         <>
                             <DataGrid
@@ -118,7 +150,8 @@ const ProductCatalog = forwardRef(({ onSelect }, ref) => {
                                 //onRowSelectionModelChange={handleAddToKP}
                                 rowHeight={32}
                                 columnVisibilityModel={{
-                                    id: false,  // скрыта                
+                                    id: false,  // скрыта    
+                                    price: false            
                                 }}
                                 sx={{
                                     '& .MuiDataGrid-columnHeader:focus, & .MuiDataGrid-columnHeader:focus-within': {

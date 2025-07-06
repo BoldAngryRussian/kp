@@ -8,6 +8,8 @@ import { ModuleRegistry, AllCommunityModule } from 'ag-grid-community';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Typography, Box } from '@mui/material';
 import { calculateUpdatedRows, recalculationWhenRowDataChanged } from 'utils/KPCalculation';
 import { KPSummaryCalculation } from 'utils/KPSummaryCalculation'
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import Tooltip from '@mui/material/Tooltip';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -40,6 +42,7 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary }, ref) => {
       editable: true,
       resizable: true,
       sortable: false,
+      tooltip: true, // ← вот это добавь
       cellStyle: { borderRight: '1px solid #ccc' }
     };
   }, []);
@@ -49,6 +52,24 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary }, ref) => {
     { headerName: "Поставщик", field: "company", width: 220, editable: false, hideGroup: 'details' },
     { headerName: "Наименование", field: "name", width: 630 },
     { headerName: "Прайс", field: "date", width: 100, editable: false, hideGroup: 'details' },
+    {
+      field: "temperature_code",
+      headerName: "Темп.режим",
+      editable: true,
+      width: 140,
+      hideGroup: 'details',
+      valueParser: params => {
+        const parsed = parseInt(params.newValue, 10);
+        const code = isNaN(parsed) || parsed < 1 || parsed > 4 ? null : parsed;
+        const temperatureMap = {
+          1: "Заморозка",
+          2: "Охлажденка",
+          3: "Тёплый",
+          4: "Без температурный"
+        };
+        return temperatureMap[code] || null;
+      }
+    },
     {
       headerName: "Цена закуп. ед.", field: "purchasePrice", width: 100, editable: false,
       headerStyle: { backgroundColor: '#FFFFF0' },
@@ -225,6 +246,7 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary }, ref) => {
 
   const handleCellValueChange = () => {
     const allRows = gridRef.current?.getRenderedNodes().map(node => node.data) || [];
+    console.log("Значение изменилось:", allRows);
     if (allRows.length > 0) {
       const updated = recalculationWhenRowDataChanged(allRows)
       setRowData(updated);
@@ -307,6 +329,7 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary }, ref) => {
             paginationPageSize={50}
             getRowId={(params) => params.data.id} // ← Уникальный ключ для строк
             ref={gridRef}
+            enableBrowserTooltips={true}
           />
         </div>
       </div>

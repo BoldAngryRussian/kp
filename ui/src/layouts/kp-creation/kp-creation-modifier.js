@@ -387,6 +387,7 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
                         flexDirection: 'column',
                         p: 0,
                         height: '100vh', // задаём фиксированную высоту
+                        minHeight: '900px',
                     }}
                 >
                     <ProductCatalog ref={catalogRef} onSelect={handleCatalogSelection} />

@@ -15,8 +15,10 @@ import OrdersOverview from 'layouts/dashboard/components/OrdersOverview'
 import { authFetch } from 'utils/authFetch'
 import { GridLoader } from "react-spinners";
 import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
+import DialogContentText from "@mui/material/DialogContentText";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
@@ -100,6 +102,7 @@ const columns = [
 ];
 
 export default function KpExecutingApp() {
+  const role = localStorage.getItem("role");
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
   const [newStatus, setNewStatus] = useState("");
   const [productRows, setProductRows] = useState([]);
@@ -130,6 +133,37 @@ export default function KpExecutingApp() {
   const [showLoader, setShowLoader] = useState(false);
   const [history, setHistory] = useState([])
 
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+
+
+  const handleDeleteOffer = async () => {
+    if (!selectedRowId) return;
+
+    const selectedKpRef = filteredProducts.find(row => row.id === selectedRowId)?.kp_ref;
+
+    try {
+      const response = await authFetch("/api/v1/kp/delete", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          offerId: selectedKpRef,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Ошибка при удалении КП");
+      }
+
+      // Удаление из таблицы
+      setFilteredProducts(prev => prev.filter(row => row.id !== selectedRowId));
+      setSelectedRowId(null);
+      setProductRows([]);
+    } catch (error) {
+      console.error("Ошибка при удалении:", error);
+    }
+  };
 
   const handleChangeStatus = () => {
     setStatusDialogOpen(true)
@@ -376,6 +410,15 @@ export default function KpExecutingApp() {
                 </IconButton>
               </span>
             </Tooltip>
+            {role === "ADMIN" && (
+              <Tooltip title="Удалить КП">
+                <span>
+                  <IconButton onClick={() => setConfirmDeleteOpen(true)}>
+                    <i className="material-icons" >delete</i>
+                  </IconButton>
+                </span>
+              </Tooltip>
+            )}
             <Tooltip title="Экспорт">
               <span>
                 <IconButton
@@ -535,6 +578,29 @@ export default function KpExecutingApp() {
             Сохранить
           </MDButton>
           <MDButton onClick={() => setStatusDialogOpen(false)} color="secondary">Отмена</MDButton>
+        </DialogActions>
+      </Dialog>
+      <Dialog open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)}>
+        <DialogTitle>Удаление КП</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Вы уверены, что хотите удалить выбранное коммерческое предложение? Это действие необратимо.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <MDButton onClick={() => setConfirmDeleteOpen(false)} color="secondary">
+            Отмена
+          </MDButton>
+          <MDButton
+            onClick={() => {
+              setConfirmDeleteOpen(false);
+              handleDeleteOffer();
+            }}
+            color="error"
+            variant="contained"
+          >
+            Удалить
+          </MDButton>
         </DialogActions>
       </Dialog>
     </MDBox>

@@ -1,8 +1,8 @@
 package com.omsk.kp.rest
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.omsk.kp.domain.service.save_kp.KPSaveService
 import com.omsk.kp.domain.service.save_kp.KPUpdateService
+import com.omsk.kp.dto.KPDeleteDTO
 import com.omsk.kp.dto.KPSaveDTO
 import com.omsk.kp.dto.KPSaveResultDTO
 import com.omsk.kp.dto.KPUpdateStatusDTO
@@ -31,6 +31,11 @@ class KPSaveController(
     @PostMapping("/status/update")
     fun update(@RequestBody dto: KPUpdateStatusDTO): Long {
         return kpUpdateService.updateStatus(dto)
+    }
+
+    @PostMapping("/delete")
+    fun delete(@RequestBody dto: KPDeleteDTO): Long {
+        return kpUpdateService.deleteOffer(dto)
     }
 
 }

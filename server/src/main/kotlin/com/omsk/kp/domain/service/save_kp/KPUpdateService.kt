@@ -6,6 +6,7 @@ import com.omsk.kp.domain.service.CommercialOfferDetailsDescriptionService
 import com.omsk.kp.domain.service.CommercialOfferHistoryService
 import com.omsk.kp.domain.service.CommercialOfferTotalService
 import com.omsk.kp.domain.service.UserService
+import com.omsk.kp.dto.KPDeleteDTO
 import com.omsk.kp.dto.KPSaveDTO
 import com.omsk.kp.dto.KPSaveResultDTO
 import com.omsk.kp.dto.KPUpdateStatusDTO
@@ -57,6 +58,16 @@ class KPUpdateService(
         return commercialOfferService
             .save(offer)
             .id!!
+    }
+
+    @Transactional
+    fun deleteOffer(dto: KPDeleteDTO): Long {
+        val offer = findOffer(dto.offerId)
+
+        commercialOfferService
+            .delete(offer)
+
+        return offer.id!!
     }
 
     private fun findOffer(offerId: Long) = commercialOfferService

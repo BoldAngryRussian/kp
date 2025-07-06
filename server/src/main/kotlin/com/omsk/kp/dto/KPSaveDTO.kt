@@ -24,3 +24,7 @@ data class KPUpdateStatusDTO(
     val managerId: Long,
     val new: String
 )
+
+data class KPDeleteDTO(
+    val offerId: Long
+)

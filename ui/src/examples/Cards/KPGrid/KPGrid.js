@@ -10,6 +10,7 @@ import { calculateUpdatedRows, recalculationWhenRowDataChanged } from 'utils/KPC
 import { KPSummaryCalculation } from 'utils/KPSummaryCalculation'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import Tooltip from '@mui/material/Tooltip';
+import MDBox from 'components/MDBox';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -49,7 +50,7 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary }, ref) => {
 
   const initialColumnDefs = [
     { headerName: "№", field: "num", width: 50, editable: false },
-    { headerName: "Поставщик", field: "company", width: 220, editable: false, hideGroup: 'details' },
+    { headerName: "Поставщик", field: "company", width: 120, editable: false, hideGroup: 'details' },
     { headerName: "Наименование", field: "name", width: 630 },
     { headerName: "Прайс", field: "date", width: 100, editable: false, hideGroup: 'details' },
     {
@@ -311,28 +312,31 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary }, ref) => {
           }
         }}
       />
-      <div style={{ height: 850, width: "100%" }} onContextMenu={(e) => e.preventDefault()}>
-        <div style={gridStyle} className="ag-theme-alpine">
-          <AgGridReact
-            rowData={rowData}
-            columnDefs={columnDefs}
-            headerHeight={60}
-            defaultColDef={defaultColDef}
-            rowSelection="multiple"
-            onCellValueChanged={handleCellValueChange}
-            onRowSelected={(event) => console.log('Selected row:', event.data)}
-            onCellDoubleClicked={handleRowDoubleClick}
-            suppressContextMenu={true}
-            suppressMaintainedSelection={true}
-            onGridReady={onGridReady}
-            pagination={true}
-            paginationPageSize={50}
-            getRowId={(params) => params.data.id} // ← Уникальный ключ для строк
-            ref={gridRef}
-            enableBrowserTooltips={true}
-          />
+      <MDBox>
+        <div style={{ width: '100%' }}>
+          <div style={gridStyle} className="ag-theme-alpine">
+            <AgGridReact
+              rowData={rowData}
+              columnDefs={columnDefs}
+              headerHeight={60}
+              domLayout="autoHeight" // ← вот ключ!
+              defaultColDef={defaultColDef}
+              rowSelection="multiple"
+              onCellValueChanged={handleCellValueChange}
+              onRowSelected={(event) => console.log('Selected row:', event.data)}
+              onCellDoubleClicked={handleRowDoubleClick}
+              suppressContextMenu={true}
+              suppressMaintainedSelection={true}
+              onGridReady={onGridReady}
+              pagination={true}
+              paginationPageSize={50}
+              getRowId={(params) => params.data.id} // ← Уникальный ключ для строк
+              ref={gridRef}
+              enableBrowserTooltips={true}
+            />
+          </div>
         </div>
-      </div>
+      </MDBox>
       <Dialog
         open={openDialog}
         onClose={() => setOpenDialog(false)}

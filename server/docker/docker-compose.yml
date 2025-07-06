@@ -34,19 +34,6 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/kp-service-db
       SPRING_DATASOURCE_USERNAME: user-name
       SPRING_DATASOURCE_PASSWORD: strong-password
-  ui:
-    image: nginx:alpine
-    container_name: react-ui
-    restart: always
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - /home/system/ui/build:/usr/share/nginx/html
-      - /home/system/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
-      - /etc/letsencrypt:/etc/letsencrypt:ro
-    depends_on:
-      - app
 
 volumes:
   local_pgdata:

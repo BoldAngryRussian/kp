@@ -1,0 +1,18 @@
+services:
+  app:
+    environment:
+      JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+    ports:
+      - "8080:8080"  # Проброс внутрь Spring Boot приложения
+      - "5005:5005"  # (если нужно debug)
+  ui:
+    image: nginx:alpine
+    container_name: react-ui
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ../ui/build:/usr/share/nginx/html
+      - ../ui/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app

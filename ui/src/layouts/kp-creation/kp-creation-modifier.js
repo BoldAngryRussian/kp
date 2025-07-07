@@ -276,7 +276,7 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
                             </IconButton>
                         </Tooltip>
                     </MDBox>
-                    <MDBox px={2} sx={{ minHeight: 200, maxHeight: 2000, height: 'auto' }}>
+                    <MDBox px={2} sx={{ minHeight: 200,  height: 'auto' }}>
                         <KPGrid ref={gridRef} selectedProducts={selectedProducts} kpEditData={kpEditData} summary={setSummary} />
                     </MDBox>
                 </Card>

@@ -23,6 +23,7 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary }, ref) => {
   const [selectedRow, setSelectedRow] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [rowData, setRowData] = useState([]);
+  const [pendingRecalc, setPendingRecalc] = useState(false);
 
 
   const handleRowDoubleClick = (event) => {
@@ -209,15 +210,15 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary }, ref) => {
             ...p,
             name: p.name,
             purchasePrice: (p.price / 100).toFixed(2),
-            markupPercent: null,
-            markupExtra: null,
+            markupPercent: p.markupPercent ?? null,
+            markupExtra: p.markupExtra ?? null,
             markupTotal: null,
-            transportPercent: null,
-            transportExtra: null,
+            transportPercent: p.transportPercent ?? null,
+            transportExtra: p.transportExtra ?? null,
             transportTotal: null,
             salePrice: null,
-            weightKg: null,
-            amount: null,
+            weightKg: p.weightKg ?? null,
+            amount: p.amount ?? null,
             totalWeight: null,
             totalPurchase: null,
             totalSale: null,
@@ -233,26 +234,39 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary }, ref) => {
           num: index + 1, // ← номер строки от 1
         }));
       });
+      setPendingRecalc(true);
     }
   }, [selectedProducts]);
 
+  useEffect(() => {
+    if (pendingRecalc && rowData.length > 0) {          
+      recalculateOnChange(rowData)
+      setPendingRecalc(false); // сбрасываем флаг
+    }
+  }, [rowData, pendingRecalc]);
 
   useEffect(() => {
     if (rowData.length > 0) {
       const updated = calculateUpdatedRows(rowData, kpEditData, getSelectedIds());
-      setRowData(updated);
-      summary?.(KPSummaryCalculation(updated))
+      refreshRowDataAndTotalInfo(updated);
     }
   }, [kpEditData]);
 
-  const handleCellValueChange = () => {
-    const allRows = gridRef.current?.getRenderedNodes().map(node => node.data) || [];
-    console.log("Значение изменилось:", allRows);
-    if (allRows.length > 0) {
-      const updated = recalculationWhenRowDataChanged(allRows)
+  const refreshRowDataAndTotalInfo = (updated) => {
       setRowData(updated);
       summary?.(KPSummaryCalculation(updated))
+  }
+  // Функция для пересчёта при изменении данных
+  const recalculateOnChange = (rows) => {
+    if (rows.length > 0) {
+      const updated = recalculationWhenRowDataChanged(rows);
+      refreshRowDataAndTotalInfo(updated);
     }
+  };
+
+  const handleCellValueChange = () => {
+    const allRows = gridRef.current?.getRenderedNodes().map(node => node.data) || [];
+    recalculateOnChange(allRows);
   };
 
   return (

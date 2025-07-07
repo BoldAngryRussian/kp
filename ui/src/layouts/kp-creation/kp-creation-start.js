@@ -1,16 +1,49 @@
 import React, { useState, useRef } from "react";
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@mui/material";
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField } from "@mui/material";
 import MDBox from "components/MDBox";
 import MDButton from "components/MDButton";
 import uylaLogo from "assets/images/uyta-logo.png"
 import ProductCatalog from "layouts/catalog/ProductCatalog"
 import KPCreationModifier from "./kp-creation-modifier";
+import { authFetch } from 'utils/authFetch'
 
 export default function KPCreationStart() {
     const catalogRef = useRef();
     const [open, setOpen] = useState(false);
+    const [kpCode, setKPCode] = useState('');
     const [showModifier, setShowModifier] = useState(false);
     const [selectedProducts, setSelectedProducts] = useState([]);
+
+    const onFindKPClicked = (kpRef) => {
+        authFetch(`/api/v1/offer/${kpRef}/find`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Ошибка при загрузке данных");
+                }
+                return response.json();
+            })
+            .then(data => {
+                const processed = data.products.map((row, index) => ({
+                    id: (index + 1).toString(),
+                    name: row.name,
+                    price: row.price,
+                    markupPercent: row.markupPercent,
+                    markupExtra: row.markupExtra,
+                    transportPercent: row.transportPercent,
+                    transportExtra: row.transportExtra,
+                    weightKg: row.weightKg,
+                    amount: row.quantity
+                }));
+                setSelectedProducts(processed)
+            })
+            .catch(error => {
+                console.error("Ошибка:", error);
+            })
+            .finally(() => {
+                setOpen(false);         // закрываем модалку
+                setShowModifier(true);  // отображаем модификатор
+            });
+    }
 
     return (
         <>
@@ -71,9 +104,9 @@ export default function KPCreationStart() {
                                 Создать
                             </MDButton>
                         </MDBox>
-                        {/*
                         <MDBox pt={2}>
                             <MDButton
+                                onClick={() => setOpen(true)}
                                 variant="text"
                                 color="secondary"
                                 size="small"
@@ -91,7 +124,6 @@ export default function KPCreationStart() {
                                 Редактировать
                             </MDButton>
                         </MDBox>
-                         */}
                     </MDBox>
                 </MDBox>
             )}
@@ -100,12 +132,7 @@ export default function KPCreationStart() {
                 open={open}
                 onClose={() => setOpen(false)}
                 fullWidth
-                maxWidth={false} // убираем ограничение по ширине
-                PaperProps={{
-                    sx: {
-                        m: 3, // отступ от краёв экрана
-                    },
-                }}
+                maxWidth="sm"
             >
                 <DialogContent
                     sx={{
@@ -113,21 +140,29 @@ export default function KPCreationStart() {
                         display: 'flex',
                         flexDirection: 'column',
                         p: 0,
-                        height: '100vh', // задаём фиксированную высоту
+                        height: '20vh', // задаём фиксированную высоту
                     }}
                 >
-                    <ProductCatalog ref={catalogRef} onSelect={setSelectedProducts} />
+                    <MDBox px={3} py={2}>
+                        <TextField
+                            label="Введите код КП"
+                            type="number"
+                            fullWidth
+                            variant="outlined"
+                            value={kpCode}
+                            onChange={(e) => setKPCode(e.target.value)}
+                        />
+                    </MDBox>
                 </DialogContent>
                 <DialogActions>
                     <MDButton
                         onClick={() => {
-                            catalogRef.current?.handleAddToKP();
-                            setOpen(false);         // закрываем модалку
-                            setShowModifier(true);  // отображаем модификатор
+                            //catalogRef.current?.handleAddToKP();
+                            onFindKPClicked(kpCode);
                         }}
                         color="info"
                         variant="contained">
-                        Добавить в КП
+                        Найти КП
                     </MDButton>
                     <MDButton onClick={() => setOpen(false)} color="secondary">Отмена</MDButton>
                 </DialogActions>

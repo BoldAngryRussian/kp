@@ -1,3 +1,5 @@
+import { temperatureMap } from 'utils/kp_consts';
+
 const calculateUpdatedRows = (rowData, kpEditData, selectedIds) => {
     if (!rowData || rowData.length === 0 || !kpEditData) return rowData;
 
@@ -52,9 +54,14 @@ const recalculateDataAfterKPEditExecuted = (rowData, kpEditData, selectedIds) =>
         let markupExtra = row.markupExtra;
         let transportPercent = row.transportPercent;
         let transportExtra = row.transportExtra;
+        let temperatureCode = row.temperatureCode
 
         if (calculate === 'weight') {
             weightKg = value;
+        }
+
+        if (calculate === 'temperature_mode') {
+            temperatureCode = value
         }
 
         if (calculate === 'count') {
@@ -85,10 +92,16 @@ const recalculateDataAfterKPEditExecuted = (rowData, kpEditData, selectedIds) =>
             markupPercent,
             markupExtra,
             transportPercent,
-            transportExtra
+            transportExtra,
+            temperatureCode
         }
     })
 }
+
+const getTemperatureCodeByName = (name) => {
+  const entry = Object.entries(temperatureMap).find(([code, label]) => label === name);
+  return entry ? Number(entry[0]) : null;
+};
 
 const markupCalculation = (row) => {
     const markupPercent = parseFloat(row.markupPercent) || 0;

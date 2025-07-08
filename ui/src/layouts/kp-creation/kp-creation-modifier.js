@@ -62,7 +62,7 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
     const [catalogOpen, setCatalogOpen] = useState(false);
     const [selectedProducts, setSelectedProducts] = useState([...selectedFromCatalog])
     const [kpEditData, setKpEditData] = useState(null);
-    const [detailsVisible, setDetailsVisible] = useState(false);
+    const [detailsVisible, setDetailsVisible] = useState(true);
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [findCustomerModalOpen, setFindCustomerModalOpen] = useState(false);
     const [selectedCustomerId, setSelectedCustomerId] = useState(null)

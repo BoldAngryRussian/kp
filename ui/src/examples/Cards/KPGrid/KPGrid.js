@@ -8,8 +8,6 @@ import { ModuleRegistry, AllCommunityModule } from 'ag-grid-community';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Typography, Box } from '@mui/material';
 import { calculateUpdatedRows, recalculationWhenRowDataChanged } from 'utils/KPCalculation';
 import { KPSummaryCalculation } from 'utils/KPSummaryCalculation'
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import Tooltip from '@mui/material/Tooltip';
 import MDBox from 'components/MDBox';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -55,7 +53,7 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary }, ref) => {
     { headerName: "Наименование", field: "name", width: 630 },
     { headerName: "Прайс", field: "date", width: 100, editable: false, hideGroup: 'details' },
     {
-      field: "temperature_code",
+      field: "temperatureCode",
       headerName: "Темп.режим",
       editable: true,
       width: 140,
@@ -68,7 +66,7 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary }, ref) => {
           2: "Охлажденка",
           3: "Тёплый",
           4: "Без температурный"
-        };
+        };        
         return temperatureMap[code] || null;
       }
     },
@@ -159,6 +157,7 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary }, ref) => {
       cellStyle: { backgroundColor: '#e0f2f1' },
     },
   ];
+
   const [columnDefs, setColumnDefs] = useState(initialColumnDefs);
 
   const onGridReady = (params) => {

@@ -13,6 +13,9 @@ export default function KPCreationStart() {
     const [kpCode, setKPCode] = useState('');
     const [showModifier, setShowModifier] = useState(false);
     const [selectedProducts, setSelectedProducts] = useState([]);
+    const [supplierDesc, setSupplierDesc] = useState('')
+    const [offerId, setOfferId] = useState('')
+    const [customerId, setCustomerId] = useState(null)
 
     const onFindKPClicked = (kpRef) => {
         authFetch(`/api/v1/offer/${kpRef}/find`)
@@ -32,9 +35,15 @@ export default function KPCreationStart() {
                     transportPercent: row.transportPercent,
                     transportExtra: row.transportExtra,
                     weightKg: row.weightKg,
-                    amount: row.quantity
+                    amount: row.quantity,
+                    company: row.supplier,
+                    date: row.priceListDate,
+                    temperatureCode: row.temperatureMode
                 }));
                 setSelectedProducts(processed)
+                setSupplierDesc(data.desc)
+                setOfferId(data.offerId)
+                setCustomerId(data.customerId)
             })
             .catch(error => {
                 console.error("Ошибка:", error);
@@ -127,7 +136,7 @@ export default function KPCreationStart() {
                     </MDBox>
                 </MDBox>
             )}
-            {showModifier && <KPCreationModifier selectedFromCatalog={selectedProducts} />}
+            {showModifier && <KPCreationModifier offerId={offerId} customerId={customerId} supplierDesc={supplierDesc} selectedFromCatalog={selectedProducts} />}
             <Dialog
                 open={open}
                 onClose={() => setOpen(false)}
@@ -151,6 +160,9 @@ export default function KPCreationStart() {
                             variant="outlined"
                             value={kpCode}
                             onChange={(e) => setKPCode(e.target.value)}
+                            inputProps={{
+                                autoComplete: 'off'
+                            }}
                         />
                     </MDBox>
                 </DialogContent>

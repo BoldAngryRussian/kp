@@ -1,10 +1,14 @@
 package com.omsk.kp.domain.model
 
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import java.time.Instant
+import java.util.Date
+import kotlin.let
 
 @Entity
 data class CommercialOfferDetails(
@@ -17,6 +21,10 @@ data class CommercialOfferDetails(
     val quantity: Int,
     val weightKg: Double,
     val commercialOfferId: Long,
+    val supplier: String? = null,
+    @Enumerated(EnumType.STRING)
+    val temperatureMode: CommercialOfferDetailsTemperatureMode? = null,
+    val priceListDate: Date? = null,
     val createdAt: Instant = Instant.now(),
 
     @Id
@@ -36,3 +44,19 @@ fun CommercialOfferDetails.getTransportTotal() = quantity * (getTransportExtraOr
 fun CommercialOfferDetails.getSellPriceTotal() = quantity * getPriceInRub() + getMarkupTotal() + getTransportTotal()
 fun CommercialOfferDetails.getSellPrice() = getSellPriceTotal() / quantity
 fun CommercialOfferDetails.getMarga() = getSellPriceTotal() - getPurchasePriceTotal() - getTransportTotal()
+fun CommercialOfferDetails.getTemperatureModeOrDefault() = this.temperatureMode ?: CommercialOfferDetailsTemperatureMode.NO_TEMPERATURE
+
+enum class CommercialOfferDetailsTemperatureMode(val desc: String, val code: Int){
+
+    FROZEN("Заморозка", 1),
+    COOLED("Охлажденка", 2),
+    WARM("Тёплый", 3),
+    NO_TEMPERATURE("Без температурный", 4);
+
+    companion object {
+        fun fromDesc(desc: String?) = desc?.let { map[it] }
+        private val map = CommercialOfferDetailsTemperatureMode
+            .entries
+            .associateBy { it.desc }
+    }
+}

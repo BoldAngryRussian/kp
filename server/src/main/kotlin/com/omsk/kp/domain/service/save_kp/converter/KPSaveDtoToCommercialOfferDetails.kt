@@ -1,6 +1,7 @@
 package com.omsk.kp.domain.service.save_kp.converter
 
 import com.omsk.kp.domain.model.CommercialOfferDetails
+import com.omsk.kp.domain.model.CommercialOfferDetailsTemperatureMode
 import com.omsk.kp.dto.KPSaveDTO
 
 class KPSaveDtoToCommercialOfferDetails {
@@ -18,6 +19,9 @@ class KPSaveDtoToCommercialOfferDetails {
                     it.quantity,
                     it.weightKg,
                     commercialOfferId,
+                    it.supplier,
+                    CommercialOfferDetailsTemperatureMode.fromDesc(it.temperatureMode),
+                    priceListDate = it.priceListDate
                 )
             }
 }

@@ -132,7 +132,7 @@ export default function KpExecutingApp() {
   })
   const [showLoader, setShowLoader] = useState(false);
   const [history, setHistory] = useState([])
-
+  const [weightByTemperatureMode, setWeightByTemperatureMode] = useState([])
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
 
@@ -229,6 +229,7 @@ export default function KpExecutingApp() {
         setCreated(data.created);
         setCompany(data.customerName);
         setHistory(data.history)
+        setWeightByTemperatureMode(data.weightByTemperatureMode)
         setProductRows(processed);
       })
       .catch(error => {
@@ -312,7 +313,7 @@ export default function KpExecutingApp() {
 
 
   return (
-    <MDBox width="100%" display="flex" flexDirection="column" gap={2}>
+    <MDBox width="100%" pr={2} display="flex" flexDirection="column" gap={2}>
       <Card>
         <MDBox
           display="flex"
@@ -484,12 +485,32 @@ export default function KpExecutingApp() {
               }}
             >
               <MDTypography variant="body2" fontWeight="bold" color="text" gutterBottom>
-                Финансы:
+                Транспортировка:
               </MDTypography>
+              {weightByTemperatureMode.map((elem, index) => (
+                <MDBox key={index} display="flex" justifyContent="space-between">
+                  <MDTypography variant="body2" color="text">{elem.mode}:</MDTypography>
+                  <MDTypography variant="body2" color="text">{formatNumber(elem.weight)} кг</MDTypography>
+                </MDBox>
+              ))}
               <MDBox display="flex" justifyContent="space-between">
                 <MDTypography variant="body2" color="text">Вес:</MDTypography>
-                <MDTypography variant="body2" color="text">{formatNumber(total.weight)} кг</MDTypography>
+                <MDTypography variant="body2" sx={{ color: "#347deb" }} fontWeight="bold">{formatNumber(total.weight)} кг</MDTypography>
               </MDBox>
+            </MDBox>
+            <MDBox
+              flex={1}
+              mx={1}
+              sx={{
+                border: '1px solid',
+                borderColor: '#f0f0f0',
+                borderRadius: 2,
+                p: 2
+              }}
+            >
+              <MDTypography variant="body2" fontWeight="bold" color="text" gutterBottom>
+                Финансы:
+              </MDTypography>
               <MDBox display="flex" justifyContent="space-between">
                 <MDTypography variant="body2" color="text">Закупка:</MDTypography>
                 <MDTypography variant="body2" color="text">{formatNumber(total.pricePurchase)} ₽</MDTypography>

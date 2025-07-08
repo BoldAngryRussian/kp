@@ -1,6 +1,7 @@
 package com.omsk.kp.dto
 
 import com.omsk.kp.domain.model.CommercialOfferDetails
+import com.omsk.kp.domain.model.CommercialOfferDetailsTemperatureMode
 import com.omsk.kp.domain.model.Customer
 import com.omsk.kp.domain.model.User
 import com.omsk.kp.domain.model.getMarga
@@ -18,6 +19,7 @@ data class KPTotalInfoResult(
     val manager: KPTotalInfoManager,
     val finance: KPInfoTotal,
     val products: List<KPTotalInfoProduct>,
+    val weightByTemperatureMode: List<WeightTemperatureMode>,
     val history: List<CommercialOfferHistoryFull>
 )
 
@@ -28,7 +30,7 @@ data class KPTotalInfoCustomer(
     val email: String? = null
 ) {
     constructor(customer: Customer): this(
-        name = "${customer.firstName} ${customer.secondName} ${customer.thirdName}",
+        name = "${customer.secondName} ${customer.firstName} ${customer.thirdName}",
         address = customer.address,
         phone = customer.phone,
         email = customer.email
@@ -41,7 +43,7 @@ data class KPTotalInfoManager(
     val email: String
 ) {
     constructor(manager: User): this(
-        name = "${manager.firstName} ${manager.secondName} ${manager.thirdName}",
+        name = "${manager.secondName} ${manager.firstName} ${manager.thirdName}",
         phone = manager.phone,
         email = manager.email
     )
@@ -66,5 +68,15 @@ data class KPTotalInfoProduct (
         quantity = commercialOfferDetails.quantity,
         weight = commercialOfferDetails.getTotalWeight(),
         marga = commercialOfferDetails.getMarga(),
+    )
+}
+
+data class WeightTemperatureMode(
+    val mode: String,
+    val weight: Double
+) {
+    constructor(entity: Map.Entry<CommercialOfferDetailsTemperatureMode, Double>) : this(
+        entity.key.desc,
+        entity.value
     )
 }

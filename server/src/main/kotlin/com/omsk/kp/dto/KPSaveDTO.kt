@@ -1,5 +1,8 @@
 package com.omsk.kp.dto
 
+import com.fasterxml.jackson.annotation.JsonFormat
+import java.util.Date
+
 data class KPSaveDTO(
     val customerId: Long,
     val managerId: Long,
@@ -16,7 +19,11 @@ data class KPSaveElemDTO (
     val transportExtra: Double? = null,
     val transportPercent: Double? = null,
     val quantity: Int,
-    val weightKg: Double
+    val weightKg: Double,
+    val supplier: String? = null,
+    val temperatureMode: String? = null,
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
+    val priceListDate: Date? = null
 )
 
 data class KPUpdateStatusDTO(

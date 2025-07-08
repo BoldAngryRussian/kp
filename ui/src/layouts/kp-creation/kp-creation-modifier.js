@@ -55,7 +55,7 @@ const StyledTooltip = styled(({ className, ...props }) => (
     },
 }));
 
-export default function KPCreationModifier({ selectedFromCatalog }) {
+export default function KPCreationModifier({ offerId, customerId, supplierDesc, selectedFromCatalog }) {
     const gridRef = useRef(null);
     const catalogRef = useRef();
     const [openDialog, setOpenDialog] = useState(false);
@@ -66,7 +66,7 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [findCustomerModalOpen, setFindCustomerModalOpen] = useState(false);
     const [selectedCustomerId, setSelectedCustomerId] = useState(null)
-    const [userConfirmedCustomerId, setUserConfirmedCustomerId] = useState(false)
+    const [userConfirmedCustomerId, setUserConfirmedCustomerId] = useState(false);
     const [summary, setSummary] = useState({
         totalPurchase: "0.00",
         totalTransport: "0.00",
@@ -75,8 +75,8 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
     });
     const [isSaving, setIsSaving] = useState(false);
     const [confirmSaveOpen, setConfirmSaveOpen] = useState(false);
-    const [deliveryTerms, setDeliveryTerms] = useState("");
-    const [kpId, setKpId] = useState("");
+    const [deliveryTerms, setDeliveryTerms] = useState(supplierDesc);
+    const [kpId, setKpId] = useState(offerId);
     const [createdManager, setCreatedManager] = useState({
         firstName: "",
         secondName: "",
@@ -89,6 +89,11 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
             gridRef.current.toggleColumnGroupVisibility('details', detailsVisible);
         }
     }, [detailsVisible]);
+
+    useEffect(() => {
+        setSelectedCustomerId(customerId)
+        setUserConfirmedCustomerId(true)
+    }, [customerId]);
 
     const handleOpenConfirmSave = () => {
         setSaveMode(kpId && kpId !== "" ? "update" : "create");
@@ -171,6 +176,9 @@ export default function KPCreationModifier({ selectedFromCatalog }) {
                 transportPercent: product.transportPercent || null,
                 quantity: product.amount || 0,
                 weightKg: product.weightKg || 0,
+                supplier: product.company || null,
+                temperatureMode: product.temperatureCode || null,
+                priceListDate: product.date || null
             })),
         };
 

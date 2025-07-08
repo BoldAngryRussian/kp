@@ -1,0 +1,1 @@
+ALTER TABLE product ADD COLUMN measurement varchar(25) DEFAULT 'кг' NOT NULL;

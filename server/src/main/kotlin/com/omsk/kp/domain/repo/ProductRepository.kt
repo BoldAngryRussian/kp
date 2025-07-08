@@ -16,7 +16,7 @@ interface ProductRepository : JpaRepository<Product, Long> {
 
     @Query(
         value = """
-            select p.id, p.name, p.price, spl.company as company, TO_CHAR(p.created_at, 'DD-MM-YYYY') as date from product p
+            select p.id, p.name, p.price, p.measurement, spl.company as company, TO_CHAR(p.created_at, 'DD-MM-YYYY') as date from product p
             inner join price_list l on p.price_list_id = l.id and p.price_list_version = l.version
             inner join suppliers spl on l.suppliers_id = spl.id
         """,

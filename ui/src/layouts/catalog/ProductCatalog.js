@@ -38,6 +38,7 @@ const columns = [
     { field: 'name', headerName: 'Название', flex: 0.7 },
     { field: 'company', headerName: 'Компания', flex: 0.1 },
     { field: 'date', headerName: 'Товар от', flex: 0.1 },
+    { field: 'measurement', headerName: 'Ед.Измерения', flex: 0.1 },
     { field: 'price', headerName: 'Цена', flex: 0.1 },
     { field: 'price_formatted', headerName: 'Цена', flex: 0.1 }
 ];

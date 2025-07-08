@@ -85,6 +85,7 @@ function PriceListLoader() {
             id: `${item.name}-${index}`,
             label: item.name,
             value: `${(item.price / 100).toFixed(2)}`,
+            measurement: item.measurement,
             isCorrect: item.isCorrect,
           }))
           : [];
@@ -217,6 +218,7 @@ function PriceListLoader() {
       }
     },
     { field: 'label', headerName: 'Название', flex: 0.8, editable: true },
+    { field: 'measurement', headerName: 'Единица Измерения', flex: 0.1, editable: true },
     { field: 'value', headerName: 'Цена, ₽', flex: 0.1, editable: false },
   ];
 

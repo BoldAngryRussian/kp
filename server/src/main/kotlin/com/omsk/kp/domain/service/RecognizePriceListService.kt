@@ -15,12 +15,14 @@ class RecognizePriceListService {
         for (row in sheet){
             try {
                 val name = row.getCell(0).stringCellValue.trim()
-                val price = (row.getCell(1).numericCellValue * 100).toLong()
+                val measurement = row.getCell(1).stringCellValue.trim()
+                val price = (row.getCell(2).numericCellValue * 100).toLong()
 
-                KPLog.info("name$name price=$price")
-                products += ProductDTO(name, price, name.contains("!").not())
+                KPLog.info("name$name price=$price measurement=$measurement")
+                products += ProductDTO(name, price, measurement,name.contains("!").not())
             } catch (e: Exception){
                 KPLog.info("Error while loading -> ${e.message}")
+                throw RuntimeException("Прайс-лист не корректен! Счертесь с инструкцией загрузки!")
             }
         }
 

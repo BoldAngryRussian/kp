@@ -52,6 +52,7 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary }, ref) => {
     { headerName: "Поставщик", field: "company", width: 120, editable: false, hideGroup: 'details' },
     { headerName: "Наименование", field: "name", width: 630 },
     { headerName: "Прайс", field: "date", width: 100, editable: false, hideGroup: 'details' },
+    { headerName: "Ед.Изм", field: "measurement", width: 90, editable: false, hideGroup: 'details' },
     {
       field: "temperatureCode",
       headerName: "Темп.режим",

@@ -10,7 +10,8 @@ class ProductDtoToProductConverter {
             name = dto.name,
             price = dto.price,
             priceListId = priceListId,
-            priceListVersion = priceListVersion
+            priceListVersion = priceListVersion,
+            measurement = dto.measurement
         )
 
 }

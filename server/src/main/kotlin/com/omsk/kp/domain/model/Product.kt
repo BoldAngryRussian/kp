@@ -14,5 +14,6 @@ data class Product(
     val price: Long,
     val priceListId: Long,
     val priceListVersion: Int,
+    val measurement: String,
     val createdAt: Instant = Instant.now()
 )

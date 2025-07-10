@@ -57,6 +57,7 @@ data class CommercialOfferDetailsFindDTO(
     val supplier: String? = null,
     val temperatureMode: String? = null,
     val priceListDate: String? = null,
+    val measurement: String
 ) {
     constructor(details: CommercialOfferDetails) :
             this(
@@ -71,6 +72,7 @@ data class CommercialOfferDetailsFindDTO(
                 details.supplier,
                 details.temperatureMode?.desc,
                 details.priceListDate
-                    ?.let { SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(it) }
+                    ?.let { SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(it) },
+                details.measurement
             )
 }

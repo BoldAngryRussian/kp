@@ -21,7 +21,8 @@ class KPSaveDtoToCommercialOfferDetails {
                     commercialOfferId,
                     it.supplier,
                     CommercialOfferDetailsTemperatureMode.fromDesc(it.temperatureMode),
-                    priceListDate = it.priceListDate
+                    priceListDate = it.priceListDate,
+                    measurement = it.measurement
                 )
             }
 }

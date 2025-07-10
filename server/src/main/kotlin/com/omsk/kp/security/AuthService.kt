@@ -13,22 +13,16 @@ class AuthService(
     private val passwordEncoder: PasswordEncoder
 ) {
     fun authenticate(loginRequestDTO: LoginRequestDTO): User {
-        val passwordHash = passwordEncoder.encode(loginRequestDTO.password)
         val user = userService.findByEmail(loginRequestDTO.email)
         if (user == null)
             throw RuntimeException("Пользователь ${loginRequestDTO.email} в системе не обнаружен!")
         if (user.isUserWaitForAuthorization())
             throw RuntimeException(VALIDATION_ERROR)
-        return user
-        /*
-        На вреия тестирования
-        return userService
-            .findFirstByEmailAndPasswordHash(
-                loginRequestDTO.email,
-                passwordHash
-            )
 
-         */
+        return when (passwordEncoder.matches(loginRequestDTO.password, user.passwordHash)){
+            true -> user
+            else -> throw RuntimeException("В доступе отказано!")
+        }
     }
 
     companion object {

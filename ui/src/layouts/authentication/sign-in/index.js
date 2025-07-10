@@ -76,7 +76,7 @@ function Basic() {
         <MDBox pt={4} pb={3} px={3}>
           <MDBox component="form" role="form" onSubmit={handleSubmit}>
             <MDBox mb={2}>
-              <MDInput type="login" label="Логин" fullWidth value={login} onChange={(e) => setLogin(e.target.value)} />
+              <MDInput type="login" label="Логин" fullWidth value={login} onChange={(e) => setLogin(e.target.value)} autoComplete="off"/>
             </MDBox>
             <MDBox mb={2}>
               <MDInput type="password" label="Пароль" fullWidth value={password} onChange={(e) => setPassword(e.target.value)} />

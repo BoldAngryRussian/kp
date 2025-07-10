@@ -25,6 +25,7 @@ data class CommercialOfferDetails(
     @Enumerated(EnumType.STRING)
     val temperatureMode: CommercialOfferDetailsTemperatureMode? = null,
     val priceListDate: Date? = null,
+    val measurement: String,
     val createdAt: Instant = Instant.now(),
 
     @Id

@@ -146,6 +146,7 @@ function PriceListLoader() {
       supplierId: selectedSupplierIdFinal,
       products: summaryRows.map(row => ({
         name: row.label,
+        measurement: row.measurement,
         price: Math.round(parseFloat(row.value) * 100)
       }))
     };
@@ -169,6 +170,15 @@ function PriceListLoader() {
         setUploadErrorMessage("Не удалось загрузить прайс-лист на сервер.");
       })
   };
+
+  useEffect(() => {
+    if (uploadErrorMessage) {
+      const timer = setTimeout(() => {
+        setUploadErrorMessage("");
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [uploadErrorMessage]);
 
 
   // columns объявляем внутри компонента, чтобы иметь доступ к setSummaryRows
@@ -334,11 +344,14 @@ function PriceListLoader() {
         )}
         {summaryRows.length === 0 && !showSpinner && (
           <MDBox display="flex" flexDirection="column" alignItems="center" justifyContent="center">
-            <MDTypography variant="body2" mt={2} sx={{ color: 'text.disabled', fontSize: '0.75rem' }}>
+            <MDTypography variant="body4" mt={2} sx={{ color: 'text.disabled', fontSize: '.75rem' }}>
               Для правильной загрузки прайс-листа
             </MDTypography>
-            <MDTypography variant="body2" sx={{ color: 'text.disabled', fontSize: '0.75rem' }}>
-              файл должен содержать 2 колонки с наименованием продукта и ценой
+            <MDTypography variant="body4" sx={{ color: 'text.disabled', fontSize: '.75rem' }}>
+              файл должен содержать 3 колонки с наименованием продукта, единицой измерения и ценой,
+            </MDTypography>
+            <MDTypography variant="body4" sx={{ color: 'text.disabled', fontSize: '.75rem' }}>
+              все строки с некорректными или отсутствующими ценами будут проигнорированы.
             </MDTypography>
             <img
               src={screenshort}
@@ -579,8 +592,7 @@ function PriceListLoader() {
           alignItems="center"
           sx={{
             position: 'fixed',
-            bottom: 20,
-            top: 'auto',
+            top: 20,
             left: '50%',
             transform: 'translateX(-50%)',
             backgroundColor: '#d4edda',
@@ -593,21 +605,34 @@ function PriceListLoader() {
           }}
         >
           <MDTypography variant="body2" fontWeight="medium" color="success">
-            ✅ Прайс-лист успешно сохранён!
+            Прайс-лист успешно сохранён!
           </MDTypography>
         </MDBox>
       )}
-      <MDSnackbar
-        color="error"
-        icon="error"
-        title="Ошибка выполнения запроса"
-        content={uploadErrorMessage}
-        open={uploadErrorMessage != ""}
-        onClose={() => setUploadErrorMessage("")}
-        close
-        bgWhite
-        sx={{ position: 'fixed', bottom: 20, right: 20 }}
-      />
+      {uploadErrorMessage != "" && (
+        <MDBox
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          sx={{
+            position: 'fixed',
+            top: 20,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            backgroundColor: '#fdecea',
+            border: '1px solid #f5c6cb',
+            borderRadius: '6px',
+            padding: '12px 24px',
+            boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+            zIndex: 9999,
+            transition: 'opacity 0.5s ease-in-out'
+          }}
+        >
+          <MDTypography variant="body2" fontWeight="medium" color="error">
+            {uploadErrorMessage}
+          </MDTypography>
+        </MDBox>
+      )}
     </>
   );
 

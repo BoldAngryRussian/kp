@@ -1,9 +1,9 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField } from "@mui/material";
 import MDBox from "components/MDBox";
 import MDButton from "components/MDButton";
 import uylaLogo from "assets/images/uyta-logo.png"
-import ProductCatalog from "layouts/catalog/ProductCatalog"
+import MDTypography from "components/MDTypography";
 import KPCreationModifier from "./kp-creation-modifier";
 import { authFetch } from 'utils/authFetch'
 
@@ -16,11 +16,22 @@ export default function KPCreationStart() {
     const [supplierDesc, setSupplierDesc] = useState('')
     const [offerId, setOfferId] = useState('')
     const [customerId, setCustomerId] = useState(null)
+    const [errorMessage, setErrorMessage] = useState("");
+
+    useEffect(() => {
+        if (errorMessage) {
+            const timer = setTimeout(() => {
+                setErrorMessage("");
+            }, 4000);
+            return () => clearTimeout(timer);
+        }
+    }, [errorMessage]);
 
     const onFindKPClicked = (kpRef) => {
         authFetch(`/api/v1/offer/${kpRef}/find`)
             .then(response => {
                 if (!response.ok) {
+                    setErrorMessage(`КП ${kpRef} не найдено`)
                     throw new Error("Ошибка при загрузке данных");
                 }
                 return response.json();
@@ -38,19 +49,18 @@ export default function KPCreationStart() {
                     amount: row.quantity,
                     company: row.supplier,
                     date: row.priceListDate,
-                    temperatureCode: row.temperatureMode
+                    temperatureCode: row.temperatureMode,
+                    measurement: row.measurement
                 }));
                 setSelectedProducts(processed)
                 setSupplierDesc(data.desc)
                 setOfferId(data.offerId)
                 setCustomerId(data.customerId)
+                setOpen(false);         // закрываем модалку
+                setShowModifier(true);  // отображаем модификатор
             })
             .catch(error => {
                 console.error("Ошибка:", error);
-            })
-            .finally(() => {
-                setOpen(false);         // закрываем модалку
-                setShowModifier(true);  // отображаем модификатор
             });
     }
 
@@ -179,6 +189,30 @@ export default function KPCreationStart() {
                     <MDButton onClick={() => setOpen(false)} color="secondary">Отмена</MDButton>
                 </DialogActions>
             </Dialog>
+            {errorMessage && (
+                <MDBox
+                    display="flex"
+                    justifyContent="center"
+                    alignItems="center"
+                    sx={{
+                        position: 'fixed',
+                        top: 20,
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        backgroundColor: '#fdecea',
+                        border: '1px solid #f5c6cb',
+                        borderRadius: '6px',
+                        padding: '12px 24px',
+                        boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+                        zIndex: 9999,
+                        transition: 'opacity 0.5s ease-in-out'
+                    }}
+                >
+                    <MDTypography variant="body2" fontWeight="medium" color="error">
+                        {errorMessage}
+                    </MDTypography>
+                </MDBox>
+            )}
         </>
     )
 }

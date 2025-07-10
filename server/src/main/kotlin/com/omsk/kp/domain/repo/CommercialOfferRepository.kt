@@ -14,9 +14,10 @@ interface CommercialOfferRepository: JpaRepository<CommercialOffer, Long> {
 				u.first_name as manager_first_name, u.second_name as manager_second_name, u.third_name as manager_third_name,
                 (l.weight / 1000.0) as weight, l.price_purchase, l.price_transport, l.price_sell, l.marga
             from commercial_offer p
-			    inner join customers c on c.id = p.customer_id
-			    inner join users u on u.id = p.manager_id
+			    left outer join customers c on c.id = p.customer_id
+			    left outer join users u on u.id = p.manager_id
                 left outer join commercial_offer_total l on p.id = l.commercial_offer_id
+			order by p.id desc
         """,
         nativeQuery = true
     )

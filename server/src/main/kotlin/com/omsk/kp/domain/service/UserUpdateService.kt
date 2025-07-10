@@ -30,14 +30,12 @@ class UserUpdateService(
     @Transactional
     fun updatePassword(id: Long, dto: UserPasswordDTO): Long {
         val user = find(id)
-        val passwordHashFromUI = passwordEncoder.encode(dto.old)
-        if (passwordHashFromUI == user.passwordHash){
+        if (passwordEncoder.matches(dto.old, user.passwordHash)){
             user.passwordHash = passwordEncoder.encode(dto.new)
             userService.save(user)
         } else {
             throw RuntimeException("Пароль не верен!")
         }
-
         return user.id!!
     }
 

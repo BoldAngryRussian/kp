@@ -23,7 +23,8 @@ data class KPSaveElemDTO (
     val supplier: String? = null,
     val temperatureMode: String? = null,
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
-    val priceListDate: Date? = null
+    val priceListDate: Date? = null,
+    val measurement: String
 )
 
 data class KPUpdateStatusDTO(

@@ -112,6 +112,7 @@ export default function KpExecutingApp() {
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [company, setCompany] = useState("")
   const [created, setCreated] = useState("")
+  const [errorMessage, setErrorMessage] = useState("");
   const [customer, setCustomer] = useState({
     name: "",
     address: "",
@@ -135,6 +136,15 @@ export default function KpExecutingApp() {
   const [weightByTemperatureMode, setWeightByTemperatureMode] = useState([])
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
+
+  useEffect(() => {
+    if (errorMessage) {
+      const timer = setTimeout(() => {
+        setErrorMessage("");
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [errorMessage]);
 
   const handleDeleteOffer = async () => {
     if (!selectedRowId) return;
@@ -161,6 +171,7 @@ export default function KpExecutingApp() {
       setSelectedRowId(null);
       setProductRows([]);
     } catch (error) {
+      setErrorMessage(error);
       console.error("Ошибка при удалении:", error);
     }
   };
@@ -191,6 +202,7 @@ export default function KpExecutingApp() {
       a.remove();
       window.URL.revokeObjectURL(url);
     } catch (error) {
+      setErrorMessage(error);
       console.error("Ошибка при экспорте:", error);
     }
   };
@@ -233,6 +245,8 @@ export default function KpExecutingApp() {
         setProductRows(processed);
       })
       .catch(error => {
+        setErrorMessage(error);
+        setProductRows([]);
         console.error("Ошибка:", error);
       })
       .finally(() => {
@@ -247,16 +261,18 @@ export default function KpExecutingApp() {
     authFetch("/api/v1/offer/all/short")
       .then(response => {
         if (!response.ok) {
+          setErrorMessage("Ошибка при загрузке данных");
           throw new Error("Ошибка при загрузке данных");
         }
         return response.json();
       })
       .then(data => {
+        const getInitial = (s) => s ? s[0] + '.' : '';
         const processed = data.map((row, index) => ({
           status: row.type,
           kp_ref: row.id,
           castomer: row.company,
-          manager: `${row.managerFirstName} ${row.managerSecondName[0]}. ${row.managerThirdName[0]}.`,
+          manager: `${row.managerFirstName || '-'} ${getInitial(row.managerSecondName)} ${getInitial(row.managerThirdName)}`,
           date: row.date,
           phone: row.phone,
           weight: formatNumber(row.weight),
@@ -314,6 +330,30 @@ export default function KpExecutingApp() {
 
   return (
     <MDBox width="100%" pr={2} display="flex" flexDirection="column" gap={2}>
+      {errorMessage && (
+        <MDBox
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          sx={{
+            position: 'fixed',
+            top: 20,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            backgroundColor: '#fdecea',
+            border: '1px solid #f5c6cb',
+            borderRadius: '6px',
+            padding: '12px 24px',
+            boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+            zIndex: 9999,
+            transition: 'opacity 0.5s ease-in-out'
+          }}
+        >
+          <MDTypography variant="body2" fontWeight="medium" color="error">
+            {errorMessage}
+          </MDTypography>
+        </MDBox>
+      )}
       <Card>
         <MDBox
           display="flex"
@@ -470,9 +510,9 @@ export default function KpExecutingApp() {
               <MDTypography variant="body2" fontWeight="bold" color="text" gutterBottom>
                 Менеджер:
               </MDTypography>
-              <MDTypography variant="body2" color="text">{manager.name}</MDTypography>
-              <MDTypography variant="body2" color="text">{manager.phone}</MDTypography>
-              <MDTypography variant="body2" color="text">{manager.email}</MDTypography>
+              <MDTypography variant="body2" color="text">{manager.name || "-"}</MDTypography>
+              <MDTypography variant="body2" color="text">{manager.phone || "-"}</MDTypography>
+              <MDTypography variant="body2" color="text">{manager.email || "-"}</MDTypography>
             </MDBox>
             <MDBox
               flex={1}

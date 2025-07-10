@@ -91,8 +91,10 @@ export default function KPCreationModifier({ offerId, customerId, supplierDesc, 
     }, [detailsVisible]);
 
     useEffect(() => {
-        setSelectedCustomerId(customerId)
-        setUserConfirmedCustomerId(true)
+        if (customerId != null) {
+            setSelectedCustomerId(customerId)
+            setUserConfirmedCustomerId(true)
+        }
     }, [customerId]);
 
     const handleOpenConfirmSave = () => {
@@ -178,7 +180,8 @@ export default function KPCreationModifier({ offerId, customerId, supplierDesc, 
                 weightKg: product.weightKg || 0,
                 supplier: product.company || null,
                 temperatureMode: product.temperatureCode || null,
-                priceListDate: product.date || null
+                priceListDate: product.date || null,
+                measurement: product.measurement
             })),
         };
 
@@ -284,7 +287,7 @@ export default function KPCreationModifier({ offerId, customerId, supplierDesc, 
                             </IconButton>
                         </Tooltip>
                     </MDBox>
-                    <MDBox px={2} sx={{ minHeight: 200,  height: 'auto' }}>
+                    <MDBox px={2} sx={{ minHeight: 200, height: 'auto' }}>
                         <KPGrid ref={gridRef} selectedProducts={selectedProducts} kpEditData={kpEditData} summary={setSummary} />
                     </MDBox>
                 </Card>

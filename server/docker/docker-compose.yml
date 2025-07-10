@@ -7,8 +7,8 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: user-name
-      POSTGRES_PASSWORD: strong-password
+      POSTGRES_USER: postgresUser
+      POSTGRES_PASSWORD: NyPaSBpyfKTnnM8qSAUr0sOdpeG50NwI
       POSTGRES_DB: kp-service-db
     volumes:
       - local_pgdata:/var/lib/postgresql/data
@@ -20,7 +20,7 @@ services:
       - "8888:80"
     environment:
       PGADMIN_DEFAULT_EMAIL: user-name@domain-name.com
-      PGADMIN_DEFAULT_PASSWORD: strong-password
+      PGADMIN_DEFAULT_PASSWORD: nXmzu5YONSnB4oIBw0riDvonMChHB4n4
     volumes:
       - pgadmin-data:/var/lib/pgadmin
   app:
@@ -32,8 +32,8 @@ services:
       - db
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/kp-service-db
-      SPRING_DATASOURCE_USERNAME: user-name
-      SPRING_DATASOURCE_PASSWORD: strong-password
+      SPRING_DATASOURCE_USERNAME: postgresUser
+      SPRING_DATASOURCE_PASSWORD: NyPaSBpyfKTnnM8qSAUr0sOdpeG50NwI
 
 volumes:
   local_pgdata:

@@ -2,8 +2,8 @@ package com.omsk.kp.domain.projection
 
 interface CommercialOfferFindShort {
     val id: Long
-    val managerId: Long
-    val customerId: Long
+    val managerId: Long?
+    val customerId: Long?
     val date: String
     val type: String
     val company: String

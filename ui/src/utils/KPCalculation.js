@@ -118,7 +118,7 @@ const transportCalculation = (row) => {
     let transportPercent = parseFloat(row.transportPercent) || 0;
     let transportExtra = parseFloat(row.transportExtra) || 0;
     let result = transportExtra + (row.weightKg * transportPercent)
-    return (result > 0) ? result.toFixed(2) : null
+    return (result >= 0) ? result.toFixed(2) : null
 }
 
 

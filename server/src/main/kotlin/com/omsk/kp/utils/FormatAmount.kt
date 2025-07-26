@@ -4,6 +4,9 @@ import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.util.Locale
 
+
+fun formatToAmount(amount: Long) = formatToAmount(amount.toDouble())
+
 fun formatToAmount(amount: Double): String {
     val symbols = DecimalFormatSymbols(Locale("ru")).apply {
         groupingSeparator = ' '

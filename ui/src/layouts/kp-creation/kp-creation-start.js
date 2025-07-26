@@ -10,7 +10,9 @@ import { authFetch } from 'utils/authFetch'
 export default function KPCreationStart() {
     const catalogRef = useRef();
     const [open, setOpen] = useState(false);
+    const [openAddPersentPriceListDownloader, setOpenAddPersentPriceListDownloader] = useState(false)
     const [kpCode, setKPCode] = useState('');
+    const [priceAddtitional, setPriceAddtitional] = useState('')
     const [showModifier, setShowModifier] = useState(false);
     const [selectedProducts, setSelectedProducts] = useState([]);
     const [supplierDesc, setSupplierDesc] = useState('')
@@ -26,6 +28,39 @@ export default function KPCreationStart() {
             return () => clearTimeout(timer);
         }
     }, [errorMessage]);
+
+    const onDownloadPriceClicked = async (percentToAdd) => {   
+        try{
+            const payload = { multy: percentToAdd }
+            const response = await authFetch(
+                `/api/v1/price-list/customer/export/excel`,
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                }
+            )
+
+            if (!response.ok) {
+                throw new Error("Ошибка при экспорте файла");
+            }
+
+            setOpenAddPersentPriceListDownloader(false)
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "price-list.xlsx";
+            document.body.appendChild(a);
+            a.click();
+
+            a.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Ошибка при экспорте", error)
+        }
+    }
 
     const onFindKPClicked = (kpRef) => {
         authFetch(`/api/v1/offer/${kpRef}/find`)
@@ -143,10 +178,71 @@ export default function KPCreationStart() {
                                 Редактировать
                             </MDButton>
                         </MDBox>
+                        <MDBox pt={2}>
+                            <MDButton
+                                onClick={() => setOpenAddPersentPriceListDownloader(true)}
+                                variant="text"
+                                color="secondary"
+                                size="small"
+                                sx={{
+                                    width: '100%',
+                                    fontSize: "1rem",
+                                    textTransform: "none",
+                                    border: "1px solid #999",
+                                    backgroundColor: "#f0f0f0",
+                                    "&:hover": {
+                                        backgroundColor: "#e0e0e0",
+                                    },
+                                }}
+                            >
+                                Выгрузить прайс-лист
+                            </MDButton>
+                        </MDBox>
                     </MDBox>
                 </MDBox>
             )}
             {showModifier && <KPCreationModifier offerId={offerId} customerId={customerId} supplierDesc={supplierDesc} selectedFromCatalog={selectedProducts} />}
+
+            <Dialog
+                open={openAddPersentPriceListDownloader}
+                onClose={() => setOpenAddPersentPriceListDownloader(false)}
+                fullWidth
+                maxWidth="sm"
+            >
+                <DialogContent
+                    sx={{
+                        flex: 1, // растягивает внутри Dialog
+                        display: 'flex',
+                        flexDirection: 'column',
+                        p: 0,
+                        height: '20vh', // задаём фиксированную высоту
+                    }}
+                >
+                    <MDBox px={3} py={2}>
+                        <TextField
+                            label="Введите наценку на товары прайс-листа в %"
+                            type="number"
+                            fullWidth
+                            variant="outlined"
+                            value={priceAddtitional}
+                            onChange={(e) => setPriceAddtitional(e.target.value)}
+                            inputProps={{
+                                autoComplete: 'off'
+                            }}
+                        />
+                    </MDBox>
+                </DialogContent>
+                <DialogActions>
+                    <MDButton
+                        onClick={() => { onDownloadPriceClicked(priceAddtitional) }}
+                        color="info"
+                        variant="contained">
+                        Выгрузить
+                    </MDButton>
+                    <MDButton onClick={() => setOpenAddPersentPriceListDownloader(false)} color="secondary">Отмена</MDButton>
+                </DialogActions>
+            </Dialog>
+
             <Dialog
                 open={open}
                 onClose={() => setOpen(false)}

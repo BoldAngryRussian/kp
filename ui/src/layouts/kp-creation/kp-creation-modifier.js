@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import Card from "@mui/material/Card";
 import Tooltip from '@mui/material/Tooltip';
 
-import { Dialog, DialogContent, DialogActions, Button, Fade } from "@mui/material";
+import { Dialog, DialogContent, DialogActions, Button, Fade, DialogTitle } from "@mui/material";
 
 import CircularProgress from '@mui/material/CircularProgress';
 
@@ -13,7 +13,12 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SaveIcon from '@mui/icons-material/Save';
+import AddRoadIcon from '@mui/icons-material/AddRoad';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+
+import { DataGrid } from '@mui/x-data-grid';
+
+import ConstructionIcon from '@mui/icons-material/Construction';
 
 // Material Dashboard 2 React examples
 import DataTable from "examples/Tables/DataTable";
@@ -29,6 +34,10 @@ import AddIcon from '@mui/icons-material/Add';
 import KPGrid from "examples/Cards/KPGrid/KPGrid";
 import KPGridEdit from "examples/Modals/KPGridEdit";
 import { styled } from '@mui/material/styles';
+
+import { deepmerge } from '@mui/utils';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import baseTheme from 'assets/theme'; // или createTheme() если ты не используешь кастомную тему MUI
 
 import MDButton from "components/MDButton";
 import CalculateIcon from "@mui/icons-material/Calculate";
@@ -55,6 +64,24 @@ const StyledTooltip = styled(({ className, ...props }) => (
     },
 }));
 
+const customTheme = createTheme({
+    components: {
+        MuiDataGrid: {
+            styleOverrides: {
+                root: {
+                    border: 'none',
+                    fontFamily: 'Roboto, sans-serif',
+                },
+                columnHeaders: {
+                    backgroundColor: '#f8f9fa',
+                    color: '#344767',
+                    fontWeight: 'bold',
+                },
+            },
+        },
+    },
+});
+
 export default function KPCreationModifier({ offerId, customerId, supplierDesc, selectedFromCatalog }) {
     const gridRef = useRef(null);
     const catalogRef = useRef();
@@ -71,6 +98,7 @@ export default function KPCreationModifier({ offerId, customerId, supplierDesc, 
         totalPurchase: "0.00",
         totalTransport: "0.00",
         totalSale: "0.00",
+        totalAdditionalServices: "0.00",
         totalMargin: "0.00",
     });
     const [isSaving, setIsSaving] = useState(false);
@@ -83,6 +111,50 @@ export default function KPCreationModifier({ offerId, customerId, supplierDesc, 
         created: ""
     })
     const [saveMode, setSaveMode] = useState("create"); // "create" или "update"
+
+    const [openAdditionalServicesModal, setOpenAdditionalServicesModal] = useState(false)
+    const [addServicesType, setAddServicesType] = useState(null)
+    const [addServicesCount, setAddServicesCount] = useState(null)
+    const [addServicesPrice, setAddServicesPrice] = useState(null)
+
+    const [selectedAdditionalServiceIds, setSelectedAdditionalServiceIds] = useState([]);
+
+    const [additionalServicesRows, setAdditionalServicesRows] = useState([
+        { id: 1, type: 'Доставка', count: 1, price: 500 },
+        { id: 2, type: 'Установка', count: 2, price: 1500 },
+        { id: 3, type: 'Пакет расширенных услуг', count: 1, price: 3000 },        
+    ])
+
+    const handleAddAdditionalService = () => {
+        if (!addServicesType || !addServicesCount || !addServicesPrice) return;
+
+        const count = parseFloat(addServicesCount);
+        const price = parseFloat(addServicesPrice);
+
+        setAdditionalServicesRows(prev => [
+            ...prev,
+            {
+                id: prev.length ? Math.max(...prev.map(row => row.id)) + 1 : 1,
+                type: addServicesType,
+                count: isNaN(count) ? 0 : count,
+                price: isNaN(price) ? 0 : price,
+                total: (isNaN(count) ? 0 : count) * (isNaN(price) ? 0 : price),
+            },
+        ]);
+
+        setAddServicesType('');
+        setAddServicesCount(0);
+        setAddServicesPrice(0);
+        setOpenAdditionalServicesModal(false);
+    };
+
+    const additionalServicesColumns = [
+        { field: 'id', headerName: 'ID', flex: 0.05, hide: true },
+        { field: 'type', headerName: 'Дополнительная услуга', flex: 0.8, hide: true },
+        { field: 'count', headerName: 'Количество', flex: 0.1 },
+        { field: 'price', headerName: 'Цена услуги', flex: 0.1 },
+        { field: 'total', headerName: 'Итого', flex: 0.1 }
+    ]
 
     useEffect(() => {
         if (gridRef.current) {
@@ -131,15 +203,33 @@ export default function KPCreationModifier({ offerId, customerId, supplierDesc, 
         );
     };
 
+    const handleDeleteAdditionalServices = () => {
+        if (selectedAdditionalServiceIds.length === 0) return;
+
+        setAdditionalServicesRows((prev) =>
+            prev.filter((row) => !selectedAdditionalServiceIds.includes(row.id))
+        );
+        setSelectedAdditionalServiceIds([]);
+    };
+
     const summaryColumns = [
         { Header: "Название", accessor: "label", width: "60%", align: "left", sx: { fontSize: '1rem', fontWeight: 600 } },
         { Header: "Сумма", accessor: "value", width: "40%", align: "right", sx: { fontSize: '1rem', fontWeight: 600 } },
     ];
 
     const summaryRows = [
-        { label: "💰 Сумма закупки", value: `${summary.totalPurchase} ₽` },
-        { label: "🚛 Транспорт", value: `${summary.totalTransport} ₽` },
+        { label: "💰 Сумма закупки", value: `${summary.totalPurchase} ₽` },        
         { label: "🛒 Сумма продажи", value: `${summary.totalSale} ₽` },
+        { label: "🚛 Транспорт", value: `${summary.totalTransport} ₽` },
+        {
+            label: (
+                <>
+                    <ConstructionIcon fontSize="small" sx={{ verticalAlign: 'middle', mr: 1 }} />
+                    Доп. услуги
+                </>
+            ),
+            value: `${summary.totalAdditionalServices} ₽`,
+        },
         { label: "📈 Маржа", value: (<strong style={{ color: "green", fontSize: "1.1rem" }}>{summary.totalMargin} ₽</strong>), },
     ];
 
@@ -281,6 +371,12 @@ export default function KPCreationModifier({ offerId, customerId, supplierDesc, 
                             </IconButton>
                         </Tooltip>
 
+                        <Tooltip title="Доп.Услуги">
+                            <IconButton >
+                                <AddRoadIcon onClick={() => setOpenAdditionalServicesModal(true)} />
+                            </IconButton>
+                        </Tooltip>
+
                         <Tooltip title={detailsVisible ? "Скрыть колонки" : "Показать колонки"}>
                             <IconButton onClick={() => setDetailsVisible(prev => !prev)}>
                                 {detailsVisible ? <VisibilityOffIcon /> : <VisibilityIcon />}
@@ -288,13 +384,89 @@ export default function KPCreationModifier({ offerId, customerId, supplierDesc, 
                         </Tooltip>
                     </MDBox>
                     <MDBox px={2} sx={{ minHeight: 200, height: 'auto' }}>
-                        <KPGrid ref={gridRef} selectedProducts={selectedProducts} kpEditData={kpEditData} summary={setSummary} />
+                        <KPGrid 
+                            ref={gridRef} 
+                            selectedProducts={selectedProducts} 
+                            kpEditData={kpEditData} 
+                            summary={setSummary} 
+                            additionalServices={additionalServicesRows}
+                        />
                     </MDBox>
                 </Card>
 
             </MDBox>
+            
+            { additionalServicesRows.length > 0 &&
+                (
+                <MDBox>
+                    <Card>
+                        <MDBox
+                            m={2} // ← равномерные отступы со всех сторон
+                            p={2}
+                            sx={{
+                                backgroundColor: '#d5f6dcff',
+                                height: '50px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                borderRadius: 2,
+                                justifyContent: 'flex-start', // ← теперь кнопки слева
+                            }}
+                        >
+                            <Tooltip title="Удалить">
+                                <IconButton>
+                                    <DeleteIcon onClick={handleDeleteAdditionalServices} />
+                                </IconButton>
+                            </Tooltip>
+                        </MDBox>
+                        <MDBox sx={{ mx: 2 }}>
+                            <ThemeProvider theme={customTheme}>
+                                <DataGrid
+                                    rows={additionalServicesRows}
+                                    columns={additionalServicesColumns}
+                                    onRowClick={(params) => {
+                                    }}
+                                    checkboxSelection
+                                    onRowSelectionModelChange={(newSelection) => {
+                                        const ids = Array.from(newSelection?.ids || []);
+                                        setSelectedAdditionalServiceIds(ids);
+                                    }}
+                                    selectionModel={selectedAdditionalServiceIds}
+                                    autoHeight // <-- Автоматическая высота таблицы
+                                    initialState={{
+                                    pagination: {
+                                        paginationModel: {
+                                        pageSize: 20,
+                                        page: 0,
+                                        },
+                                    },
+                                    }}
+                                    pageSizeOptions={[20, 50, 100]}
+                                    pagination
+                                    rowHeight={32}
+                                    columnVisibilityModel={{
+                                    id: false,
+                                    }}
+                                sx={{
+                                    '& .MuiDataGrid-columnHeader:focus, & .MuiDataGrid-columnHeader:focus-within': {
+                                        outline: 'none',
+                                    },
+                                    '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': {
+                                        outline: 'none',
+                                    },
+                                    '& .MuiDataGrid-row:focus, & .MuiDataGrid-row:focus-within': {
+                                        outline: 'none',
+                                    }
+                                }}
+                                />
+                            </ThemeProvider>
+                        </MDBox>
+                    </Card>
+                </MDBox>
+                )
+            }
 
-            <MDBox >
+            <MDBox mt={2}>
 
                 <MDBox display="flex" gap={2}>
 
@@ -489,6 +661,51 @@ export default function KPCreationModifier({ offerId, customerId, supplierDesc, 
                     </MDButton>
                 </DialogActions>
             </Dialog>
+
+            <Dialog open={openAdditionalServicesModal} maxWidth="sm" fullWidth>
+                <DialogTitle>Дополнительные услуги</DialogTitle>
+                <DialogContent>
+                    <MDBox component="form" display="flex" flexDirection="column" p={1} gap={3}>
+                        <TextField 
+                            label="Услуга" fullWidth value={addServicesType} onChange={(e) => setAddServicesType(e.target.value)} 
+                            autoComplete="off"
+                        />
+                        <TextField 
+                            label="Кол-во" fullWidth value={addServicesCount} onChange={(e) => setAddServicesCount(e.target.value)} 
+                            type="number"
+                            autoComplete="off"
+                            inputProps={{ min: 0 }}
+                        />
+                        <TextField 
+                            label="Цена за единицу" fullWidth value={addServicesPrice} onChange={(e) => setAddServicesPrice(e.target.value)} 
+                            type="number"
+                            autoComplete="off"
+                            inputProps={{ min: 0 }}
+                        />
+                    </MDBox>
+                </DialogContent>
+                <DialogActions>
+                    <MDButton
+                        color="info"
+                        variant="contained"
+                        onClick={handleAddAdditionalService}
+                    >
+                        Добавить
+                    </MDButton>
+                    <MDButton
+                        color="secondary"
+                        onClick={() => {
+                            setAddServicesType('')
+                            setAddServicesCount(0)
+                            setAddServicesPrice(0)
+                            setOpenAdditionalServicesModal(false)
+                        }}
+                    >
+                        Отмена
+                    </MDButton>
+                </DialogActions>
+            </Dialog>            
+
         </div>
     );
 }

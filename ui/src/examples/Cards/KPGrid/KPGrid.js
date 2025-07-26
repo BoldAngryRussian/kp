@@ -12,7 +12,7 @@ import MDBox from 'components/MDBox';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary }, ref) => {
+const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary, additionalServices }, ref) => {
 
   const gridRef = useRef(null);
   const gridApiRef = useRef(null);     // новая ссылка на API
@@ -181,7 +181,7 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary }, ref) => {
         num: index + 1, // пересчёт номера
       }));
       setRowData(updateRowData)
-      summary?.(KPSummaryCalculation(updateRowData))
+      summary?.(KPSummaryCalculation(updateRowData, additionalServices))
     },
     toggleColumnGroupVisibility: (groupName, visible) => {
       const updatedDefs = columnDefs.map(col => {
@@ -254,7 +254,7 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary }, ref) => {
 
   const refreshRowDataAndTotalInfo = (updated) => {
       setRowData(updated);
-      summary?.(KPSummaryCalculation(updated))
+      summary?.(KPSummaryCalculation(updated, additionalServices))
   }
   // Функция для пересчёта при изменении данных
   const recalculateOnChange = (rows) => {

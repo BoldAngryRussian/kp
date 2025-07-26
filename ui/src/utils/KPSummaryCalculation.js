@@ -1,9 +1,16 @@
-const KPSummaryCalculation = (rowData) => {
+const KPSummaryCalculation = (rowData, additionalServices) => {
 
     let totalPurchase = 0;
     let totalTransport = 0;
     let totalSale = 0;
     let totalMargin = 0;
+    let totalServices = 0
+
+    console.log("additionalServices", additionalServices)
+
+    additionalServices.forEach(item => {
+        totalServices += parseFloat(item.total) || 0;
+    });
 
     rowData.forEach(item => {
         totalPurchase += parseFloat(item.totalPurchase) || 0;
@@ -21,6 +28,7 @@ const KPSummaryCalculation = (rowData) => {
         totalPurchase: format(totalPurchase),
         totalTransport: format(totalTransport),
         totalSale: format(totalSale),
+        totalAdditionalServices: format(totalServices),
         totalMargin: format(totalMargin),
     };
 }

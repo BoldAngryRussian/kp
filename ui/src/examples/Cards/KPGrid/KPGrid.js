@@ -8,6 +8,7 @@ import { ModuleRegistry, AllCommunityModule } from 'ag-grid-community';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Typography, Box } from '@mui/material';
 import { calculateUpdatedRows, recalculationWhenRowDataChanged } from 'utils/KPCalculation';
 import { KPSummaryCalculation } from 'utils/KPSummaryCalculation'
+import { v4 as uuidv4 } from 'uuid';
 import MDBox from 'components/MDBox';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -195,19 +196,26 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary, additionalSe
     getRowData: () => {
       return rowData;
     },
+    addProductByHands: (productsToAdd) => { mergeProducts(productsToAdd) },
   }));
 
-  useEffect(() => {
-    if (selectedProducts && Array.isArray(selectedProducts)) {
-      setRowData(prevRowData => {
-        // Уникальные имена уже в таблице
+  const mergeProducts = (productsToAdd) => {
+      if (productsToAdd && Array.isArray(productsToAdd)) {
+        setRowData(currentProducts => { return mergeProductsArrays(currentProducts, productsToAdd) })
+        setPendingRecalc(true);
+      }
+  };
+
+  const mergeProductsArrays = (prevRowData, productsToAdd) => {
+              // Уникальные имена уже в таблице
         const existingNames = new Set(prevRowData.map(row => row.id));
 
         // Добавляем только новые строки
-        const newRows = selectedProducts
+        const newRows = productsToAdd
           .filter(p => !existingNames.has(p.id))
           .map(p => ({
             ...p,
+            id: p.id ?? uuidv4(),
             name: p.name,
             purchasePrice: (p.price / 100).toFixed(2),
             markupPercent: p.markupPercent ?? null,
@@ -233,9 +241,10 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary, additionalSe
           ...row,
           num: index + 1, // ← номер строки от 1
         }));
-      });
-      setPendingRecalc(true);
-    }
+  };
+
+  useEffect(() => {
+    mergeProducts(selectedProducts)
   }, [selectedProducts]);
 
   useEffect(() => {

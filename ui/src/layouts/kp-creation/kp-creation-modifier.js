@@ -30,6 +30,8 @@ import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 
 import AddIcon from '@mui/icons-material/Add';
+import AddBoxIcon from '@mui/icons-material/AddBox';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 //import KPGrid from "examples/Cards/KPGrid";
 import KPGrid from "examples/Cards/KPGrid/KPGrid";
 import KPGridEdit from "examples/Modals/KPGridEdit";
@@ -112,15 +114,39 @@ export default function KPCreationModifier({ offerId, customerId, supplierDesc, 
         created: ""
     })
     const [saveMode, setSaveMode] = useState("create"); // "create" или "update"
-
     const [openAdditionalServicesModal, setOpenAdditionalServicesModal] = useState(false)
     const [addServicesType, setAddServicesType] = useState(null)
     const [addServicesCount, setAddServicesCount] = useState(null)
     const [addServicesPrice, setAddServicesPrice] = useState(null)
-
     const [selectedAdditionalServiceIds, setSelectedAdditionalServiceIds] = useState([]);
-
     const [additionalServicesRows, setAdditionalServicesRows] = useState([...additionalServices])
+    const [openAddByHandsModal, setOpenAddByHandsModal] = useState(false)
+    const [addByHandsProductName, setAddByHandsProductName] = useState(null)
+    const [addByHandsMeasurement, setAddByHandsMeasurement] = useState(null)
+    const [addByHandsPrice, setAddByHandsPrice] = useState(null)                  
+
+    const clearAndCloseAddProductsByHandsModal = () => {
+        setAddByHandsProductName(null)
+        setAddByHandsMeasurement(null)
+        setAddByHandsPrice(null)
+
+        setOpenAddByHandsModal(false)
+    };
+
+    const handleAddByHandsProduct = () => {
+        const formattedDate = (new Date())
+            .toLocaleDateString('ru-RU')
+            .replace(/\./g, '-');
+
+        gridRef.current?.addProductByHands([{
+            company: "Вручную",
+            name: addByHandsProductName,
+            date: formattedDate,
+            measurement: addByHandsMeasurement,
+            price: addByHandsPrice * 100
+        }])
+        clearAndCloseAddProductsByHandsModal()
+    };
 
     const handleAddAdditionalService = () => {
         if (!addServicesType || !addServicesCount || !addServicesPrice) return;
@@ -351,9 +377,21 @@ export default function KPCreationModifier({ offerId, customerId, supplierDesc, 
                             </IconButton>
                         </Tooltip>
 
-                        <Tooltip title="Добавить">
+                        <Tooltip title="Добавить из прайс-листа">
                             <IconButton>
-                                <AddIcon onClick={() => setCatalogOpen(true)} />
+                                <AddBoxIcon onClick={() => setCatalogOpen(true)} />
+                            </IconButton>
+                        </Tooltip>
+
+                        <Tooltip title="Добавить вручную">
+                            <IconButton>
+                                <PersonAddIcon onClick={() => setOpenAddByHandsModal(true)} />
+                            </IconButton>
+                        </Tooltip>
+
+                        <Tooltip title="Добавить дополнительную услугу">
+                            <IconButton >
+                                <AddRoadIcon onClick={() => setOpenAdditionalServicesModal(true)} />
                             </IconButton>
                         </Tooltip>
 
@@ -368,21 +406,15 @@ export default function KPCreationModifier({ offerId, customerId, supplierDesc, 
                             </span>
                         </Tooltip>
 
-                        <Tooltip title="Удалить">
-                            <IconButton>
-                                <DeleteIcon onClick={handleDeleteSelected} />
-                            </IconButton>
-                        </Tooltip>
-
                         <Tooltip title="Копировать">
                             <IconButton onClick={handleCopySelected}>
                                 <ContentCopyIcon />
                             </IconButton>
                         </Tooltip>
 
-                        <Tooltip title="Доп.Услуги">
-                            <IconButton >
-                                <AddRoadIcon onClick={() => setOpenAdditionalServicesModal(true)} />
+                        <Tooltip title="Удалить">
+                            <IconButton>
+                                <DeleteIcon onClick={handleDeleteSelected} />
                             </IconButton>
                         </Tooltip>
 
@@ -705,15 +737,59 @@ export default function KPCreationModifier({ offerId, customerId, supplierDesc, 
                         color="secondary"
                         onClick={() => {
                             setAddServicesType('')
-                            setAddServicesCount(0)
-                            setAddServicesPrice(0)
+                            setAddServicesCount(null)
+                            setAddServicesPrice(null)
                             setOpenAdditionalServicesModal(false)
                         }}
                     >
                         Отмена
                     </MDButton>
                 </DialogActions>
-            </Dialog>            
+            </Dialog>      
+
+            <Dialog open={openAddByHandsModal} maxWidth="sm" fullWidth>
+                <DialogTitle>Ввод продукта вручную</DialogTitle>
+                <DialogContent>
+                    <MDBox component="form" display="flex" flexDirection="column" p={1} gap={3}>
+                        <TextField 
+                            label="Наименование продукта" fullWidth 
+                            value={addByHandsProductName} 
+                            onChange={(e) => setAddByHandsProductName(e.target.value)} 
+                            autoComplete="off"
+                        />
+                        <TextField 
+                            label="Единица измерения" fullWidth 
+                            value={addByHandsMeasurement} 
+                            onChange={(e) => setAddByHandsMeasurement(e.target.value)} 
+                            autoComplete="off"
+                            inputProps={{ min: 0 }}
+                        />
+                        <TextField 
+                            label="Цена закупочная" fullWidth 
+                            value={addByHandsPrice} 
+                            onChange={(e) => setAddByHandsPrice(e.target.value)} 
+                            type="number"
+                            autoComplete="off"
+                            inputProps={{ min: 0 }}
+                        />
+                    </MDBox>
+                </DialogContent>
+                <DialogActions>
+                    <MDButton
+                        color="info"
+                        variant="contained"
+                        onClick={handleAddByHandsProduct}
+                    >
+                        Добавить
+                    </MDButton>
+                    <MDButton
+                        color="secondary"
+                        onClick={() => { clearAndCloseAddProductsByHandsModal() }}
+                    >
+                        Отмена
+                    </MDButton>
+                </DialogActions>
+            </Dialog>                  
 
         </div>
     );

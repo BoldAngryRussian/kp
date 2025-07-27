@@ -47,6 +47,7 @@ import ProductCatalog from "layouts/catalog/ProductCatalog";
 import KPCreationCustomerFinder from 'layouts/kp-creation/kp-creation-customer-finder'
 import PriceListCustomerInformation from 'layouts/kp-creation/kp-creation-customer-detail-info'
 import { authFetch } from 'utils/authFetch'
+import { KPSummaryCalculation } from "utils/KPSummaryCalculation";
 
 
 const StyledTooltip = styled(({ className, ...props }) => (
@@ -119,11 +120,7 @@ export default function KPCreationModifier({ offerId, customerId, supplierDesc, 
 
     const [selectedAdditionalServiceIds, setSelectedAdditionalServiceIds] = useState([]);
 
-    const [additionalServicesRows, setAdditionalServicesRows] = useState([
-        { id: 1, type: 'Доставка', count: 1, price: 500 },
-        { id: 2, type: 'Установка', count: 2, price: 1500 },
-        { id: 3, type: 'Пакет расширенных услуг', count: 1, price: 3000 },        
-    ])
+    const [additionalServicesRows, setAdditionalServicesRows] = useState([])
 
     const handleAddAdditionalService = () => {
         if (!addServicesType || !addServicesCount || !addServicesPrice) return;
@@ -147,6 +144,13 @@ export default function KPCreationModifier({ offerId, customerId, supplierDesc, 
         setAddServicesPrice(0);
         setOpenAdditionalServicesModal(false);
     };
+
+    useEffect(() => {
+        const data = gridRef.current?.getRowData();
+        if (data.length === 0 && additionalServicesRows.length === 0) 
+            return         
+        setSummary(KPSummaryCalculation(data, additionalServicesRows))
+    }, [additionalServicesRows])
 
     const additionalServicesColumns = [
         { field: 'id', headerName: 'ID', flex: 0.05, hide: true },

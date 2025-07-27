@@ -1,9 +1,12 @@
 package com.omsk.kp.domain.service
 
+import com.omsk.kp.domain.model.CommercialOfferAdditionalServices
+import com.omsk.kp.domain.model.CommercialOfferAdditionalServicesService
 import com.omsk.kp.domain.model.CommercialOfferDetails
 import com.omsk.kp.domain.model.getDescOrEmpty
 import com.omsk.kp.domain.model.getSellPrice
 import com.omsk.kp.domain.model.getSellPriceTotal
+import com.omsk.kp.domain.model.getTotal
 import com.omsk.kp.domain.service.save_kp.CommercialOfferDetailsService
 import com.omsk.kp.utils.formatToAmount
 import org.springframework.stereotype.Service
@@ -18,10 +21,14 @@ import org.apache.poi.ss.usermodel.*
 @Service
 class GenerateExcelService(
     private val commercialOfferDetailsService: CommercialOfferDetailsService,
+    private val commercialOfferAdditionalServicesService: CommercialOfferAdditionalServicesService,
     private val commercialOfferDetailsDescriptionService: CommercialOfferDetailsDescriptionService
 ) {
     fun generate(offerId: Long): ByteArray {
         val products = commercialOfferDetailsService
+            .findAllByOfferId(offerId)
+
+        val additionalServices = commercialOfferAdditionalServicesService
             .findAllByOfferId(offerId)
 
         val desc = commercialOfferDetailsDescriptionService
@@ -35,13 +42,15 @@ class GenerateExcelService(
 
         var allSellPricesTotal = 0.0
         products.forEach { allSellPricesTotal += it.getSellPriceTotal() }
+        additionalServices.forEach { allSellPricesTotal += it.getTotal() }
+
         mapOf(
             DATE to LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
             TERMS to desc.getDescOrEmpty(),
             SUMMA to formatToAmount(allSellPricesTotal)
         ).forEach { findAndReplace(it.key, it.value, workbook) }
 
-        copy(workbook, products)
+        copy(workbook, products, additionalServices)
 
         // Сохранить в память
         val outStream = ByteArrayOutputStream()
@@ -65,23 +74,43 @@ class GenerateExcelService(
         }
     }
 
-    private fun copy(workbook: XSSFWorkbook, products: List<CommercialOfferDetails>) {
+    private fun copy(
+        workbook: XSSFWorkbook,
+        products: List<CommercialOfferDetails>,
+        additionalServices: List<CommercialOfferAdditionalServices>
+    ) {
+
         val sheet: Sheet = workbook.getSheetAt(0)
         val templateRowIndex = 9 // строка №10
         val templateRow = sheet.getRow(templateRowIndex)
 
         var i = 0
         val dataList = mutableListOf<List<String>>()
+
         products
             .map {
                 dataList.add(
                     listOf(
                         (++i).toString(),
                         it.name,
-                        "кг",
+                        it.measurement,
                         it.quantity.toString(),
                         formatToAmount(it.getSellPrice()),
                         formatToAmount(it.getSellPriceTotal())
+                    )
+                )
+            }
+
+        additionalServices
+            .map {
+                dataList.add(
+                    listOf(
+                        (++i).toString(),
+                        it.type,
+                        "шт",
+                        it.count.toString(),
+                        formatToAmount(it.price),
+                        formatToAmount(it.getTotal())
                     )
                 )
             }

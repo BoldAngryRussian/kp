@@ -37,4 +37,6 @@ class CommercialOfferAdditionalServicesService(
     fun findAllByOfferId(commercialOfferId: Long) = repo.findAllByCommercialOfferId(commercialOfferId)
 }
 
+fun CommercialOfferAdditionalServices.getTotal() = this.count * this.price
+
 

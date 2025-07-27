@@ -13,6 +13,7 @@ data class CommercialOfferTotal(
     val priceTransport: Double,
     val priceSell: Double,
     val marga: Double,
+    val additionalServices: Double,
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,3 +25,4 @@ fun CommercialOfferTotal?.getPricePurchase() = this?.pricePurchase ?: 0.0
 fun CommercialOfferTotal?.getPriceTransport() = this?.priceTransport ?: 0.0
 fun CommercialOfferTotal?.getPriceSell() = this?.priceSell ?: 0.0
 fun CommercialOfferTotal?.getMarga() = this?.marga ?: 0.0
+fun CommercialOfferTotal?.getAdditionalServices() = this?.additionalServices ?: 0.0

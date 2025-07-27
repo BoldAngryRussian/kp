@@ -13,5 +13,6 @@
     "quantity" : 2000,
     "weightKg" : 0.25,
     "measurement": "кг"
-  } ]
+  } ],
+  "additionalServices": []
 }

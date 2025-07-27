@@ -1,6 +1,7 @@
 package com.omsk.kp.dto
 
 import com.fasterxml.jackson.annotation.JsonFormat
+import com.omsk.kp.domain.model.CommercialOfferAdditionalServices
 import java.util.Date
 
 data class KPSaveDTO(
@@ -8,6 +9,7 @@ data class KPSaveDTO(
     val managerId: Long,
     val offerId: Long? = null,
     val terms: String? = null,
+    val additionalServices: List<AdditionalServicesDTO>,
     val elems: List<KPSaveElemDTO>
 )
 
@@ -36,3 +38,25 @@ data class KPUpdateStatusDTO(
 data class KPDeleteDTO(
     val offerId: Long
 )
+
+data class AdditionalServicesDTO(
+    val type: String,
+    val count: Double,
+    val price: Double
+) {
+    constructor(entity: CommercialOfferAdditionalServices): this(
+        type = entity.type,
+        count = entity.count,
+        price = entity.price
+    )
+}
+
+fun KPSaveDTO.getAdditionalServicesTotal(): Double {
+    var total = 0.0
+    additionalServices
+        .forEach {
+            total += it.price * it.count
+        }
+    return total
+}
+

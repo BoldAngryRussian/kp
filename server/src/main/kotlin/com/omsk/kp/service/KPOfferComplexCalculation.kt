@@ -1,10 +1,12 @@
 package com.omsk.kp.service
 
+import com.omsk.kp.domain.model.CommercialOfferAdditionalServicesService
 import com.omsk.kp.domain.service.CommercialOfferTotalService
 import com.omsk.kp.domain.service.CustomerService
 import com.omsk.kp.domain.service.UserService
 import com.omsk.kp.domain.service.save_kp.CommercialOfferDetailsService
 import com.omsk.kp.domain.service.save_kp.CommercialOfferService
+import com.omsk.kp.dto.AdditionalServicesDTO
 import com.omsk.kp.dto.KPOfferComplexInfo
 import org.springframework.stereotype.Component
 import kotlin.jvm.optionals.getOrNull
@@ -16,6 +18,7 @@ class KPOfferComplexCalculation(
     private val commercialOfferService: CommercialOfferService,
     private val commercialOfferTotalService: CommercialOfferTotalService,
     private val commercialOfferDetailsService: CommercialOfferDetailsService,
+    private val commercialOfferAdditionalServicesService: CommercialOfferAdditionalServicesService
 ) {
     fun calculate(offerId: Long): KPOfferComplexInfo {
         val offer = commercialOfferService
@@ -39,6 +42,10 @@ class KPOfferComplexCalculation(
         val total = commercialOfferTotalService
             .findByOfferId(offerId)
 
-        return KPOfferComplexInfo(offer, customer, manager, products, total)
+        val additionalServicesDTOs = commercialOfferAdditionalServicesService
+            .findAllByOfferId(offerId)
+            .map { AdditionalServicesDTO(it) }
+
+        return KPOfferComplexInfo(offer, customer, manager, products, total, additionalServicesDTOs)
     }
 }

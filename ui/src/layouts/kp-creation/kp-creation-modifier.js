@@ -83,7 +83,7 @@ const customTheme = createTheme({
     },
 });
 
-export default function KPCreationModifier({ offerId, customerId, supplierDesc, selectedFromCatalog }) {
+export default function KPCreationModifier({ offerId, customerId, supplierDesc, selectedFromCatalog, additionalServices }) {
     const gridRef = useRef(null);
     const catalogRef = useRef();
     const [openDialog, setOpenDialog] = useState(false);
@@ -120,7 +120,7 @@ export default function KPCreationModifier({ offerId, customerId, supplierDesc, 
 
     const [selectedAdditionalServiceIds, setSelectedAdditionalServiceIds] = useState([]);
 
-    const [additionalServicesRows, setAdditionalServicesRows] = useState([])
+    const [additionalServicesRows, setAdditionalServicesRows] = useState([...additionalServices])
 
     const handleAddAdditionalService = () => {
         if (!addServicesType || !addServicesCount || !addServicesPrice) return;
@@ -263,6 +263,11 @@ export default function KPCreationModifier({ offerId, customerId, supplierDesc, 
             customerId: selectedCustomerId,
             managerId: userId,
             terms: deliveryTerms,
+            additionalServices: additionalServicesRows.map((elem) => ({
+                type: elem.type,
+                count: parseInt(elem.count, 10),
+                price: elem.price
+            })),
             elems: data.map((product) => ({
                 name: product.name || "",
                 price: parseInt(product.price, 10) || 0,

@@ -1,9 +1,11 @@
 package com.omsk.kp.service.kp
 
+import com.omsk.kp.domain.model.CommercialOfferAdditionalServicesService
 import com.omsk.kp.domain.model.CommercialOfferDetails
 import com.omsk.kp.domain.service.CommercialOfferDetailsDescriptionService
 import com.omsk.kp.domain.service.save_kp.CommercialOfferDetailsService
 import com.omsk.kp.domain.service.save_kp.CommercialOfferService
+import com.omsk.kp.dto.AdditionalServicesDTO
 import org.springframework.stereotype.Service
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -12,6 +14,7 @@ import java.util.Locale
 class KPFindService(
     private val commercialOfferService: CommercialOfferService,
     private val commercialOfferDetailsService: CommercialOfferDetailsService,
+    private val commercialOfferAdditionalServicesService: CommercialOfferAdditionalServicesService,
     private val commercialOfferDetailsDescriptionService: CommercialOfferDetailsDescriptionService
 ) {
     fun findByOfferId(offerId: Long): KPFindSavedDTO {
@@ -29,11 +32,15 @@ class KPFindService(
         if (products.isEmpty())
             throw RuntimeException("В коммерческом предложении нет продуктов!")
 
+        val additionalServices = commercialOfferAdditionalServicesService
+            .findAllByOfferId(offerId)
+
         return KPFindSavedDTO(
             offerId,
             offer.customerId,
             desc,
-            products.map { CommercialOfferDetailsFindDTO(it) }
+            products.map { CommercialOfferDetailsFindDTO(it) },
+            additionalServices.map { AdditionalServicesDTO(it)}
         )
     }
 }
@@ -42,7 +49,8 @@ data class KPFindSavedDTO(
     val offerId: Long,
     val customerId: Long,
     val desc: String? = null,
-    val products: List<CommercialOfferDetailsFindDTO>
+    val products: List<CommercialOfferDetailsFindDTO>,
+    val additionalServices: List<AdditionalServicesDTO>
 )
 
 data class CommercialOfferDetailsFindDTO(

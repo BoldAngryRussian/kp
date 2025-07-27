@@ -11,6 +11,7 @@ class KPInfoTotalToCommercialOfferTotalConverter {
             pricePurchase = total.pricePurchase,
             priceTransport = total.priceTransport,
             priceSell = total.priceSell,
-            marga = total.marga
+            marga = total.marga,
+            additionalServices = total.additionalServices
         )
 }

@@ -1,6 +1,7 @@
 package com.omsk.kp.dto
 
 import com.omsk.kp.domain.model.CommercialOfferTotal
+import com.omsk.kp.domain.model.getAdditionalServices
 import com.omsk.kp.domain.model.getMarga
 import com.omsk.kp.domain.model.getPricePurchase
 import com.omsk.kp.domain.model.getPriceSell
@@ -12,6 +13,7 @@ data class KPInfoTotal(
     var pricePurchase: Double = 0.0,
     var priceTransport: Double = 0.0,
     var priceSell: Double = 0.0,
+    var additionalServices: Double = 0.0,
     var marga: Double = 0.0
 ) {
     constructor(commercialOfferTotal: CommercialOfferTotal?): this(
@@ -19,6 +21,7 @@ data class KPInfoTotal(
         pricePurchase = commercialOfferTotal.getPricePurchase(),
         priceTransport = commercialOfferTotal.getPriceTransport(),
         priceSell = commercialOfferTotal.getPriceSell(),
-        marga = commercialOfferTotal.getMarga()
+        marga = commercialOfferTotal.getMarga(),
+        additionalServices = commercialOfferTotal.getAdditionalServices()
     )
 }

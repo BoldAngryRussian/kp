@@ -1,0 +1,1 @@
+ALTER TABLE commercial_offer_total ADD COLUMN additional_services double precision NOT NULL DEFAULT 0.0;

@@ -1,5 +1,6 @@
 package com.omsk.kp.domain.service.save_kp
 
+import com.omsk.kp.domain.model.CommercialOfferAdditionalServicesService
 import com.omsk.kp.domain.model.CommercialOfferHistoryType
 import com.omsk.kp.domain.model.CommercialOfferType
 import com.omsk.kp.domain.service.CommercialOfferDetailsDescriptionService
@@ -21,6 +22,7 @@ class KPUpdateService(
     private val commercialOfferTotalService: CommercialOfferTotalService,
     private val commercialOfferHistoryService: CommercialOfferHistoryService,
     private val commercialOfferDetailsService: CommercialOfferDetailsService,
+    private val commercialOfferAdditionalServicesService: CommercialOfferAdditionalServicesService,
     private val commercialOfferDetailsDescriptionService: CommercialOfferDetailsDescriptionService
 ) {
 
@@ -35,6 +37,7 @@ class KPUpdateService(
         commercialOfferTotalService.deleteByOfferId(offer.id!!)
         commercialOfferDetailsService.deleteByOfferId(offer.id!!)
         commercialOfferDetailsDescriptionService.deleteByOfferId(offer.id!!)
+        commercialOfferAdditionalServicesService.deleteByOfferId(offer.id!!)
 
         kpDetailsService.save(offer.id!!, dto)
 

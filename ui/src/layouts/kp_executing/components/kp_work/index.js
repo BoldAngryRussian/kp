@@ -556,12 +556,16 @@ export default function KpExecutingApp() {
                 <MDTypography variant="body2" color="text">{formatNumber(total.pricePurchase)} ₽</MDTypography>
               </MDBox>
               <MDBox display="flex" justifyContent="space-between">
+                <MDTypography variant="body2" color="text">Продажа:</MDTypography>
+                <MDTypography variant="body2" color="text">{formatNumber(total.priceSell)} ₽</MDTypography>
+              </MDBox>
+              <MDBox display="flex" justifyContent="space-between">
                 <MDTypography variant="body2" color="text">Доставка:</MDTypography>
                 <MDTypography variant="body2" color="text">{formatNumber(total.priceTransport)} ₽</MDTypography>
               </MDBox>
               <MDBox display="flex" justifyContent="space-between">
-                <MDTypography variant="body2" color="text">Продажа:</MDTypography>
-                <MDTypography variant="body2" color="text">{formatNumber(total.priceSell)} ₽</MDTypography>
+                <MDTypography variant="body2" color="text">Доп.Услуги:</MDTypography>
+                <MDTypography variant="body2" color="text">{formatNumber(total.additionalServices)} ₽</MDTypography>
               </MDBox>
               <MDBox display="flex" justifyContent="space-between">
                 <MDTypography variant="body2" color="text">Маржа:</MDTypography>

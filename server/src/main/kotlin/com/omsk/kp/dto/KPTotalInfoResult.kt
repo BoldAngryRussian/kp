@@ -20,7 +20,8 @@ data class KPTotalInfoResult(
     val finance: KPInfoTotal,
     val products: List<KPTotalInfoProduct>,
     val weightByTemperatureMode: List<WeightTemperatureMode>,
-    val history: List<CommercialOfferHistoryFull>
+    val history: List<CommercialOfferHistoryFull>,
+    val additionalServices: List<AdditionalServicesDTO>
 )
 
 data class KPTotalInfoCustomer(

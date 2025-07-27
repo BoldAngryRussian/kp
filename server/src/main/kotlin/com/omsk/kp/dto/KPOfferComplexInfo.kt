@@ -11,5 +11,6 @@ data class KPOfferComplexInfo(
     val customer: Customer,
     val manager: User,
     val products: List<CommercialOfferDetails>,
-    val total: CommercialOfferTotal? = null
+    val total: CommercialOfferTotal? = null,
+    val additionalServices: List<AdditionalServicesDTO>
 )

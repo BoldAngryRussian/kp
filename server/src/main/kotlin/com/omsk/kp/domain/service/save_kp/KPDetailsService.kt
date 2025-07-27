@@ -1,6 +1,8 @@
 package com.omsk.kp.domain.service.save_kp
 
+import com.omsk.kp.converter.CommercialOfferAdditionalServicesConverter
 import com.omsk.kp.converter.KPInfoTotalToCommercialOfferTotalConverter
+import com.omsk.kp.domain.model.CommercialOfferAdditionalServicesService
 import com.omsk.kp.domain.service.CommercialOfferDetailsDescriptionService
 import com.omsk.kp.domain.service.CommercialOfferTotalService
 import com.omsk.kp.domain.service.save_kp.converter.KPSaveDtoToCommercialOfferDetails
@@ -13,11 +15,13 @@ import org.springframework.transaction.annotation.Transactional
 class KPDetailsService(
     private val commercialOfferTotalService: CommercialOfferTotalService,
     private val commercialOfferDetailsService: CommercialOfferDetailsService,
-    private val commercialOfferDetailsDescriptionService: CommercialOfferDetailsDescriptionService
+    private val commercialOfferDetailsDescriptionService: CommercialOfferDetailsDescriptionService,
+    private val commercialOfferAdditionalServicesService: CommercialOfferAdditionalServicesService
 ) {
     private val kpTotalInfoCalculation = KPTotalInfoCalculation()
     private val kpSaveDtoToCommercialOfferDetails = KPSaveDtoToCommercialOfferDetails()
     private val kpInfoTotalToCommercialOfferTotalConverter = KPInfoTotalToCommercialOfferTotalConverter()
+    private val commercialOfferAdditionalServicesConverter = CommercialOfferAdditionalServicesConverter()
 
     @Transactional
     fun save(offerId: Long, dto: KPSaveDTO){
@@ -26,7 +30,7 @@ class KPDetailsService(
             .convert(dto, offerId)
             .let(commercialOfferDetailsService::saveAll)
 
-        val total = kpTotalInfoCalculation.calculate(products)
+        val total = kpTotalInfoCalculation.calculate(products, dto)
 
         kpInfoTotalToCommercialOfferTotalConverter
             .convert(total, offerId)
@@ -36,5 +40,9 @@ class KPDetailsService(
              commercialOfferDetailsDescriptionService
                  .save(dto.terms, offerId)
          }
+
+        commercialOfferAdditionalServicesConverter
+            .convert(offerId, dto)
+            .let ( commercialOfferAdditionalServicesService::save )
     }
 }

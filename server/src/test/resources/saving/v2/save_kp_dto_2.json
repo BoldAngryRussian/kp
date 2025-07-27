@@ -203,5 +203,6 @@
     "quantity" : 500,
     "weightKg" : 0.35,
     "measurement": "кг"
-  } ]
+  } ],
+  "additionalServices": []
 }

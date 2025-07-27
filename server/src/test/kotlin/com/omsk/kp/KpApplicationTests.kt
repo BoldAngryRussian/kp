@@ -62,7 +62,7 @@ class KpApplicationTests {
 
 		val products = kpSaveDtoToCommercialOfferDetails
 			.convert(dto, offerId)
-		val total = kpTotalInfoCalculation.calculate(products)
+		val total = kpTotalInfoCalculation.calculate(products, dto)
 
 		Assertions.assertTrue { total.marga == result.marga }
 		Assertions.assertTrue { total.pricePurchase == result.purchase }

@@ -19,7 +19,7 @@ class KPFindDetailsService(
     private val commercialOfferHistoryService: CommercialOfferHistoryService
 ) {
     fun findByOfferId(offerId: Long): KPTotalInfoResult {
-        val (offer, customer, manager, products, total) = kpOfferComplexCalculation
+        val (offer, customer, manager, products, total, additionalServices) = kpOfferComplexCalculation
             .calculate(offerId)
 
         val history = commercialOfferHistoryService.getHistory(offerId)
@@ -37,7 +37,8 @@ class KPFindDetailsService(
                 .mapValues { (_, list) -> list.sumOf { it.weightKg * it.quantity } }
                 .map { WeightTemperatureMode(it) }
                 .sortedBy { CommercialOfferDetailsTemperatureMode.fromDesc(it.mode)!!.ordinal  },
-            history = history
+            history = history,
+            additionalServices = additionalServices
         )
     }
 }

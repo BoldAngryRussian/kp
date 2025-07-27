@@ -7,10 +7,13 @@ import com.omsk.kp.domain.model.getSellPriceTotal
 import com.omsk.kp.domain.model.getTotalWeight
 import com.omsk.kp.domain.model.getTransportTotal
 import com.omsk.kp.dto.KPInfoTotal
+import com.omsk.kp.dto.KPSaveDTO
+import com.omsk.kp.dto.getAdditionalServicesTotal
 
 class KPTotalInfoCalculation {
-    fun calculate(products: List<CommercialOfferDetails>): KPInfoTotal {
+    fun calculate(products: List<CommercialOfferDetails>, dto: KPSaveDTO): KPInfoTotal {
         val total = KPInfoTotal()
+
         products
             .map {
                 total.weight += it.getTotalWeight()
@@ -19,6 +22,8 @@ class KPTotalInfoCalculation {
                 total.priceSell += it.getSellPriceTotal()
                 total.marga += it.getMarga()
             }
+
+        total.additionalServices = dto.getAdditionalServicesTotal()
         return total
     }
 }

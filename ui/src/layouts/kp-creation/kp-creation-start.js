@@ -19,6 +19,7 @@ export default function KPCreationStart() {
     const [offerId, setOfferId] = useState('')
     const [customerId, setCustomerId] = useState(null)
     const [errorMessage, setErrorMessage] = useState("");
+    const [additionalServices, setAdditionalServices] = useState([])
 
     useEffect(() => {
         if (errorMessage) {
@@ -87,6 +88,14 @@ export default function KPCreationStart() {
                     temperatureCode: row.temperatureMode,
                     measurement: row.measurement
                 }));
+                const additional = data.additionalServices.map((row, index) => ({
+                    id: (index + 1).toString(),
+                    type: row.type,
+                    count: row.count,
+                    price: row.price,
+                    total: (isNaN(row.count) ? 0 : row.count) * (isNaN(row.price) ? 0 : row.price)
+                }))
+                setAdditionalServices(additional)
                 setSelectedProducts(processed)
                 setSupplierDesc(data.desc)
                 setOfferId(data.offerId)
@@ -201,7 +210,15 @@ export default function KPCreationStart() {
                     </MDBox>
                 </MDBox>
             )}
-            {showModifier && <KPCreationModifier offerId={offerId} customerId={customerId} supplierDesc={supplierDesc} selectedFromCatalog={selectedProducts} />}
+            {showModifier && 
+                <KPCreationModifier 
+                    offerId={offerId} 
+                    customerId={customerId} 
+                    supplierDesc={supplierDesc} 
+                    selectedFromCatalog={selectedProducts} 
+                    additionalServices={additionalServices}
+                />
+            }
 
             <Dialog
                 open={openAddPersentPriceListDownloader}

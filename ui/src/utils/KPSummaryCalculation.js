@@ -6,8 +6,6 @@ const KPSummaryCalculation = (rowData, additionalServices) => {
     let totalMargin = 0;
     let totalServices = 0
 
-    console.log("additionalServices", additionalServices)
-
     additionalServices.forEach(item => {
         totalServices += parseFloat(item.total) || 0;
     });

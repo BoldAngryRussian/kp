@@ -14,9 +14,9 @@ class RecognizePriceListService {
         val products = mutableListOf<ProductDTO>()
         for (row in sheet){
             try {
-                val name = row.getCell(0).stringCellValue.trim()
-                val measurement = row.getCell(1).stringCellValue.trim()
-                val price = (row.getCell(2).numericCellValue * 100).toLong()
+                val name = row.getCell(0).toString().trim()
+                val measurement = row.getCell(1).toString().trim()
+                val price = (row.getCell(2).toString().toDouble() * 100).toLong()
                 KPLog.info("name$name price=$price measurement=$measurement")
                 products += ProductDTO(name, price, measurement,name.contains("!").not())
             } catch (e: Exception){

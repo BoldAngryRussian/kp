@@ -20,6 +20,12 @@ repositories {
 	mavenCentral()
 }
 
+dependencyManagement {
+    imports {
+        mavenBom("org.testcontainers:testcontainers-bom:2.0.3")
+    }
+}
+
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-web")
@@ -36,10 +42,52 @@ dependencies {
 	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5") // для Jackson JSON обработки
 	runtimeOnly("org.postgresql:postgresql")
 
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
+	testImplementation("org.springframework.boot:spring-boot-starter-test"){
+        exclude(group = "org.testcontainers")
+    }
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 	testImplementation("com.h2database:h2:2.2.224")
+
+	// Явно подтягиваем современный Testcontainers через BOM, чтобы клиент Docker поддерживал API >= 1.44
+	testImplementation(platform("org.testcontainers:testcontainers-bom:2.0.3"))
+	testImplementation("org.testcontainers:junit-jupiter")
+	testImplementation("org.testcontainers:postgresql")
+
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+// Source set для интеграционных тестов
+sourceSets {
+	val integrationTest by creating {
+		kotlin.srcDir("src/integrationTest/kotlin")
+		resources.srcDir("src/integrationTest/resources")
+
+		compileClasspath += sourceSets["main"].output + sourceSets["test"].output + configurations["testRuntimeClasspath"]
+		runtimeClasspath += output + compileClasspath
+	}
+}
+
+configurations {
+	named("integrationTestImplementation") {
+		extendsFrom(getByName("testImplementation"))
+	}
+	named("integrationTestRuntimeOnly") {
+		extendsFrom(getByName("testRuntimeOnly"))
+	}
+}
+
+tasks.register<Test>("integrationTest") {
+	description = "Runs integration tests."
+	group = "verification"
+
+	testClassesDirs = sourceSets["integrationTest"].output.classesDirs
+	classpath = sourceSets["integrationTest"].runtimeClasspath
+
+	//  Подсказываем Testcontainers, где искать Docker socket (Docker Desktop на macOS)
+	//  environment("TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE", "/Users/pc/.docker/run/docker.sock")
+
+	shouldRunAfter("test")
+	useJUnitPlatform()
 }
 
 kotlin {
@@ -72,6 +120,12 @@ tasks.withType<Test> {
 	useJUnitPlatform()
 }
 
+// Игнорируем дублирующиеся ресурсы (в т.ч. для integrationTest)
+tasks.withType<Copy> {
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
 tasks.named("build") {
 	finalizedBy("jibDockerBuild")
 }
+

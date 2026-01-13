@@ -129,14 +129,8 @@ class GenerateExcelService(
 
                 if (templateCell != null) {
                     newCell.cellStyle = templateCell.cellStyle
-                    when (templateCell.cellType) {
-                        CellType.FORMULA -> {
-                            val formula = templateCell.cellFormula
-                            newCell.setCellFormula(formula)
-                        }
-                        else -> {
-                            newCell.cellType = templateCell.cellType
-                        }
+                    if (templateCell.cellType == CellType.FORMULA) {
+                        newCell.cellFormula = templateCell.cellFormula
                     }
                 }
 

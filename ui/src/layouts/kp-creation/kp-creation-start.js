@@ -6,13 +6,9 @@ import uylaLogo from "assets/images/uyta-logo.png"
 import MDTypography from "components/MDTypography";
 import KPCreationModifier from "./kp-creation-modifier";
 import { authFetch } from 'utils/authFetch'
+import { supplierDescDefault } from "utils/kp_consts";
 
 export default function KPCreationStart() {
-    const supplierDescDefault = `1. Цена указана с НДС
-2. Расчет является предварительным
-3. Условия оплаты: рассматриваются индивидуально
-4. Стоимость доставки включена в стоимость товара
-5. Доставка осуществляется по адресу: `
     const catalogRef = useRef();
     const [open, setOpen] = useState(false);
     const [openAddPersentPriceListDownloader, setOpenAddPersentPriceListDownloader] = useState(false)

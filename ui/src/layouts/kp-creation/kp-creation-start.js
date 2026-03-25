@@ -8,6 +8,11 @@ import KPCreationModifier from "./kp-creation-modifier";
 import { authFetch } from 'utils/authFetch'
 
 export default function KPCreationStart() {
+    const supplierDescDefault = `1. Цена указана с НДС
+2. Расчет является предварительным
+3. Условия оплаты: рассматриваются индивидуально
+4. Стоимость доставки включена в стоимость товара
+5. Доставка осуществляется по адресу: `
     const catalogRef = useRef();
     const [open, setOpen] = useState(false);
     const [openAddPersentPriceListDownloader, setOpenAddPersentPriceListDownloader] = useState(false)
@@ -15,7 +20,7 @@ export default function KPCreationStart() {
     const [priceAddtitional, setPriceAddtitional] = useState('')
     const [showModifier, setShowModifier] = useState(false);
     const [selectedProducts, setSelectedProducts] = useState([]);
-    const [supplierDesc, setSupplierDesc] = useState('')
+    const [supplierDesc, setSupplierDesc] = useState(supplierDescDefault)
     const [offerId, setOfferId] = useState('')
     const [customerId, setCustomerId] = useState(null)
     const [errorMessage, setErrorMessage] = useState("");
@@ -193,6 +198,7 @@ export default function KPCreationStart() {
                                 variant="text"
                                 color="secondary"
                                 size="small"
+                                disabled
                                 sx={{
                                     width: '100%',
                                     fontSize: "1rem",

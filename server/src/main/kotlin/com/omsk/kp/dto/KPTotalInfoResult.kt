@@ -58,7 +58,8 @@ data class KPTotalInfoProduct (
     val sellPrice: Double,
     val quantity: Int,
     val weight: Double,
-    val marga: Double
+    val marga: Double,
+    val supplier: String? = ""
 ) {
     constructor(commercialOfferDetails: CommercialOfferDetails): this(
         name = commercialOfferDetails.name,
@@ -69,6 +70,7 @@ data class KPTotalInfoProduct (
         quantity = commercialOfferDetails.quantity,
         weight = commercialOfferDetails.getTotalWeight(),
         marga = commercialOfferDetails.getMarga(),
+        supplier = commercialOfferDetails.supplier
     )
 }
 

@@ -18,7 +18,7 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary, additionalSe
   const gridRef = useRef(null);
   const gridApiRef = useRef(null);     // новая ссылка на API
   const columnApiRef = useRef(null);   // новая ссылка на columnApi
-  const gridStyle = useMemo(() => ({ height: "100%", width: "100%", position: 'relative' }), []);
+  const gridStyle = useMemo(() => ({ height: "900px", width: "100%", position: 'relative' }), []);
   const [selectedRow, setSelectedRow] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [rowData, setRowData] = useState([]);
@@ -54,24 +54,8 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary, additionalSe
     { headerName: "Наименование", field: "name", width: 630 },
     { headerName: "Прайс", field: "date", width: 100, editable: false, hideGroup: 'details' },
     { headerName: "Ед.Изм", field: "measurement", width: 90, editable: false, hideGroup: 'details' },
-    {
-      field: "temperatureCode",
-      headerName: "Темп.режим",
-      editable: true,
-      width: 140,
-      hideGroup: 'details',
-      valueParser: params => {
-        const parsed = parseInt(params.newValue, 10);
-        const code = isNaN(parsed) || parsed < 1 || parsed > 4 ? null : parsed;
-        const temperatureMap = {
-          1: "Заморозка",
-          2: "Охлажденка",
-          3: "Тёплый",
-          4: "Без температурный"
-        };        
-        return temperatureMap[code] || null;
-      }
-    },
+    { headerName: "Вес, кг", field: "weightKg", width: 100, hideGroup: 'details', },
+    { headerName: "Кол-во", field: "amount", width: 90 },
     {
       headerName: "Цена закуп. ед.", field: "purchasePrice", width: 100, editable: false,
       headerStyle: { backgroundColor: '#FFFFF0' },
@@ -120,8 +104,6 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary, additionalSe
       headerStyle: { backgroundColor: '#FAF0E6' },
       cellStyle: { backgroundColor: '#FAF0E6' },
     },
-    { headerName: "Вес, кг", field: "weightKg", width: 100, hideGroup: 'details', },
-    { headerName: "Кол-во", field: "amount", width: 90 },
     {
       headerName: "Вес итого, кг", field: "totalWeight", width: 120, editable: false,
     },
@@ -147,6 +129,24 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary, additionalSe
       field: "totalTransport",
       width: 120,
       editable: false,
+    },
+    {
+      field: "temperatureCode",
+      headerName: "Темп.режим",
+      editable: true,
+      width: 140,
+      hideGroup: 'details',
+      valueParser: params => {
+        const parsed = parseInt(params.newValue, 10);
+        const code = isNaN(parsed) || parsed < 1 || parsed > 4 ? null : parsed;
+        const temperatureMap = {
+          1: "Заморозка",
+          2: "Охлажденка",
+          3: "Тёплый",
+          4: "Без температурный"
+        };        
+        return temperatureMap[code] || null;
+      }
     },
     {
       headerName: "Маржа, ₽",
@@ -342,7 +342,7 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary, additionalSe
               rowData={rowData}
               columnDefs={columnDefs}
               headerHeight={60}
-              domLayout="autoHeight" // ← вот ключ!
+              // removed domLayout="autoHeight" to use fixed container height
               defaultColDef={defaultColDef}
               rowSelection="multiple"
               onCellValueChanged={handleCellValueChange}
@@ -351,8 +351,7 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary, additionalSe
               suppressContextMenu={true}
               suppressMaintainedSelection={true}
               onGridReady={onGridReady}
-              pagination={true}
-              paginationPageSize={50}
+              pagination={false}
               getRowId={(params) => params.data.id} // ← Уникальный ключ для строк
               ref={gridRef}
               enableBrowserTooltips={true}

@@ -1,5 +1,16 @@
 import { temperatureMap } from 'utils/kp_consts';
 
+// Приводит разные варианты ввода числа к Number или null
+const normalizeNumber = (v) => {
+    if (v === null || v === undefined || v === '') return null;
+    const s = String(v)
+        .replace(/\u00A0/g, '') // non-breaking space
+        .replace(/\s+/g, '')
+        .replace(/,/g, '.');
+    const n = parseFloat(s);
+    return isNaN(n) ? null : n;
+}
+
 const calculateUpdatedRows = (rowData, kpEditData, selectedIds) => {
     if (!rowData || rowData.length === 0 || !kpEditData) return rowData;
 
@@ -8,15 +19,22 @@ const calculateUpdatedRows = (rowData, kpEditData, selectedIds) => {
 }
 
 const recalculationWhenRowDataChanged = (rowData) => {
+    console.log('Recalculating row data after changes...', rowData);
     return rowData.map(row => {
-        const amount = row.amount;
-        const weightKg = row.weightKg;
+        const amount = normalizeNumber(row.amount);
+        const weightKg = normalizeNumber(row.weightKg);
+        const purchasePrice = normalizeNumber(row.purchasePrice);
+        const markupPercent = normalizeNumber(row.markupPercent);
+        const markupExtra = normalizeNumber(row.markupExtra);
+        const transportPercent = normalizeNumber(row.transportPercent);
+        const transportExtra = normalizeNumber(row.transportExtra);
+
         const totalWeight = totalWeightCalculation(amount, weightKg)
-        const markupTotal = markupCalculation(row)
-        const transportTotal = transportCalculation(row)
-        const salePrice = salePriceCalculation(row.purchasePrice, markupTotal, transportTotal)
-        const totalPurchase = totalPurchaseCalculation(amount, row.purchasePrice)
-        const totalSale = totalSaleCalculation(amount, row.purchasePrice, markupTotal, transportTotal)
+        const markupTotal = markupCalculation(purchasePrice, markupPercent, markupExtra)
+        const transportTotal = transportCalculation(weightKg, transportPercent, transportExtra)
+        const salePrice = salePriceCalculation(purchasePrice, markupTotal, transportTotal)
+        const totalPurchase = totalPurchaseCalculation(amount, purchasePrice)
+        const totalSale = totalSaleCalculation(amount, purchasePrice, markupTotal, transportTotal)
         const totalTransport = totalTransportCalculation(amount, transportTotal)
         const margin = marginCalculation(totalSale, totalPurchase, totalTransport)
 
@@ -29,6 +47,12 @@ const recalculationWhenRowDataChanged = (rowData) => {
             transportTotal,
             totalTransport,
             totalWeight,
+            // Записываем нормализованные значения обратно, чтобы UI тоже показывал их в едином формате
+            purchasePrice,
+            markupPercent,
+            markupExtra,
+            transportPercent,
+            transportExtra,
             weightKg,
             amount,
             margin
@@ -103,82 +127,81 @@ const getTemperatureCodeByName = (name) => {
   return entry ? Number(entry[0]) : null;
 };
 
-const markupCalculation = (row) => {
-    const markupPercent = parseFloat(row.markupPercent) || 0;
-    const markupExtra = parseFloat(row.markupExtra) || 0;
-    const purchasePrice = parseFloat(row.purchasePrice);
+const markupCalculation = (purchasePrice, markupPercent, markupExtra) => {
+    const pp = normalizeNumber(purchasePrice);
+    const mp = normalizeNumber(markupPercent) || 0;
+    const me = normalizeNumber(markupExtra) || 0;
 
-    if (isNaN(purchasePrice)) return null;
+    if (pp === null) return null;
 
-    const result = markupExtra + (purchasePrice * markupPercent / 100);
-    return result > 0 ? result.toFixed(2) : null;
+    const result = me + (pp * mp / 100);
+    return (result !== null && result !== undefined && result >= 0) ? result.toFixed(2) : null;
 };
 
-const transportCalculation = (row) => {
-    let transportPercent = parseFloat(row.transportPercent) || 0;
-    let transportExtra = parseFloat(row.transportExtra) || 0;
-    let result = transportExtra + (row.weightKg * transportPercent)
-    return (result >= 0) ? result.toFixed(2) : null
+const transportCalculation = (weightKg, transportPercent, transportExtra) => {
+    const w = normalizeNumber(weightKg) || 0;
+    const tp = normalizeNumber(transportPercent) || 0;
+    const te = normalizeNumber(transportExtra) || 0;
+    const result = te + (w * tp);
+    return (result !== null && result !== undefined && !isNaN(result)) ? result.toFixed(2) : null;
 }
 
 
 const salePriceCalculation = (purchasePrice, markupTotal, transportTotal) => {
-    if (purchasePrice != null && markupTotal != null && transportTotal != null) {
-        if (!isNaN(purchasePrice) && !isNaN(markupTotal) && !isNaN(transportTotal)) {
-            return (
-                parseFloat(purchasePrice) +
-                parseFloat(markupTotal) +
-                parseFloat(transportTotal)
-            ).toFixed(2);
-        }
+    const pp = normalizeNumber(purchasePrice);
+    const mt = normalizeNumber(markupTotal);
+    const tt = normalizeNumber(transportTotal);
+    if (pp !== null && mt !== null && tt !== null) {
+        return (pp + mt + tt).toFixed(2);
     }
     return null;
 }
 
 const totalPurchaseCalculation = (amount, purchasePrice) => {
-    if (amount != null && purchasePrice != null) {
-        if (!isNaN(amount) && !isNaN(purchasePrice)) {
-            return (
-                parseFloat(amount) * parseFloat(purchasePrice)
-            ).toFixed(2);
-        }
+    const a = normalizeNumber(amount);
+    const pp = normalizeNumber(purchasePrice);
+    if (a !== null && pp !== null) {
+        return (a * pp).toFixed(2);
     }
     return null;
 }
 
 const totalSaleCalculation = (amount, purchasePrice, markupTotal, transportTotal) => {
-    if (amount != null && purchasePrice != null && markupTotal != null && transportTotal != null) {
-        if (!isNaN(amount) && !isNaN(purchasePrice) && !isNaN(markupTotal) && !isNaN(transportTotal)) {
-            const salePrice = parseFloat(purchasePrice) + parseFloat(markupTotal) + parseFloat(transportTotal)
-            return (amount * salePrice).toFixed(2)
-        }
+    const a = normalizeNumber(amount);
+    const pp = normalizeNumber(purchasePrice);
+    const mt = normalizeNumber(markupTotal);
+    const tt = normalizeNumber(transportTotal);
+    if (a !== null && pp !== null && mt !== null && tt !== null) {
+        const salePrice = pp + mt + tt;
+        return (a * salePrice).toFixed(2)
     }
     return null
 }
 
 const totalTransportCalculation = (amount, transportTotal) => {
-    if (amount != null && transportTotal != null) {
-        if (!isNaN(amount) && !isNaN(transportTotal)) {
-            return (parseFloat(amount) * parseFloat(transportTotal)).toFixed(2)
-        }
+    const a = normalizeNumber(amount);
+    const tt = normalizeNumber(transportTotal);
+    if (a !== null && tt !== null) {
+        return (a * tt).toFixed(2)
     }
     return null
 }
 
 const marginCalculation = (totalSale, totalPurchase, totalTransport) => {
-    if (totalSale != null && totalPurchase != null && totalTransport != null) {
-        if (!isNaN(totalSale) && !isNaN(totalPurchase) && !isNaN(totalTransport)) {
-            return (parseFloat(totalSale) - parseFloat(totalPurchase) - parseFloat(totalTransport)).toFixed(2);
-        }
+    const ts = normalizeNumber(totalSale);
+    const tp = normalizeNumber(totalPurchase);
+    const tt = normalizeNumber(totalTransport);
+    if (ts !== null && tp !== null && tt !== null) {
+        return (ts - tp - tt).toFixed(2);
     }
     return null
 }
 
 const totalWeightCalculation = (amount, weightKg) => {
-    if (amount != null && weightKg != null) {
-        if (!isNaN(amount) && !isNaN(weightKg)) {
-            return (parseFloat(amount) * parseFloat(weightKg)).toFixed(2)
-        }
+    const a = normalizeNumber(amount);
+    const w = normalizeNumber(weightKg);
+    if (a !== null && w !== null) {
+        return (a * w).toFixed(2)
     }
     return null
 }

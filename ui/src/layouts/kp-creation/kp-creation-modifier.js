@@ -473,32 +473,22 @@ export default function KPCreationModifier({ offerId, customerId, supplierDesc, 
                                         setSelectedAdditionalServiceIds(ids);
                                     }}
                                     selectionModel={selectedAdditionalServiceIds}
-                                    autoHeight // <-- Автоматическая высота таблицы
-                                    initialState={{
-                                    pagination: {
-                                        paginationModel: {
-                                        pageSize: 20,
-                                        page: 0,
-                                        },
-                                    },
-                                    }}
-                                    pageSizeOptions={[20, 50, 100]}
-                                    pagination
-                                    rowHeight={32}
-                                    columnVisibilityModel={{
-                                    id: false,
-                                    }}
-                                sx={{
-                                    '& .MuiDataGrid-columnHeader:focus, & .MuiDataGrid-columnHeader:focus-within': {
-                                        outline: 'none',
-                                    },
-                                    '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': {
-                                        outline: 'none',
-                                    },
-                                    '& .MuiDataGrid-row:focus, & .MuiDataGrid-row:focus-within': {
-                                        outline: 'none',
-                                    }
-                                }}
+                                        rowHeight={32}
+                                        columnVisibilityModel={{
+                                            id: false,
+                                        }}
+                                        sx={{
+                                            height: 500,
+                                            '& .MuiDataGrid-columnHeader:focus, & .MuiDataGrid-columnHeader:focus-within': {
+                                                outline: 'none',
+                                            },
+                                            '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': {
+                                                outline: 'none',
+                                            },
+                                            '& .MuiDataGrid-row:focus, & .MuiDataGrid-row:focus-within': {
+                                                outline: 'none',
+                                            }
+                                        }}
                                 />
                             </ThemeProvider>
                         </MDBox>

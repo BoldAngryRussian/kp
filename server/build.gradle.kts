@@ -47,9 +47,6 @@ dependencies {
     }
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 	testImplementation("com.h2database:h2:2.2.224")
-
-	// Явно подтягиваем современный Testcontainers через BOM, чтобы клиент Docker поддерживал API >= 1.44
-	testImplementation(platform("org.testcontainers:testcontainers-bom:2.0.3"))
 	testImplementation("org.testcontainers:junit-jupiter")
 	testImplementation("org.testcontainers:postgresql")
 
@@ -82,9 +79,6 @@ tasks.register<Test>("integrationTest") {
 
 	testClassesDirs = sourceSets["integrationTest"].output.classesDirs
 	classpath = sourceSets["integrationTest"].runtimeClasspath
-
-	//  Подсказываем Testcontainers, где искать Docker socket (Docker Desktop на macOS)
-	//  environment("TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE", "/Users/pc/.docker/run/docker.sock")
 
 	shouldRunAfter("test")
 	useJUnitPlatform()

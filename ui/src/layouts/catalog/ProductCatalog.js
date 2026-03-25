@@ -40,7 +40,12 @@ const columns = [
     { field: 'date', headerName: 'Товар от', flex: 0.1 },
     { field: 'measurement', headerName: 'Ед.Измерения', flex: 0.1 },
     { field: 'price', headerName: 'Цена', flex: 0.1 },
-    { field: 'price_formatted', headerName: 'Цена', flex: 0.1 }
+    {
+        field: 'price_formatted',
+        headerName: 'Цена, ₽',
+        flex: 0.1,
+        type: 'number'
+    }
 ];
 
 const ProductCatalog = forwardRef(({ onSelect }, ref) => {
@@ -61,12 +66,7 @@ const ProductCatalog = forwardRef(({ onSelect }, ref) => {
             .then(data => {
                 const converted = data.map(product => ({
                     ...product,
-                    price_formatted: (product.price / 100).toLocaleString('ru-RU', {
-                        style: 'currency',
-                        currency: 'RUB',
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                    })
+                    price_formatted: (product.price / 100).toFixed(2)
                 }));
                 setProducts(converted);
                 setFilteredProducts(converted);
@@ -139,7 +139,7 @@ const ProductCatalog = forwardRef(({ onSelect }, ref) => {
                                 initialState={{
                                     pagination: {
                                         paginationModel: {
-                                            pageSize: 20,
+                                            pageSize: 100,
                                             page: 0,
                                         },
                                     },

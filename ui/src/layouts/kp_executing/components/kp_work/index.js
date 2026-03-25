@@ -56,6 +56,7 @@ const customTheme = deepmerge(baseTheme, {
 const productColumns = [
   { field: 'id', headerName: '#', width: 60 },
   { field: 'name', headerName: 'Наименование', flex: 1 },
+  { field: 'supplier', headerName: 'Поставщик', width: 150 },
   { field: 'purchase', headerName: 'Закупка, ₽', width: 120 },
   { field: 'markup', headerName: 'Наценка, ₽', width: 120 },
   { field: 'price', headerName: 'Продажа, ₽', width: 120 },
@@ -233,6 +234,7 @@ export default function KpExecutingApp() {
           amount: formatNumber(row.quantity),
           weight: formatNumber(row.weight),
           margin: formatNumber(row.marga),
+          supplier: row.supplier,
           id: (index + 1).toString(),
         }));
         setTotal(data.finance);

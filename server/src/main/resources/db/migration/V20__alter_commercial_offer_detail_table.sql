@@ -1,0 +1,2 @@
+ALTER TABLE commercial_offer_details
+    ALTER COLUMN name TYPE TEXT;

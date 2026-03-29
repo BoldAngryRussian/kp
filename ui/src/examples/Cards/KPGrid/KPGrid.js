@@ -18,7 +18,7 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary, additionalSe
   const gridRef = useRef(null);
   const gridApiRef = useRef(null);     // новая ссылка на API
   const columnApiRef = useRef(null);   // новая ссылка на columnApi
-  const gridStyle = useMemo(() => ({ height: "900px", width: "100%", position: 'relative' }), []);
+  const gridStyle = useMemo(() => ({ width: "100%", position: 'relative' }), []);
   const [selectedRow, setSelectedRow] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [rowData, setRowData] = useState([]);
@@ -56,6 +56,7 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary, additionalSe
     { headerName: "Ед.Изм", field: "measurement", width: 90, editable: false, hideGroup: 'details' },
     { headerName: "Вес, кг", field: "weightKg", width: 100, hideGroup: 'details', },
     { headerName: "Кол-во", field: "amount", width: 90 },
+    { headerName: "Вес итого, кг", field: "totalWeight", width: 120, editable: false },
     {
       headerName: "Цена закуп. ед.", field: "purchasePrice", width: 100, editable: false,
       headerStyle: { backgroundColor: '#FFFFF0' },
@@ -103,9 +104,6 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary, additionalSe
       hideGroup: 'details',
       headerStyle: { backgroundColor: '#FAF0E6' },
       cellStyle: { backgroundColor: '#FAF0E6' },
-    },
-    {
-      headerName: "Вес итого, кг", field: "totalWeight", width: 120, editable: false,
     },
     {
       headerName: "Стоимость закупки, ₽",
@@ -342,7 +340,7 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary, additionalSe
               rowData={rowData}
               columnDefs={columnDefs}
               headerHeight={60}
-              // removed domLayout="autoHeight" to use fixed container height
+              domLayout="autoHeight"
               defaultColDef={defaultColDef}
               rowSelection="multiple"
               onCellValueChanged={handleCellValueChange}
@@ -352,6 +350,7 @@ const KPGrid = forwardRef(({ selectedProducts, kpEditData, summary, additionalSe
               suppressMaintainedSelection={true}
               onGridReady={onGridReady}
               pagination={false}
+              suppressPaginationPanel={true}
               getRowId={(params) => params.data.id} // ← Уникальный ключ для строк
               ref={gridRef}
               enableBrowserTooltips={true}

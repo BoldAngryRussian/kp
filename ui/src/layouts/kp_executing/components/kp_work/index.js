@@ -106,6 +106,8 @@ export default function KpExecutingApp() {
   const role = localStorage.getItem("role");
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
   const [newStatus, setNewStatus] = useState("");
+  const [unloadingSupplierDialogOpen, setUnloadingSupplierDialogOpen] = useState(false);
+  const [unloadingSupplierStatus, setUnloadingSupplierStatus] = useState(false);
   const [productRows, setProductRows] = useState([]);
   const [selectedRowId, setSelectedRowId] = useState(null);
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -177,15 +179,29 @@ export default function KpExecutingApp() {
     }
   };
 
+  const handleChangeUnloadingSupplierStatus = () => {
+    setUnloadingSupplierStatus(false)
+    setUnloadingSupplierDialogOpen(true)
+  }
+
   const handleChangeStatus = () => {
     setStatusDialogOpen(true)
   }
 
   // Экспорт в Excel
-  const handleExport = async () => {
+  const handleExport = async (withSupplier) => {
     try {
       const selectedKpRef = filteredProducts.find(row => row.id === selectedRowId)?.kp_ref;
-      const response = await authFetch(`/api/v1/export/${selectedKpRef}/excel`);
+      const response = await authFetch(`/api/v1/export/${selectedKpRef}/excel`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          selectedKpRef: selectedKpRef,
+          withSupplier: withSupplier,
+        }),
+      });
 
       if (!response.ok) {
         throw new Error("Ошибка при экспорте файла");
@@ -465,7 +481,7 @@ export default function KpExecutingApp() {
             <Tooltip title="Экспорт">
               <span>
                 <IconButton
-                  onClick={handleExport}
+                  onClick={handleChangeUnloadingSupplierStatus}
                 >
                   <i className="material-icons">file_download</i>
                 </IconButton>
@@ -645,6 +661,32 @@ export default function KpExecutingApp() {
             Сохранить
           </MDButton>
           <MDButton onClick={() => setStatusDialogOpen(false)} color="secondary">Отмена</MDButton>
+        </DialogActions>
+      </Dialog>
+      <Dialog open={unloadingSupplierDialogOpen} onClose={() => setUnloadingSupplierDialogOpen(false)}>
+        <DialogContent>
+          <MDTypography variant="h6">Выберите тип выгрузки:</MDTypography>
+          <RadioGroup
+            value={String(unloadingSupplierStatus)}
+            onChange={(e) => setUnloadingSupplierStatus(e.target.value === 'true')}
+          >
+            <FormControlLabel value="false" control={<Radio />} label="Без поставщиков" />
+            <FormControlLabel value="true" control={<Radio />} label="С учетом поставщиков" />
+          </RadioGroup>
+        </DialogContent>
+        <DialogActions>
+          <MDButton
+            onClick={() => {
+              console.log("Выбранный тип выгрузки:", unloadingSupplierStatus);
+              setUnloadingSupplierDialogOpen(false)
+              handleExport(unloadingSupplierStatus)
+            }}
+            color="info"
+            variant="contained"
+          >
+            Выгрузить
+          </MDButton>
+          <MDButton onClick={() => setUnloadingSupplierDialogOpen(false)} color="secondary">Отмена</MDButton>
         </DialogActions>
       </Dialog>
       <Dialog open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)}>

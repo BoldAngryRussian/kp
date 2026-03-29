@@ -43,7 +43,7 @@ fun CommercialOfferDetails.getTransportExtraOrZero() = transportExtra ?: 0.0
 fun CommercialOfferDetails.getTransportPercentOrZero() = transportPercent ?: 0.0
 fun CommercialOfferDetails.getTransportTotal() = quantity * (getTransportExtraOrZero() + (weightKg * getTransportPercentOrZero()))
 fun CommercialOfferDetails.getSellPriceTotal() = quantity * getPriceInRub() + getMarkupTotal() + getTransportTotal()
-fun CommercialOfferDetails.getSellPrice() = getSellPriceTotal() / quantity
+fun CommercialOfferDetails.getSellPrice() = if (quantity > 0) getSellPriceTotal() / quantity else 0.0
 fun CommercialOfferDetails.getMarga() = getSellPriceTotal() - getPurchasePriceTotal() - getTransportTotal()
 fun CommercialOfferDetails.getTemperatureModeOrDefault() = this.temperatureMode ?: CommercialOfferDetailsTemperatureMode.NO_TEMPERATURE
 

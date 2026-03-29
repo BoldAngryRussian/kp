@@ -8,6 +8,7 @@ import com.omsk.kp.domain.model.getSellPrice
 import com.omsk.kp.domain.model.getSellPriceTotal
 import com.omsk.kp.domain.model.getTotal
 import com.omsk.kp.domain.service.save_kp.CommercialOfferDetailsService
+import com.omsk.kp.utils.KPLog
 import com.omsk.kp.utils.formatToAmount
 import org.springframework.stereotype.Service
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
@@ -24,7 +25,7 @@ class GenerateExcelService(
     private val commercialOfferAdditionalServicesService: CommercialOfferAdditionalServicesService,
     private val commercialOfferDetailsDescriptionService: CommercialOfferDetailsDescriptionService
 ) {
-    fun generate(offerId: Long): ByteArray {
+    fun generate(offerId: Long, withSupplier: Boolean = false): ByteArray {
         val products = commercialOfferDetailsService
             .findAllByOfferId(offerId)
 
@@ -37,7 +38,10 @@ class GenerateExcelService(
         if (products.isEmpty())
         throw RuntimeException("Не найдено информации по КП №${offerId}")
 
-        val templateInputStream = ClassPathResource("excel/template.xlsx").inputStream
+        val templateInputStream = if (withSupplier)
+            ClassPathResource("excel/template-supplier.xlsx").inputStream
+        else
+            ClassPathResource("excel/template.xlsx").inputStream
         val workbook = XSSFWorkbook(templateInputStream)
 
         var allSellPricesTotal = 0.0
@@ -50,7 +54,7 @@ class GenerateExcelService(
             SUMMA to formatToAmount(allSellPricesTotal)
         ).forEach { findAndReplace(it.key, it.value, workbook) }
 
-        copy(workbook, products, additionalServices)
+        copy(workbook, products, additionalServices, withSupplier)
 
         // Сохранить в память
         val outStream = ByteArrayOutputStream()
@@ -77,7 +81,8 @@ class GenerateExcelService(
     private fun copy(
         workbook: XSSFWorkbook,
         products: List<CommercialOfferDetails>,
-        additionalServices: List<CommercialOfferAdditionalServices>
+        additionalServices: List<CommercialOfferAdditionalServices>,
+        withSupplier: Boolean
     ) {
 
         val sheet: Sheet = workbook.getSheetAt(0)
@@ -89,30 +94,58 @@ class GenerateExcelService(
 
         products
             .map {
-                dataList.add(
-                    listOf(
-                        (++i).toString(),
-                        it.name,
-                        it.measurement,
-                        it.quantity.toString(),
-                        formatToAmount(it.getSellPrice()),
-                        formatToAmount(it.getSellPriceTotal())
+                if (withSupplier) {
+                    dataList.add(
+                        listOf(
+                            (++i).toString(),
+                            it.name,
+                            it.supplier ?: "",
+                            it.measurement,
+                            it.quantity.toString(),
+                            formatToAmount(it.getSellPrice()),
+                            formatToAmount(it.getSellPriceTotal())
+                        )
                     )
-                )
+                } else {
+                    dataList.add(
+                        listOf(
+                            (++i).toString(),
+                            it.name,
+                            it.measurement,
+                            it.quantity.toString(),
+                            formatToAmount(it.getSellPrice()),
+                            formatToAmount(it.getSellPriceTotal())
+                        )
+                    )
+                }
             }
 
         additionalServices
             .map {
-                dataList.add(
-                    listOf(
-                        (++i).toString(),
-                        it.type,
-                        "шт",
-                        it.count.toString(),
-                        formatToAmount(it.price),
-                        formatToAmount(it.getTotal())
+                if (withSupplier) {
+                    dataList.add(
+                        listOf(
+                            (++i).toString(),
+                            it.type,
+                            "",
+                            "шт",
+                            it.count.toString(),
+                            formatToAmount(it.price),
+                            formatToAmount(it.getTotal())
+                        )
                     )
-                )
+                } else {
+                    dataList.add(
+                        listOf(
+                            (++i).toString(),
+                            it.type,
+                            "шт",
+                            it.count.toString(),
+                            formatToAmount(it.price),
+                            formatToAmount(it.getTotal())
+                        )
+                    )
+                }
             }
 
         // 1. Сдвигаем строки ВНИЗ

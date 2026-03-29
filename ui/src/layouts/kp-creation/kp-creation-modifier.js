@@ -123,7 +123,11 @@ export default function KPCreationModifier({ offerId, customerId, supplierDesc, 
     const [openAddByHandsModal, setOpenAddByHandsModal] = useState(false)
     const [addByHandsProductName, setAddByHandsProductName] = useState(null)
     const [addByHandsMeasurement, setAddByHandsMeasurement] = useState(null)
-    const [addByHandsPrice, setAddByHandsPrice] = useState(null)                  
+    const [addByHandsPrice, setAddByHandsPrice] = useState(null)     
+    const [openErrorSnackbar, setOpenErrorSnackbar] = useState(false);
+    const [errorMessage, setErrorMessage] = useState(""); 
+    const [infoMessage, setInfoMessage] = useState("");   
+    const [openInfoSnackbar, setOpenInfoSnackbar] = useState(false);         
 
     const clearAndCloseAddProductsByHandsModal = () => {
         setAddByHandsProductName(null)
@@ -147,6 +151,26 @@ export default function KPCreationModifier({ offerId, customerId, supplierDesc, 
         }])
         clearAndCloseAddProductsByHandsModal()
     };
+
+    useEffect(() => {
+        if (infoMessage) {
+        const timer = setTimeout(() => {
+            setInfoMessage("");
+            setOpenInfoSnackbar(false);
+        }, 4000);
+        return () => clearTimeout(timer);
+        }
+    }, [infoMessage]);
+
+    useEffect(() => {
+        if (errorMessage) {
+        const timer = setTimeout(() => {
+            setErrorMessage("");
+            setOpenErrorSnackbar(false);
+        }, 4000);
+        return () => clearTimeout(timer);
+        }
+    }, [errorMessage]);
 
     const handleAddAdditionalService = () => {
         if (!addServicesType || !addServicesCount || !addServicesPrice) return;
@@ -278,11 +302,24 @@ export default function KPCreationModifier({ offerId, customerId, supplierDesc, 
     // Функция сохранения КП
     const saveKP = () => {
         const userId = localStorage.getItem("userId");
-        const data = gridRef.current?.getRowData();
-        if (!selectedCustomerId || data.length === 0 || userId === '') return;
+        const data = gridRef.current?.getRowData() || [];
+        const reasons = [];
 
+        if (!selectedCustomerId) reasons.push("заказчик не определен");
+        if (!data.length) reasons.push("товары не выбраны");
+        if (!userId) reasons.push("идентификатор менеджера не определен");
+
+        if (reasons.length > 0) {
+            const message = `Невозможно сохранить КП: ${reasons.join(", ")}`;
+            setErrorMessage(message);
+            setOpenErrorSnackbar(true);
+            setConfirmSaveOpen(false);
+            console.error(message, { selectedCustomerId, dataLength: data.length, userId });
+            return;
+        }
         setIsSaving(true);
         const saveStart = Date.now(); // ← запоминаем время начала
+        let isSuccess = false;
 
         const payload = {
             offerId: kpId,
@@ -319,8 +356,22 @@ export default function KPCreationModifier({ offerId, customerId, supplierDesc, 
             },
             body: JSON.stringify(payload),
         })
-            .then((res) => {
-                if (!res.ok) throw new Error("Ошибка при сохранении КП");
+            .then(async (res) => {
+                if (!res.ok) {
+                    let serverError = res.statusText || "Ошибка при сохранении КП";
+                    try {
+                        const contentType = res.headers.get("content-type") || "";
+                        if (contentType.includes("application/json")) {
+                            const errorJson = await res.json();
+                            serverError = errorJson.message || errorJson.error || JSON.stringify(errorJson);
+                        } else {
+                            serverError = await res.text();
+                        }
+                    } catch (err) {
+                        console.error("Ошибка разбора ответа сервера:", err);
+                    }
+                    throw new Error(`Ошибка при сохранении КП: ${serverError}`);
+                }
                 return res.json();
             })
             .then((data) => {
@@ -332,8 +383,12 @@ export default function KPCreationModifier({ offerId, customerId, supplierDesc, 
                         created: data.created
                     }
                 )
+                isSuccess = true
             })
             .catch((error) => {
+                const message = error?.message || "Ошибка при сохранении КП";
+                setErrorMessage(message);
+                setOpenErrorSnackbar(true);
                 console.error("Save error:", error);
             })
             .finally(() => {
@@ -342,6 +397,11 @@ export default function KPCreationModifier({ offerId, customerId, supplierDesc, 
                 setTimeout(() => {
                     setIsSaving(false);
                     setConfirmSaveOpen(false);
+
+                    if (isSuccess) {
+                        setInfoMessage("КП успешно сохранено");
+                        setOpenInfoSnackbar(true);
+                    }
                 }, remaining);
             });
     };
@@ -780,6 +840,56 @@ export default function KPCreationModifier({ offerId, customerId, supplierDesc, 
                     </MDButton>
                 </DialogActions>
             </Dialog>                  
+
+
+            { openErrorSnackbar && errorMessage && (<MDBox
+                        display="flex"
+                        justifyContent="center"
+                        alignItems="center"
+                        sx={{
+                            position: 'fixed',
+                            top: 20,
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            backgroundColor: '#fdecea',
+                            border: '1px solid #f5c6cb',
+                            borderRadius: '6px',
+                            padding: '12px 24px',
+                            boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+                            zIndex: 9999,
+                            transition: 'opacity 0.5s ease-in-out'
+                        }}
+                        >
+                        <MDTypography variant="body2" fontWeight="medium" color="error">
+                            {errorMessage}
+                        </MDTypography>
+                    </MDBox>
+            )}
+
+            {openInfoSnackbar && infoMessage && (
+                <MDBox
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                sx={{
+                    position: 'fixed',
+                    top: 20,
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    backgroundColor: '#7FFFD4',
+                    border: '1px solid rgb(129, 192, 152)',
+                    borderRadius: '6px',
+                    padding: '12px 24px',
+                    boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+                    zIndex: 9999,
+                    transition: 'opacity 0.5s ease-in-out'
+                }}
+                >
+                <MDTypography variant="body2" fontWeight="medium" color="success">
+                    {infoMessage}
+                </MDTypography>
+                </MDBox>
+            )}
 
         </div>
     );

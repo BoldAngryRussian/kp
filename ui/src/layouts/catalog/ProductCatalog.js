@@ -144,7 +144,7 @@ const ProductCatalog = forwardRef(({ onSelect }, ref) => {
                                         },
                                     },
                                 }}
-                                pageSizeOptions={[20, 50, 100]}
+                                pageSizeOptions={[100]}
                                 pagination // ← ОБЯЗАТЕЛЬНО
                                 checkboxSelection
                                 components={{ ColumnMenu: CustomColumnMenu, }}
